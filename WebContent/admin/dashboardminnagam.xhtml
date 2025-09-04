@@ -1,0 +1,469 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TNPDCL)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<script src="#{request.contextPath}/resources/js/leaflet.js"></script>
+	<style>
+		.ui-button-text.ui-c {
+				padding: inherit;
+			}
+			
+			.small-box {
+			    position: relative;
+			    display: block;
+			    background: #f7f7f7;
+			    color: white;
+			    border-radius: 5px;
+			    padding: 15px;
+			    overflow: hidden;
+			    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			    transition: 0.3s;
+			}
+			
+			.small-box:hover {
+			    transform: translateY(-5px);
+			}
+			
+			.small-box .inner {
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: space-between;
+			}
+			
+			.small-box h3 {
+			    font-size: 28px;
+			    font-weight: bold;
+			    margin: 0;
+			}
+			
+			.small-box p {
+			    font-size: 16px;
+			    margin: 5px 0 10px;
+			}
+			
+			.small-box-icon {
+			    position: absolute;
+			    top: 10px;
+			    right: 10px;
+			    font-size: 50px;
+			    opacity: 0.3;
+			}
+			
+			.text-bg-primary {
+			    background: #17a2b8 !important;
+			}
+			
+			.text-bg-success {
+			    background: #28a745 !important;
+			}
+			
+			.text-bg-warning {
+			    background: #ffc107 !important;
+			    color: black !important;
+			}
+			
+			.text-bg-danger {
+			    background: #dc3545 !important;
+			}
+			
+			.small-box a {
+			    display: block;
+			    background: rgba(0, 0, 0, 0.1);
+			    text-align: center;
+			    padding: 8px;
+			    color: white;
+			    text-decoration: none;
+			    font-weight: bold;
+			    transition: 0.3s;
+			    border-radius:6px;
+			}
+			
+			.small-box a:hover {
+			    background: rgba(0, 0, 0, 0.2);
+			}
+						
+	</style>
+
+
+	<script type="text/javascript">
+	
+	function submitLoad(){
+		var oldPassword = document.getElementById('myForm:old_password').value;
+		var newPassword = document.getElementById('myForm:new_password').value;
+		var confirmPassword = document.getElementById('myForm:confirm_password').value;
+	
+		showErrorMessage(oldPassword.id, oldPassword.value, "Old Password");
+		showErrorMessage(newPassword.id, newPassword.value, "New Password");
+		showErrorMessage(confirmPassword.id, confirmPassword.value, "Confirm Password");
+		
+		if(newPassword.value != confirmPassword.value) {
+				$('[id="' + pass.id + '"]').after("&lt;span style='color:red;' id='span"+pass.id+"'&gt; Password and Confirm Password do not match! &lt;/span&gt;");
+				return false;
+		}
+		if(oldPassword.value=="" || newPassword.value=="" || confirmPassword.value==""){
+			return false;
+		}else{
+			document.getElementById('myForm:old_password').value=hex_md5(document.getElementById('inputForm:oldPassword').value);
+			document.getElementById('myForm:new_password').value=hex_md5(document.getElementById('inputForm:new_password').value);
+			document.getElementById('myForm:confirm_password').value=hex_md5(document.getElementById('inputForm:confirm_password').value);
+			console.log("stored");
+			console.log(newPassword);
+			console.log(confirmPassword);
+			
+			return true;	
+		}	
+	}
+	
+		function mapLoad() {
+			//alert('test');
+			//alert(document.getElementById("myForm:hidLat").value)
+			var lat = document.getElementById("hidLat").value;
+			var lng = document.getElementById("hidLng").value;
+			var desc = document.getElementById("hidGisDesc").value;
+
+			var mymap = L.map('mapid').setView([ lat, lng ], 13);
+
+			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png',
+				{
+					attribution : '&amp;copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				}).addTo(mymap);
+			mymap.on('click', onMapClick);
+			L.marker([ lat, lng ]).addTo(mymap).bindPopup(desc).openPopup();
+		}
+
+		function onMapClick(e) {
+			document.getElementById("myForm:lat").value = e.latlng.lat;
+			document.getElementById("myForm:lng").value = e.latlng.lng;
+			console.log(e);
+		}
+		
+		// Validations  
+		
+		function validateTransfers() {
+			
+			var region = document.getElementById("myForm:ddRegion");
+			var circle = document.getElementById("myForm:ddCircle");
+			var division = document.getElementById("myForm:ddDivision");
+			var subDivision = document.getElementById("myForm:ddSubDivision");
+			var section = document.getElementById("myForm:ddSection");
+			var descriptionTransfer = document.getElementById("myForm:descriptionTransfer");
+			
+			showSelectErrorMessage(region.id, region.value, $(region).prev().text());
+			showSelectErrorMessage(circle.id, circle.value, $(circle).prev().text());
+			showSelectErrorMessage(division.id, division.value, $(division).prev().text());
+			showSelectErrorMessage(subDivision.id, subDivision.value, $(subDivision).prev().text());
+			showSelectErrorMessage(section.id, section.value, $(section).prev().text());
+			showErrorMessage(descriptionTransfer.id, descriptionTransfer.value, $(descriptionTransfer).prev().text());
+			
+			if(checkFieldEmpty(region.value) || checkFieldEmpty(circle.value) || checkFieldEmpty(division.value) ||
+					checkFieldEmpty(subDivision.value) || checkFieldEmpty(section.value) || checkFieldEmpty(descriptionTransfer.value)){
+				return false;
+			} else {
+				return true;
+			}	
+		}
+		
+		function checkFieldEmpty(fieldValue){
+			if(fieldValue == "" || fieldValue == null){
+		       	return true;
+		    } else {
+				return false;
+			}	
+		}
+		
+		function clearErrorMessage(tagid){
+		    $('[id="span' + tagid + '"]').remove();
+		}
+		
+		function validateWorkStatus(){
+			var description = document.getElementById("myForm:descId");
+			if(description.value == ""){
+				showErrorMessage(description.id, description.value, $(description).prev().text());
+				return false;
+			} else {
+				return true;
+			}	
+		}
+		
+		function validateCloseComplaint(){
+			var completionReason = document.getElementById("myForm:ddCompletionReason");
+			var remarks = document.getElementById("myForm:remarkId");
+			
+			showSelectErrorMessage(completionReason.id, completionReason.value, $(completionReason).prev().text());
+			showErrorMessage(remarks.id, remarks.value, $(remarks).prev().text());
+			
+			if( completionReason.value=="" || remarks.value==""){
+				return false;
+			}
+			else{
+				return true;
+			}	
+		}
+		
+		
+		function showErrorMessage(fieldId, fieldValue, fieldLabel){
+			$('[id="span' + fieldId + '"]').remove();
+			if(fieldValue == "" || fieldValue == null){
+	       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+	       } 
+		}
+		
+		function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+			$('[id="span' + fieldId + '"]').remove();
+			if(fieldValue == "" || fieldValue == null){
+	       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;font-size:13px;display: block;text-align: right;margin-left: 12px;' class='col-md-12' id='span"+fieldId+"'&gt;Please Select "+fieldLabel+"&lt;/span&gt;");
+	       } 
+		}
+		
+		//Function to remove the error message on the click off the input field.
+		$(document).ready(function () {
+			$("input[type=text]").click(function () {
+				 var currentElement = $(this);
+			     var tagid = currentElement.attr('id');
+			     $('[id="span' + tagid + '"]').remove();
+			});
+			$("input[type=password]").click(function () {
+				 var currentElement = $(this);
+			     var tagid = currentElement.attr('id');
+			     $('[id="span' + tagid + '"]').remove();
+			});
+		});
+		
+		
+		function clearTextArea(docElementId){
+			document.getElementById(docElementId).value = '';
+		}
+		
+	</script>
+	
+		
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	
+   <h:form> 
+   
+     <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; font-family: Arial, sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <!-- Left-aligned label -->
+        <h:outputLabel value="Today Complaints - > As on  #{dashAdmin.formattedDate} And Success Percentage : #{dashAdmin.dmCurrentData.currentCompletedPercentage} %" 
+	                   style="font-size: 18px; color: #333; font-weight: bold; padding-left: 10px;" />
+          <!-- Right-aligned label -->
+        <h:outputLabel value="Minnagam Calls upto : #{dashAdmin.historyComplaintsUpTo}   and No.of complaints : #{dashAdmin.totalComplaints} "
+                       style="font-size: 18px; color: #333; font-weight: bold;" />
+        </div>
+        </div>
+  
+
+   <div class="container-fluid">
+  
+    <div class="row">
+	   
+        <!-- Start of the first Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
+            <div class="small-box text-bg-primary">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmCurrentData.currentTotal != null ? dashAdmin.dmCurrentData.currentTotal:0}" /></h3>
+                    <h:outputText value="Total1" />
+                </div>
+                
+                <div class="small-box-icon"> 
+                  <i class="fa fa-search mr-2"></i>
+              
+               
+               
+                </div>
+                <!-- <h:graphicImage value="path/to/your/icon.svg" styleClass="" /> -->
+                <p:commandLink value="More info" action="#{minnagamUser.listCurrentComplaints(-1)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the first Small Box Widget -->
+
+        <!-- Start of the second Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
+            <div class="small-box text-bg-danger">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmCurrentData.currentPending !=null ? dashAdmin.dmCurrentData.currentPending:0}" /></h3>
+                    <h:outputText value="Pending" />
+                </div>
+                 <div class="small-box-icon"> 
+                <i class="fa fa-tachometer mr-2" aria-hidden="true"></i>
+             
+               
+                </div>
+                <!-- <h:graphicImage value="path/to/your/icon.svg" styleClass="small-box-icon" /> -->
+                 <p:commandLink value="More info" action="#{minnagamUser.listCurrentComplaints(0)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the second Small Box Widget -->
+
+        <!-- Start of the third Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3" >
+            <div class="small-box text-bg-warning">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmCurrentData.currentInProgress != null ? dashAdmin.dmCurrentData.currentInProgress : 0}" /></h3>
+                    <h:outputText value="In Progress" />
+                </div>
+                <div class="small-box-icon"> 
+                  <i class="fa fa-cogs mr-2"></i>
+              
+               
+                </div>
+                <p:commandLink value="More info" action="#{minnagamUser.listCurrentComplaints(1)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the third Small Box Widget -->
+
+        <!-- Start of the fourth Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
+            <div class="small-box text-bg-success">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmCurrentData.currentCompleted != null ? dashAdmin.dmCurrentData.currentCompleted:0}" /></h3>
+                    <h:outputText value="Completed" />
+                </div>
+               <div class="small-box-icon"> 
+                 <i class="fa fa-thumbs-up mr-2"></i>
+            
+               
+                </div>
+                 <p:commandLink value="More info" action="#{minnagamUser.listCurrentComplaints(2)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the fourth Small Box Widget -->
+       </div>
+    </div>
+    
+    <br></br><br></br>
+    <div style="background-color: #f0f0f0; padding: 10px; border-radius: 5px; font-family: Arial, sans-serif;">
+	    <h:outputLabel value="Total Complaints And Success Percentage : #{dashAdmin.dmTotalData.completedPercentage} %" 
+	                   style="font-size: 18px; color: #333; font-weight: bold; padding-left: 10px;" />
+	</div>
+    
+    <div class="container-fluid">
+  
+    <div class="row">
+        <!-- Start of the first Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
+            <div class="small-box text-bg-primary">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmTotalData.total != null ? dashAdmin.dmTotalData.total : 0}" /></h3>
+                    <h:outputText value="Total2" />
+                </div>
+                
+                <div class="small-box-icon"> 
+                 <i class="fa fa-search mr-2"></i>
+             
+              
+               
+                </div>
+                <!-- <h:graphicImage value="path/to/your/icon.svg" styleClass="" /> -->
+                <p:commandLink value="More info" action="#{minnagamUser.listComplaints(-1)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the first Small Box Widget -->
+
+        <!-- Start of the second Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
+            <div class="small-box text-bg-danger">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmTotalData.pending != null ? dashAdmin.dmTotalData.pending:0}" /></h3>
+                    <h:outputText value="Pending" />
+                </div>
+                 <div class="small-box-icon"> 
+                  <i class="fa fa-tachometer mr-2" aria-hidden="true"></i>
+             
+             
+                </div>
+                <!-- <h:graphicImage value="path/to/your/icon.svg" styleClass="small-box-icon" /> -->
+                <p:commandLink value="More info" action="#{minnagamUser.listComplaints(0)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the second Small Box Widget -->
+
+        <!-- Start of the third Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3" >
+            <div class="small-box text-bg-warning">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmTotalData.inProgress != null ? dashAdmin.dmTotalData.inProgress:0}" /></h3>
+                    <h:outputText value="In Progress" />
+                </div>
+                <div class="small-box-icon"> 
+                  <i class="fa fa-cogs mr-2"></i>
+               
+              
+               
+                </div>
+               <p:commandLink value="More info" action="#{minnagamUser.listComplaints(1)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the third Small Box Widget -->
+
+        <!-- Start of the fourth Small Box Widget -->
+        <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
+            <div class="small-box text-bg-success">
+                <div class="inner">
+                    <h3><h:outputText value="#{dashAdmin.dmTotalData.completed != null ? dashAdmin.dmTotalData.completed:0}" /></h3>
+                    <h:outputText value="Completed" />
+                </div>
+               <div class="small-box-icon"> 
+                
+             
+                <i class="fa fa-thumbs-up mr-2"></i>
+                </div>
+               <p:commandLink value="More info" action="#{minnagamUser.listComplaints(2)}" class="mt-4" style="color: white;">
+                    <i class="fa fa-arrow-right mr-2"></i>
+                </p:commandLink>
+            </div>
+        </div>
+        <!-- End of the fourth Small Box Widget -->
+       </div>
+    </div>
+    
+</h:form>
+
+
+
+</h:body> 
+
+</html>

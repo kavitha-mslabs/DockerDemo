@@ -1,0 +1,445 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/effect.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/flashy.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/count.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/ticker.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/leaflet.css" />
+    <link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+
+
+	<script>
+    document.querySelector('button[value="GENERATE"]').addEventListener('click', function() {
+        document.getElementById('reportLoader').style.display = 'flex';
+    });
+
+    document.querySelectorAll('.fixed-column-circle a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('reportLoader').style.display = 'flex';
+        });
+    });
+</script>
+
+
+
+    <style>
+    #reportLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loader-content {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    #circleReportForm{
+margin-top:-40px !important;
+}
+    .loader-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+.report-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.export-buttons {
+	margin-left: auto; /* Moves buttons to the right */
+	display: flex;
+	gap: 10px; /* Adds spacing between buttons */
+}
+
+.report-header span {
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.compact-table .ui-datatable-tablewrapper table {
+	border-collapse: collapse;
+}
+
+.compact-table .ui-datatable-tablewrapper td, .compact-table .ui-datatable-tablewrapper th
+	{
+	border: 0.5px solid black !important; /* Make grid lines bold */
+}
+
+.filter-container {
+	display: flex;
+	align-items: center; /* Vertically align items */
+	gap: 60px; /* Adjust gap between filters */
+	margin-bottom: 1rem;
+}
+
+.filter-group {
+	display: flex; /* Use flexbox for each filter group */
+	flex-direction: column; /* Label on top of input */
+	gap: 1 rem;
+}
+
+.filter-group .form-label {
+	font-size: 0.85rem;
+	font-weight: bold;
+	margin-bottom: 0; /* Remove default margin */
+}
+
+.filter-group .form-control, .filter-group .compact-datepicker {
+	height: 40px;
+	padding: 1 rem 1 rem;
+	font-size: 1rem;
+	border: 1px solid #ced4da;
+	border-radius: 4px;
+}
+
+.filter-group .compact-datepicker {
+	width: 100px !important;
+}
+
+.search-button-container {
+	margin-right: auto;
+}
+
+.search-button-container .custom-button {
+	background-color: #007bff;
+	color: white;
+	border: 1px solid #007bff;
+	padding: 0.1rem 1rem;
+	font-size: 1rem;
+	border-radius: 4px;
+	cursor: pointer;
+	height: 40px;
+}
+
+.search-button-container .custom-button:hover {
+	background-color: #0056b3;
+	border-color: #0056b3;
+}
+
+.compact-table .ui-datatable-header, .compact-table th {
+	font-size: 0.85em;
+	background: #f8f9fa !important;
+	border: 1px solid #ddd;
+	text-align: left;
+}
+
+.compact-table th, .compact-table td {
+	font-size: 0.95em !important;
+	width: auto !important;
+	text-align: center;
+}
+
+.compact-table td {
+	padding: 5px !important;
+	font-size: 0.90em;
+	white-space: nowrap;
+	border: 1px solid #ddd;
+	text-align: center;
+}
+
+.compact-table {
+	table-layout: auto !important;
+	overflow: visible !important;
+}
+
+.category-header {
+	background-color: #e9ecef !important;
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+.sticky-header {
+	position: sticky;
+	top: 0;
+	background: white !important;
+	z-index: 100;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fixed-column-region, .fixed-column-circle {
+	width: 6%;
+	text-align: left;
+}
+
+.total-column {
+	background-color: #f2f2f2 !important;
+}
+
+.total-footer {
+	background-color: #f8f9fa !important;
+	font-weight: bold;
+	text-align: center !important;
+	border-top: 1.5px solid #333;
+	padding: 0; /* Resetting padding */
+}
+
+.ui-datatable tfoot td {
+	font-size: 0.85em;
+	color: #000;
+}
+
+.scrollable-container {
+	width: 100%;
+	height: calc(100vh - 100px);
+	overflow: auto;
+	border: 1px solid #ddd;
+	margin-bottom: 20px;
+}
+
+.inner-scrollable {
+	width: 100%;
+	min-width: fit-content;
+}
+</style>
+</h:head>
+
+<h:body class="home-01">
+
+    <ui:insert name="header">
+		<ui:include src="/callcenterheader.xhtml" />
+    </ui:insert>
+
+    <!-- Loading Dialog -->
+    <p:ajaxStatus onstart="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()" />
+    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage name="images/ajax-loader.gif" />
+    </p:dialog>
+
+        <h:form id="circleReportForm">
+        
+ <f:metadata>
+    <f:event type="preRenderView" listener="#{yearWiseAbstractReport.resetIfNeeded()}" />
+</f:metadata>
+
+        <div class="scrollable-container">
+            <div class="inner-scrollable">
+        	    <p:growl id="yrCirMessage" showDetail="true" autoUpdate="true" closable="true" />
+                <p:panel id="reportPanel" styleClass="mb-3">
+    <f:facet name="header">
+        <div class="report-header">
+            <span>YEARLY CONSOLIDATED ABSTRACT - CIRCLE WISE</span>
+            <div class="export-buttons">
+			<p:commandButton value="Export as Excel"
+                 actionListener="#{yearWiseAbstractReport.exportToExcel(yearWiseAbstractReport.circleList)}"
+                 ajax="false"
+                 styleClass="ui-button-success"
+                 style="margin-right: 20px;">
+    <p:fileDownload value="#{yearWiseAbstractReport.excelFile}" />
+    </p:commandButton>
+   
+				<p:commandButton value="Export as PDF"
+					actionListener="#{yearWiseAbstractReport.exportToPdf(yearWiseAbstractReport.circleList)}" ajax="false"
+					styleClass="ui-button-danger">
+					<p:fileDownload value="#{yearWiseAbstractReport.pdfFile}" />
+				</p:commandButton>
+            </div>
+        </div>
+    </f:facet>
+			<div class="filter-container">
+			
+				<div class="filter-group">
+				    <h:outputLabel for="year" value="Year" styleClass="form-label" />
+				
+				    <p:selectOneMenu id="year" value="#{yearWiseAbstractReport.dmFilter.year1}" label="Year" styleClass="form-control">
+				        <f:selectItems value="#{yearWiseAbstractReport.yearList}" var="year"
+				                       itemLabel="#{year}" itemValue="#{year}" />
+				    </p:selectOneMenu>
+				</div>
+
+
+				<div class="filter-group">
+
+					<h:outputLabel for="complaint_type" value="Complaint Type" styleClass="form-label" />
+
+					<p:selectOneMenu id="complaint_type" value="#{yearWiseAbstractReport.dmFilter.complaintType}"
+						label="Complaint Type" styleClass="form-control">
+                        <f:selectItem itemLabel="ALL" itemValue="AL"  />
+						
+						<f:selectItems 
+				            value="#{yearWiseAbstractReport.categories}" 
+				            var="category"
+				            itemLabel="#{category.name}" 
+				            itemValue="#{category.code}" />
+
+					</p:selectOneMenu>
+
+				</div>
+
+
+
+				<div class="filter-group">
+
+					<h:outputLabel for="device" value="Devices" styleClass="form-label" />
+
+					<p:selectOneMenu id="device"
+						value="#{yearWiseAbstractReport.dmFilter.device}" label="Devices"
+						styleClass="form-control">
+
+                        <ui:fragment rendered="#{not (sessionAdminValueBean.roleId == 10)}">
+						<f:selectItem itemLabel="ALL" itemValue="L"  />
+						</ui:fragment>
+						
+						<f:selectItems 
+				            value="#{yearWiseAbstractReport.devices}" 
+				           var="device"
+				            itemLabel="#{device.deviceName}" 
+				            itemValue="#{device.deviceCode}" />
+
+					</p:selectOneMenu>
+
+				</div>
+
+
+           <p:commandButton value="GENERATE" 
+                 class="btn btn-md btn-info"
+                 actionListener="#{yearWiseAbstractReport.searchCircleYearWiseAbstract()}"
+                 update="reportPanel reportTable yrCirMessage" 
+                 process="@form"
+                 onstart="document.getElementById('reportLoader').style.display='flex';" 
+                 oncomplete="document.getElementById('reportLoader').style.display='none';" />		
+                 
+            <p:commandButton value="REFRESH" 
+                 class="btn btn-md btn-danger"
+                 actionListener="#{yearWiseAbstractReport.clearFiltersAndCircleReport()}"
+                 update="reportPanel reportTable" 
+                 process="@form"
+                 onstart="PF('statusDialog').show();" 
+                 oncomplete="PF('statusDialog').hide();" />
+				
+
+			</div>
+
+			<!-- Report Table -->
+            <p:dataTable id="reportTable" var="report" 
+                         value="#{yearWiseAbstractReport.circleList}"
+                         rendered="#{not empty yearWiseAbstractReport.circleList}"
+                         styleClass="compact-table" liveResize="false" resizableColumns="false"
+                         columnVisibility="true" showGridlines="true" rowIndexVar="rowIndex">
+                       
+                <p:columnGroup type="header" class="sticky-header">
+                    <p:row>
+                    	<p:column headerText="S.No" rowspan="2" style="text-align: center; background: #e5e7eb !important; color: #000;text-align:center !important;width:33px !important"/>    
+                        
+                        <p:column headerText="CIRCLE" rowspan="2" style="background: #e5e7eb !important;color:#000;text-align:center !important;width:200px !important"/>
+                        
+                        <p:column headerText="#{yearWiseAbstractReport.dmFilter.year1}" colspan="4" style="background: #e5e7eb !important;color:#000;text-align:center !important;font-size:18px!important"/>
+                       </p:row>
+                       
+                       <p:row> 
+                        
+                        <!-- O.B Group -->
+						<p:column headerText="OPEN BALANCE" style="background:#1a237e !important;color:#fff !important;text-align:center !important;"
+						sortBy="#{report.tot1}" sortable="true"/>
+
+						<!-- RECEIVED Group -->
+						<p:column headerText="RECEIVED" style="background:#1a237e !important;color:#fff !important;text-align:center !important;"
+						sortBy="#{report.tmp1}" sortable="true"/>
+						
+					    <!-- COMPLETED Group -->
+						<p:column headerText="COMPLETED" style="background:#1a237e !important;color:#fff !important;text-align:center !important;"
+						sortBy="#{report.cpl1}" sortable="true"/>
+
+						<!-- C.B Group -->
+						<p:column headerText="CLOSING BALANCE" style="background:#1a237e !important;color:#fff !important;text-align:center !important;"
+						sortBy="#{report.live1}" sortable="true"/>
+                        
+                        
+                    </p:row>
+       
+                </p:columnGroup>
+                <p:column>
+                     <h:outputText value="#{rowIndex + 1}"/>
+                </p:column>
+
+                <p:column styleClass="fixed-column-circle" style="text-align :left !important;" >
+                    <p:commandLink value="#{report.circleName}"
+                                     onstart="document.getElementById('reportLoader').style.display='flex';" 
+                                     oncomplete="document.getElementById('reportLoader').style.display='none';"
+                                   actionListener="#{yearWiseAbstractReport.fetchReportByCircle(report.cirCode,report.circleName)}"
+                                   update="reportTable" process="@this" style="white-space: normal; word-wrap: break-word;">
+                                   <f:param name="fromCircle" value="true" />
+                    </p:commandLink>
+                </p:column>
+
+				<p:column>
+					<h:outputText value="#{report.tot1}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.tmp1}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl1}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.live1}" />
+				</p:column>
+
+               
+               
+				 <p:columnGroup type="footer">
+					<p:row styleClass="total-footer">
+						<p:column colspan="2" footerText="TOTAL" style="text-align:right !important;padding:10px !important;"
+							styleClass="category-header" />
+						
+						<p:column
+							footerText="#{yearWiseAbstractReport.circleList.stream().map(r -> r.tot1).sum()}" class="text-center" />
+						<p:column
+							footerText="#{yearWiseAbstractReport.circleList.stream().map(r -> r.tmp1).sum()}" class="text-center"/>
+						<p:column
+							footerText="#{yearWiseAbstractReport.circleList.stream().map(r -> r.cpl1).sum()}" class="text-center"/>
+						<p:column
+							footerText="#{yearWiseAbstractReport.circleList.stream().map(r -> r.live1).sum()}" class="text-center"/>
+						
+
+		          </p:row>
+				</p:columnGroup> 
+
+			</p:dataTable>
+
+        </p:panel>
+        </div>
+        </div>
+    </h:form>
+
+	<div id="reportLoader">
+		<div class="loader-content">
+			<div class="loader-spinner"></div>
+			<h4>Generating Report... Please Wait.</h4>
+		</div>
+	</div>
+</h:body>
+</html>

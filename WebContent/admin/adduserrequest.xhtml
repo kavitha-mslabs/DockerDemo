@@ -1,0 +1,183 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+    margin: 0;
+    padding: 10px !important;
+    color: #fff !important;
+    }
+    .btn-lg {
+    padding: 10px 30px !important;
+}
+
+.custom-thead thead tr th {
+    background-color: #2d3694 !important;
+    color: white !important;
+}
+
+    .custom-thead thead tr th span {
+    font-size: large !important;
+}
+
+.custom-pagination .ui-paginator-page.ui-state-active {
+    background-color: #2d3694 !important;
+    color: white !important;
+}
+.card-reponsive {
+    max-height: 100% !important;
+    overflow-y: auto;
+}
+body .ui-inputtextarea{
+
+width:100% !important ;
+}
+
+body .ui-inputfield{
+
+width:100% !important ;
+}
+
+.ui-dialog.success-dialog .ui-dialog-titlebar {
+    display: none;
+}
+
+.ui-dialog.success-dialog .ui-dialog-content {
+    background-color: #e8f5e9; /* light green */
+    border-radius: 8px;
+    text-align: center;
+}
+	</style>
+	
+	 <script type="text/javascript">
+
+
+ 	
+ 	</script>
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	
+	
+	<h:form id="complaintForm">
+	
+    <f:metadata>
+	<f:event type="preRenderView" listener="#{minnagamUser.reloadRequests}"/>
+	</f:metadata>
+  
+        <br/>
+       	 <p:growl id="messages" styleClass="ng-deep" showDetail="true" />
+            
+          <!-- <p:commandButton value="Refresh" icon="pi pi-refresh" iconPos="right"
+    action="#{minnagamUser.reloadRequests}" 
+    update="userRequestsTable" style="margin-left: 2rem; width : 90px;background-color:red;padding:20px;"/>-->
+          
+	           <div class="col-md-12 card-body container">
+	            
+					<div class="card-reponsive col-md-12  border-1 rounded-lg">
+							<div class="row" style="font-family: serif;">
+									
+								
+					                <p:dataTable id="userRequestsTable"  var="userRequestApprove" value="#{minnagamUser.userApproveRequest}" widgetVar="customersTable3"
+									emptyMessage="No data found with given criteria." paginator="true" paginatorPosition="bottom" rows="10"
+				                    globalFilterFunction="#{dtFilterView.globalFilterFunction}" tableStyleClass="table table-sm table-bordered table-striped custom-thead"
+				                      styleClass="custom-pagination"> 
+					                  
+					                  	<p:column headerText="Id" width="80">
+					                        <h:outputText value="#{userRequestApprove.id}" />
+					                    </p:column>
+					                     <p:column headerText="Agent Role" width="180">
+					                        <h:outputText value="#{userRequestApprove.agentRole}" />
+					                    </p:column>
+					                    <p:column headerText="Circle" width="150" sortBy="#{userRequestApprove.circleName}" filterBy="#{userRequestApprove.circleName}">
+					                        <h:outputText value="#{userRequestApprove.circleName}" />
+					                    </p:column>
+					                    <p:column headerText="Name" width="150" sortBy="#{userRequestApprove.name}" filterBy="#{userRequestApprove.name}">
+					                        <h:outputText value="#{userRequestApprove.name}" />
+					                    </p:column>
+					                     <p:column headerText="Contact No" width="150" sortBy="#{userRequestApprove.mobileNumber}" filterBy="#{userRequestApprove.mobileNumber}">
+					                        <h:outputText value="#{userRequestApprove.mobileNumber}" />
+					                    </p:column>
+					                    <p:column headerText="Email" swidth="180">
+					                        <h:outputText value="#{userRequestApprove.emailId}" />
+					                    </p:column>
+					                    <p:column headerText="User Creation" width="150">
+					                        <p:commandButton value="Create User" action="#{minnagamUser.createRequest(userRequestApprove)}" 
+					                        update=":complaintForm:userRequestsTable :complaintForm:messages" 
+					                         style="border-radius: 4px !important; padding: 10px !important;" 
+						                            styleClass="btn btn-md btn-primary"/>
+					                    </p:column>
+					                      <p:column headerText="User Name" width="180">
+					                        <h:outputText value="#{userRequestApprove.userName}" />
+					                    </p:column>
+					                   <!--  <p:column headerText="Created" width="160">
+					                        <h:outputText value="#{userRequest.createdOn}" />
+					                    </p:column> -->
+					                    <!-- <p:column headerText="Status" width="80">
+					                        <h:outputText value="#{userRequest.statusId}" />
+					                    </p:column> -->
+					                   <p:poll interval="2" listener="#{minnagamUser.loadUserApproveRequest}" update=":complaintForm:userRequestsTable" />
+					                 
+					                </p:dataTable>
+					                <p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+								          showEffect="fade" hideEffect="fade" closable="false"
+								          width="420" height="140" styleClass="success-dialog">
+								
+								    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+								        <i class="pi pi-check-circle" style="font-size: 2.5em; color: green;"></i>
+								        <h:outputText id="dialogMessage" value="User created successfully." 
+								                      style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+								    </div>
+								</p:dialog>
+								<!-- messageDialogAlreadyEntered error display dialog box -->
+								<p:dialog id="messageDialogAlreadyEntered" widgetVar="messageDialogAlreadyEntered" modal="true"
+							          showEffect="fade" hideEffect="fade" closable="false"
+							          width="420" height="160" styleClass="error-dialog">
+							
+							    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+							        <i class="pi pi-times-circle" style="font-size: 2.5em; color: red;"></i>
+							        <h:outputText id="dialogMessageErrorAlreadyEntered" value="Not created." 
+							                      style="font-size: 24px; color: #d32f2f; font-weight: 800; text-align: center;" />
+							    </div>
+							</p:dialog>
+					                </div>
+						</div>
+					</div>
+	            
+       
+    </h:form>
+</h:body>
+</html>

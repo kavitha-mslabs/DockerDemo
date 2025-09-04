@@ -1,0 +1,321 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf" >
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<script src="#{request.contextPath}/resources/js/md5.js"></script>
+	<script src="#{request.contextPath}/resources/js/leaflet.js"></script>
+	
+	<style>
+	.ui-button-text.ui-c {
+			padding: inherit;
+		}
+	</style>
+	<style type="text/css">
+    .ui-filter-column .ui-column-customfilter .custom-filter {
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+
+
+	<script>
+	function clearErrorMessage(tagid){
+	    $('[id="span' + tagid + '"]').remove();
+	}
+	
+	function validateAddUser() {
+		
+		var mobile = document.getElementById("addUserForm:mobile");
+		var userName = document.getElementById("addUserForm:userName");
+		var password = document.getElementById("addUserForm:password");
+
+		var region = document.getElementById("addUserForm:ddRegion");
+		var circle = document.getElementById("addUserForm:ddCircle");
+		var division = document.getElementById("addUserForm:ddDivision");
+		var subDivision = document.getElementById("addUserForm:ddSubDivision");
+		var section = document.getElementById("addUserForm:ddSection");
+		var role = document.getElementById("addUserForm:role");
+		
+		
+		showErrorMessage(mobile.id, mobile.value, $(mobile).prev().text());
+		showErrorMessage(userName.id, userName.value, $(userName).prev().text());
+		showErrorMessage(password.id, password.value, $(password).prev().text());
+		
+		showSelectErrorMessage(region.id, region.value, $(region).prev().text());
+		showSelectErrorMessage(circle.id, circle.value, $(circle).prev().text());
+		showSelectErrorMessage(division.id, division.value, $(division).prev().text());
+		showSelectErrorMessage(subDivision.id, subDivision.value, $(subDivision).prev().text());
+		showSelectErrorMessage(section.id, section.value, $(section).prev().text());
+		showSelectErrorMessage(role.id, role.value, $(role).prev().text());
+		
+		if(mobile.value !="" ){
+				if(mobile.value.length!=10){
+					$('[id="' + mobile.id + '"]').after("&lt;span style='color:red;' id='span"+mobile.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+					return false;
+				}
+		}
+		
+		if(password.value !="" ){
+			if(password.value.length &lt; 5){
+				$('[id="' + password.id + '"]').after("&lt;span style='color:red;' id='span"+password.id+"'&gt; Please enter atleast 5 digits in password! &lt;/span&gt;");
+				return false;
+			}
+		}
+		
+		if(checkFieldEmpty(mobile.value) || checkFieldEmpty(userName.value) || checkFieldEmpty(password.value) ||
+				checkFieldEmpty(region.value) || checkFieldEmpty(circle.value) || checkFieldEmpty(division.value) 
+				|| checkFieldEmpty(subDivision.value) || checkFieldEmpty(section.value) || checkFieldEmpty(role.value) ) {
+			return false;
+		} else {
+			document.getElementById('addUserForm:password').value=hex_md5(document.getElementById('addUserForm:password').value);
+			return true;
+		}	
+		
+	}
+	function checkFieldEmpty(fieldValue){
+		if(fieldValue == "" || fieldValue == null){
+	       	return true;
+	    } else {
+			return false;
+		}	
+	}
+	function AvoidSpace(event) {
+	    var k = event ? event.which : window.event.keyCode;
+	    if (k == 32) return false;
+	}
+	
+	function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Select "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+	function showErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+	
+	//Function to remove the error message on the click off the input field.
+	$(document).ready(function () {
+		$("input[type=text]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+		$("input[type=password]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+	});
+	</script>
+	
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="/header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="addUserForm">
+		<div class="container-fluid">
+			<div class="row px-4">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+				<div class="col-md-12">
+					<p:panel id="panelUserListView">
+						<div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <h:outputLabel for="userName" value="User Name" />
+								<p:inputText id="userName" maxlength="50"
+									value="#{dashAdmin.dm.adminUsers.userName}"
+									 styleClass="form-control" onkeypress="return AvoidSpace(event)">
+								</p:inputText>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <h:outputLabel for="mobile" value="Mobile Number" />
+								<p:inputText id="mobile" maxlength="10"
+									value="#{dashAdmin.dm.adminUsers.mobile}" styleClass="form-control">
+									<p:keyFilter for="mobile" mask="pint" />
+								</p:inputText>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <h:outputLabel for="password" value="Password" />
+								<p:password id="password" maxlength="20"
+									value="#{dashAdmin.dm.adminUsers.password}"
+									styleClass="form-control popover__title">
+								</p:password>
+			                    </div>
+			                </div>
+			            </div>
+			        <div class="clearfix"></div>
+						<div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="ddRegion" class="text-bold" >Region</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control"
+									id="ddRegion" label="ddregion" value="#{dashAdmin.dm.regions.id}" onclick="clearErrorMessage('addUserForm:ddRegion')">
+									<f:selectItem itemLabel="Select Region..." />
+									<f:selectItems var="des" value="#{dashAdmin.dm.lstRegions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}" />
+									<p:ajax event="change" update="ddCircle,ddDivision,ddSubDivision,ddSection" listener="#{dashAdmin.listCircles()}" />
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="ddCircle" class="text-bold">Circle</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control"
+									id="ddCircle" label="ddcircle" value="#{dashAdmin.dm.circles.id}" onclick="clearErrorMessage('addUserForm:ddCircle')">
+									<f:selectItem itemLabel="Select Circle..." />
+									<f:selectItems var="des" value="#{dashAdmin.dm.lstCircles}"
+										itemLabel="#{des.name}" itemValue="#{des.id}" />
+									<p:ajax event="change" update="ddDivision,ddSubDivision,ddSection"
+										listener="#{dashAdmin.listDivisions()}"></p:ajax>
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="ddDivision" class="text-bold">Division</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control"
+									id="ddDivision" label="ddDivision" value="#{dashAdmin.dm.divisions.id}">
+									<f:selectItem itemLabel="Select Division..." />
+									<f:selectItems var="des" value="#{dashAdmin.dm.lstDivisions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}" />
+									<p:ajax event="change" update="ddSubDivision,ddSection"
+										listener="#{dashAdmin.listSubDivisions()}"></p:ajax>
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			            </div>
+			        <div class="clearfix"></div>
+			        <div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <label for="ddSubDivision" class="text-bold">Sub Division</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control"
+									id="ddSubDivision" label="ddSubDivision" value="#{dashAdmin.dm.subDivisions.id}">
+									<f:selectItem itemLabel="Select Sub Division..." />
+									<f:selectItems var="des" value="#{dashAdmin.dm.lstSubDivisions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}" />
+									<p:ajax event="change" update="ddSection"
+										listener="#{dashAdmin.listSections()}"></p:ajax>
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="ddSection" class="text-bold">Section</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control" 
+									id="ddSection" label="ddSection" value="#{dashAdmin.dm.sections.id}" >
+									<f:selectItem itemLabel="Select Section..." />
+									<f:selectItems var="des" value="#{dashAdmin.dm.lstSections}"
+										itemLabel="#{des.name}" itemValue="#{des.id}" />
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="role" class="text-bold">Role</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control" onclick="clearErrorMessage('addUserForm:role')"
+									id="role" label="role" value="#{dashAdmin.dm.roles.id}" >
+									<f:selectItem itemLabel="Select Role..." />
+									<f:selectItems var="des" value="#{dashAdmin.dm.lstRoles}"
+										itemLabel="#{des.name}" itemValue="#{des.id}" />
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			            </div>
+			            
+			             <div class="clearfix"></div>
+					        <div class="row">
+					        	<div class="form-group">
+			                       <p:commandButton value="Add User" styleClass="btn btn-primary btn-block text-center"
+							action="#{dashAdmin.addUser(dashAdmin.dm)}"  onclick="return validateAddUser();" update="messages panelUserListView" />
+			                    </div>
+					        </div>
+			            
+					</p:panel>
+				</div>
+			</div>
+		</div>
+		
+		<!--	T H I S   M O D A L   I S   F O R   V I E W I N G   Profile -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="350">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+			<!-- <div class="form-group mb-1">
+					<div class="input-field">
+						<h:outputLabel for="profile_Email" value="Email" />
+						<p:inputText id="profile_Email"
+							value="#{admin.auth.officer.email}"  styleClass="form-control">
+						</p:inputText>
+					</div>
+				</div>
+				
+				<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Mobile" value="Mobile" />
+					<p:inputText id="profile_Mobile"
+						value="#{admin.auth.officer.mobile}"  styleClass="form-control">
+					</p:inputText>
+
+				</div>
+			</div>   -->
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+	</h:form>
+</h:body>
+</html>

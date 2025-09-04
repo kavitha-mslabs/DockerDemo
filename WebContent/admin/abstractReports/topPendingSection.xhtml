@@ -1,0 +1,774 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/effect.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/flashy.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/count.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/ticker.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/leaflet.css" />
+    <link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+
+<script>
+	function hideGrowl() {
+        setTimeout(function() {
+            PF('growlWidget').hide();
+        }, 3000);
+    }
+	
+	 hideGrowl();
+	 
+	 
+    document.querySelector('button[value="GENERATE"]').addEventListener('click', function() {
+        document.getElementById('reportLoader').style.display = 'flex';
+    });
+
+    document.querySelectorAll('.fixed-column-circle a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('reportLoader').style.display = 'flex';
+        });
+    });
+</script>
+
+
+    <style>
+    
+    /* CENTERED ERROR MESSAGE */
+.ui-growl {
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 25% !important;
+    margin: 0 10px !important;
+    border: none !important;
+    text-align: left !important;
+}
+
+/* ERROR MESSAGE BOX STYLE */
+.ui-growl-item-container {
+    min-width: 200px;
+    padding: 15px;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+
+/* ERROR MESSAGE TITLE STYLE */
+.ui-growl-title {
+  
+    font-size: 20px;
+    font-weight: bold;
+    color: #721c24;
+    margin: 0 !important;
+    width: 100%;
+    text-align: center;
+}
+/* ERROR MESSAGE DETAIL STYLE */
+.ui-growl-detail {
+    display:block !important;
+    font-size: 16px;
+    color: #721c24;
+    margin: 20px !important;
+    width: 50% !important;
+    text-align: left !important;
+    line-height: 1;
+}
+
+/* Remove all unnecessary elements */
+.ui-growl-icon-close,
+.ui-growl-image {
+    display: none !important;
+}
+
+    
+    #reportLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loader-content {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    
+    .loader-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    #circleReportForm{
+margin-top:-40px !important;
+}
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+	
+	
+	
+.report-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}
+
+.export-buttons {
+	margin-left: auto; /* Moves buttons to the right */
+	display: flex;
+	gap: 10px; /* Adds spacing between buttons */
+}
+
+.report-header span {
+	font-size: 15px;
+	font-weight: bold;
+}
+
+.compact-table .ui-datatable-tablewrapper table {
+	border-collapse: collapse;
+}
+
+.compact-table .ui-datatable-tablewrapper td, .compact-table .ui-datatable-tablewrapper th
+	{
+	border: 0.5px solid black !important; /* Make grid lines bold */
+}
+
+.total-column {
+	background-color: #f2f2f2 !important;
+}
+
+.scrollable-container {
+	width: 100%;
+	height: calc(100vh - 100px);
+	overflow: auto;
+	border: 1px solid #ddd;
+	margin-bottom: 20px;
+}
+
+.inner-scrollable {
+	width: 100%;
+	min-width: fit-content;
+}
+
+.total-footer {
+	background-color: #f8f9fa !important;
+	font-weight: bold;
+	text-align: center !important;
+	border-top: 1.5px solid #333;
+	padding-left: 80px !important;
+}
+
+.ui-datatable tfoot td {
+	font-size: 0.85em;
+	color: #000;
+}
+
+.form-container {
+	display: flex;
+	gap: 1rem;
+	align-items: flex-end;
+	margin-bottom: 2rem;
+}
+
+.compact-datepicker .ui-inputfield {
+	width: 200px !important;
+	padding: 0.5rem 1rem !important;
+	font-size: 0.9em !important;
+	border: 1px solid #dee2e6 !important;
+	border-radius: 4px !important;
+}
+
+.noOfOffcie {
+	width: 100px !important;
+	padding: 0.5rem 1rem !important;
+	font-size: 0.9em !important;
+	border: 1px solid #dee2e6 !important;
+	border-radius: 4px !important;
+}
+
+.compact-datepicker .ui-datepicker-trigger {
+	margin-left: 0.5rem !important;
+	color: #6c757d !important;
+}
+
+.filter-container {
+	display: flex;
+	align-items: left;
+	gap: 10px;
+	margin-bottom: 5rem;
+}
+
+.filter-container .col-md-4 {
+	flex: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.filter-container .form-control {
+	width: 100%;
+	max-width: none;
+	box-sizing: border-box;
+	padding: 0.1rem 0.1rem;
+	font-size: 1rem;
+	height: 30px;
+}
+
+.filter-container .form-label {
+	margin-bottom: 0.1rem;
+	font-size: 0.85rem;
+	font-weight: bold;
+}
+
+.search-button-container {
+	margin-left: auto;
+}
+
+.search-button-container .custom-button {
+	background-color: #007bff;
+	color: white;
+	border: 1px solid #007bff;
+	padding: 0.1rem 1rem;
+	font-size: 1rem;
+	border-radius: 4px;
+	cursor: pointer;
+	height: 50px;
+}
+
+.search-button-container .custom-button:hover {
+	background-color: #0056b3;
+	border-color: #0056b3;
+}
+
+.compact-table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.compact-table .ui-datatable-header, .compact-table th {
+	font-size: 0.95em;
+	background: #f8f9fa !important;
+	border: 1px solid #ddd;
+	text-align: center !important;
+}
+
+.compact-table td {
+	font-size: 0.8em;
+	padding: 5px !important;
+	border: 1px solid #ddd;
+	text-align: left !important;
+	word-break: break-word;
+}
+
+.category-header {
+	background-color: #e9ecef !important;
+	text-align: left;
+	font-weight: bold;
+	border: 1px solid #ddd;
+}
+
+.sticky-header {
+	position: sticky;
+	top: 0;
+	background: white !important;
+	z-index: 100;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	background-color: white;
+}
+
+.fixed-column-region {
+	width: 7%;
+	text-align: left !important;
+}
+
+.fixed-column-circle {
+	width: 7%;
+	text-align: left !important;
+}
+
+.custom-table th, .custom-table td {
+	border-right: 1px solid #ccc;
+	text-align: left !important;
+}
+</style>
+</h:head>
+
+<h:body class="home-01">
+
+    <!-- Include Header -->
+    <ui:insert name="header">
+		<ui:include src="/header.xhtml" />
+    </ui:insert>
+
+    <!-- Loading Dialog -->
+    <p:ajaxStatus onstart="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()" />
+    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage name="images/ajax-loader.gif" />
+    </p:dialog>
+
+
+<p:growl id="topPendSecMessage" 
+         widgetVar="growlWidget" 
+         life="2000" 
+         sticky="false"
+         showDetail="true"
+         autoUpdate="true"
+         escape="false"
+         position="center"
+         styleClass="centered-error-growl" style="width:100px !important;"/>
+         
+         
+ <h:form id="circleReportForm">
+   <div class="scrollable-container">
+   <div class="inner-scrollable">
+        <p:panel id="reportPanel" styleClass="mb-3">
+      <f:facet name="header">
+        <div class="report-header">
+            <span>Top Pending Section Offices</span>
+            <div class="export-buttons">
+                <p:commandButton value="Export as Excel"
+                 actionListener="#{topPendingSection.exportSectionsToExcel(topPendingSection.reports)}"
+                 ajax="false"
+                 styleClass="ui-button-success"
+                 style="margin-right: 20px;">
+			    <p:fileDownload value="#{topPendingSection.excelFile}" />
+			    </p:commandButton>
+   
+				<p:commandButton value="Export as PDF"
+					actionListener="#{topPendingSection.exportSectionsToPdf(topPendingSection.reports)}" ajax="false"
+					styleClass="ui-button-danger">
+					<p:fileDownload value="#{topPendingSection.pdfFile}" />
+				</p:commandButton>
+            </div>
+        </div>
+    </f:facet>
+            <div class="form-container">
+            <div class="date-group">
+                <label for="fromDate">From :</label>
+					<p:datePicker id="fromDate"
+						value="#{topPendingSection.dmFilter.fromDate}" pattern="dd-MM-yyyy"
+						mindate="01-01-2020" maxdate="#{topPendingSection.currentDate}"
+						placeholder="Select start date" styleClass="compact-datepicker"
+						monthNavigator="true" yearNavigator="true" yearRange="2020:#{topPendingSection.currentYear}"
+						numberOfMonths="1" showIcon="true" autocomplete="off"
+						 />
+				</div>
+
+            <div class="date-group">
+                <label for="toDate">To :</label>
+					<p:datePicker id="toDate"
+						value="#{topPendingSection.dmFilter.toDate}" pattern="dd-MM-yyyy"
+						placeholder="Select end date" styleClass="compact-datepicker"
+						mindate="01-01-2020" maxdate="#{topPendingSection.currentDate}"
+						monthNavigator="true" yearNavigator="true" yearRange="2020:#{topPendingSection.currentYear}"
+						numberOfMonths="1" showIcon="true" autocomplete="off"
+						 />
+				</div>
+				<div class="date-group">
+					<h:outputLabel for="device" value="Devices : " styleClass="form-label " />
+					<p:selectOneMenu id="device"
+						value="#{topPendingSection.dmFilter.device}" label="Devices"
+						>
+												
+						<f:selectItems 
+				            value="#{topPendingSection.devices}" 
+				           var="device"
+				            itemLabel="#{device.deviceName}" 
+				            itemValue="#{device.deviceCode}" />
+
+					</p:selectOneMenu>
+				</div>
+				
+			<div class="date-group">
+			    <h:outputLabel for="noOfOffice" value="NO OF OFFICE :" styleClass="form-label" />
+			    <h:inputText id="noOfOffice" value="#{topPendingSection.dmFilter.noOfOffices}" styleClass="noOfOffcie" autocomplete="off"
+			    />
+			</div>
+
+
+		  <p:commandButton value="GENERATE" 
+                 class="btn btn-md btn-info"
+                 actionListener="#{topPendingSection.searchTopPendingSectionReport}"
+                 update="reportPanel reportTable topPendSecMessage" 
+                 process="@form"
+                 onstart="document.getElementById('reportLoader').style.display='flex';" 
+                 oncomplete="document.getElementById('reportLoader').style.display='none';" 
+                 />		 
+                 
+         
+                 
+
+            </div>                 
+
+       <p:dataTable id="reportTable" 
+             var="report"
+             value="#{topPendingSection.reports}"
+             rendered="#{not empty topPendingSection.reports}"
+             styleClass="compact-table"
+             liveResize="false"
+             resizableColumns="false"
+             columnVisibility="true" 
+             showGridlines="true" 
+             rowIndexVar="rowIndex"
+             
+             paginator="true"
+             paginatorPosition="bottom"
+             rows="10"
+             rowsPerPageTemplate="5,10,20,50,100"
+             paginatorAlwaysVisible="true"
+             currentPageReportTemplate="Page {currentPage} of {totalPages} - Total Records: {totalRecords}">
+
+
+
+            <p:columnGroup type="header" class="sticky-header">
+                    <p:row>
+                    	<p:column headerText="S.No" rowspan="2" style="text-align: center; background: #e5e7eb !important; color: #000;width:20px !important;"/>
+                    
+                        <p:column headerText="SECTION" rowspan="2" styleClass="fixed-column-circle"  style="background: #e5e7eb !important;color:#000;width:150px !important;" />
+                        
+                        <p:column headerText="DIVISION" rowspan="2" styleClass="fixed-column-circle"  style="background: #e5e7eb !important;color:#000;width:150px !important;" />
+                        
+                          <p:column headerText="CIRCLE" rowspan="2" styleClass="fixed-column-circle"  style="background: #e5e7eb !important;color:#000;width:150px !important;" />
+                        
+                        
+                        <!-- BL Group -->
+                        <p:column headerText="Billing Releated" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Meter Group -->
+                        <p:column headerText="Meter Releated" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- PF Group -->
+                        <p:column headerText="Power Failure" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Voltage Group -->
+                        <p:column headerText="Voltage Fluctuation" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Fire Group -->
+                        <p:column headerText="Fire" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Danger Group -->
+                        <p:column headerText="Dangerous Pole" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Theft Group -->
+                        <p:column headerText="Theft" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Conductor Snapping Group -->
+                        <p:column headerText="Conductor Snapping" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- Others Group -->
+                        <p:column headerText="Others" colspan="3" styleClass="category-header" style="background:#1a237e !important;color:#fff !important;width:150px !important;"/>
+                        
+                        <!-- TOTAL Group -->
+                        <p:column headerText="TOTAL" colspan="3" styleClass="total-header" style="background:#1a237e !important;color:#fff !important;width:200px !important;"/>
+                    </p:row>
+                    
+                    <p:row>
+                        <!-- BL Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Meter Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- PF Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Voltage Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Fire Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Danger Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Theft Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Conductor Snapping  Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- Others  Subheaders -->
+                        <p:column headerText="Revd."  style="background: #dbeafe !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Comp."  style="background: #ffe0b2 !important;color: #000;padding :10px !important"/>
+                        <p:column headerText="Pend."  style="background: #fff9c4 !important;color: #000;padding :10px !important"/>
+                        
+                        <!-- TOTAL  Subheaders -->
+                        <p:column headerText="Revd." styleClass="total-column" class="text-center" style="background: #dbeafe !important;color: #000;"
+                        sortBy="#{report.blTot + report.meTot + report.pfTot + report.vfTot + report.fiTot + report.thTot + report.csTot + report.otTot}" sortable="true"/>
+			            <p:column headerText="Comp." styleClass="total-column" class="text-center" style="background: #ffe0b2 !important;color: #000;"
+			            sortBy="#{report.blCom + report.meCom + report.pfCom + report.vfCom + report.fiCom + report.thCom + report.csCom + report.otCom}" sortable="true"/>
+			            <p:column headerText="Pend." styleClass="total-column" class="text-center" style="background: #fff9c4 !important;color: #000;"
+			            sortBy="#{report.blPen + report.mePen + report.pfPen + report.vfPen + report.fiPen + report.thPen + report.csPen + report.otPen}" sortable="true"/>
+                        
+                    </p:row>
+                </p:columnGroup>
+                <p:column >
+					<h:outputText value="#{rowIndex + 1}" />
+				</p:column>
+                
+                <!-- Section Column -->
+                <p:column styleClass="fixed-column-circle">
+                    <h:outputText value="#{report.secName}" style="white-space: normal; word-wrap: break-word; max-width: 250px;"/>
+                </p:column>
+                
+                <!-- DIVISION -->
+                <p:column styleClass="fixed-column-circle">
+                    <h:outputText value="#{report.divisionName}" style="white-space: normal; word-wrap: break-word; max-width: 250px;"/>
+                </p:column>
+                
+                <!-- CIRCLE -->
+                <p:column styleClass="fixed-column-circle">
+                    <h:outputText value="#{report.cirName}" style="white-space: normal; word-wrap: break-word; max-width: 250px;"/>
+                </p:column>
+
+				<!-- BL Columns -->
+                <p:column>
+                    <h:outputText value="#{report.blTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.blCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.blPen}"/>
+                </p:column>
+
+                <!-- Meter Columns -->
+                <p:column>
+                    <h:outputText value="#{report.meTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.meCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.mePen}"/>
+                </p:column>
+                
+                <!-- PF Columns -->
+                <p:column>
+                    <h:outputText value="#{report.pfTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.pfCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.pfPen}"/>
+                </p:column>
+                
+               <!-- Voltage Columns -->
+                <p:column>
+                    <h:outputText value="#{report.vfTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.vfCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.vfPen}"/>
+                </p:column>
+                
+                <!-- Fire Columns -->
+                <p:column>
+                    <h:outputText value="#{report.fiTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.fiCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.fiPen}"/>
+                </p:column>
+                
+                <!-- Dangerous Pole Columns -->
+                <p:column>
+                    <h:outputText value="#{report.thTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.thCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.thPen}"/>
+                </p:column>
+                
+                <!-- Theft Pole Columns -->
+                <p:column>
+                    <h:outputText value="#{report.teTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.teCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.tePen}"/>
+                </p:column>
+                
+                <!-- Conductor snapping Columns -->
+                <p:column>
+                    <h:outputText value="#{report.csTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.csCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.csPen}"/>
+                </p:column>
+                
+                 <!-- Others Columns -->
+                <p:column>
+                    <h:outputText value="#{report.otTot}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.otCom}"/>
+                </p:column>
+                <p:column>
+                    <h:outputText value="#{report.otPen}"/>
+                </p:column>
+                
+                 <!-- TOTAL Columns -->
+                <p:column styleClass="total-column">
+			        <h:outputText value="#{report.blTot + report.meTot + report.pfTot + report.vfTot + report.fiTot + report.thTot +report.teTot + report.csTot + report.otTot}"/>
+			    </p:column>
+			    <p:column styleClass="total-column">
+			        <h:outputText value="#{report.blCom + report.meCom + report.pfCom + report.vfCom + report.fiCom + report.thCom + report.teCom +report.csCom + report.otCom}"/>
+			    </p:column>
+			    <p:column styleClass="total-column">
+			        <h:outputText value="#{report.blPen + report.mePen + report.pfPen + report.vfPen + report.fiPen + report.thPen + report.tePen +report.csPen + report.otPen}"/>
+			    </p:column>
+			    
+			    <p:columnGroup type="footer">
+					<p:row styleClass="total-footer">
+						<p:column colspan="4" footerText="TOTAL" style="text-align:right !important;padding:10px !important;"
+							styleClass="category-header" />
+						<!-- BL -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.blTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.blCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.blPen).sum()}" />
+
+						<!-- Meter -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.meTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.meCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.mePen).sum()}" />
+
+						<!-- PF -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.pfTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.pfCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.pfPen).sum()}" />
+
+						<!-- Voltage -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.vfTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.vfCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.vfPen).sum()}" />
+
+						<!-- Fire -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.fiTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.fiCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.fiPen).sum()}" />
+
+						<!-- Danger -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.thTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.thCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.thPen).sum()}" />
+
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.teTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.teCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.tePen).sum()}" />
+
+						<!-- Conductor Snapping -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.csTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.csCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.csPen).sum()}" />
+
+						<!-- Others -->
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.otTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.otCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.otPen).sum()}" />
+
+						<!-- TOTAL Columns (Sum all categories per report) -->
+						 <p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.blTot + r.meTot + r.pfTot + r.vfTot + r.fiTot + r.thTot +r.teTot + r.csTot + r.otTot).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.blCom + r.meCom + r.pfCom + r.vfCom + r.fiCom + r.thCom +r.teCom + r.csCom + r.otCom).sum()}" />
+						<p:column
+							footerText="#{topPendingSection.reports.stream().map(r -> r.blPen + r.mePen + r.pfPen + r.vfPen + r.fiPen + r.thPen + r.tePen + r.csPen + r.otPen).sum()}" /> 
+					</p:row>
+				</p:columnGroup>
+                
+            </p:dataTable>
+
+        </p:panel>
+        </div>
+        </div>
+    </h:form>
+    	<div id="reportLoader">
+		<div class="loader-content">
+			<div class="loader-spinner"></div>
+			<h4>Generating Report... Please Wait.</h4>
+		</div>
+	</div>
+</h:body>
+</html>

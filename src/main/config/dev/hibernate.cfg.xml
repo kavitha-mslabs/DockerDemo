@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+	 <property name="hibernate.connection.driver_class">oracle.jdbc.driver.OracleDriver</property>
+     <!-- <property name="hibernate.connection.url">jdbc:oracle:thin:@192.168.150.97:1521:hrerp</property>
+        <property name="hibernate.connection.username">tangedcoadmin</property>
+        <property name="hibernate.connection.password">tangedcoadmin</property> -->
+    	 <property name="hibernate.connection.url">jdbc:oracle:thin:@192.168.150.96:1521:dev</property>
+        <property name="hibernate.connection.username">dev</property>
+        <property name="hibernate.connection.password">tneb</property>
+		<property name="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect</property>
+		<property name="show_sql">false</property>
+		<property name="hbm2ddl.auto">none</property>
+
+		<property name="hibernate.c3p0.min_size">10</property>
+		<property name="hibernate.c3p0.max_size">300</property>
+		<property name="hibernate.c3p0.acquire_increment">10</property>
+		<property name="hibernate.c3p0.max_statements">300</property>
+		<property name="hibernate.c3p0.numHelperThreads">20</property>
+		<property name="hibernate.c3p0.idle_test_period">1200</property>
+		<property name="hibernate.c3p0.timeout">30000</property>
+		<property name="hibernate.c3p0.validate">1800</property>
+
+		<property name="hibernate.c3p0.unreturnedConnectionTimeout">500</property>
+		<property name="hibernate.c3p0.debugUnreturnedConnectionStackTraces">true</property>
+
+		<mapping class="tneb.ccms.admin.model.AdminUserBean" />
+		<mapping class="tneb.ccms.admin.model.CategoryBean" />
+		<mapping class="tneb.ccms.admin.model.CircleBean" />
+		<mapping class="tneb.ccms.admin.model.ClosureReasonBean" />
+		<mapping class="tneb.ccms.admin.model.ComplaintBean" />
+		<mapping class="tneb.ccms.admin.model.ComplaintHistoryBean" />
+		<mapping class="tneb.ccms.admin.model.ConsumerServiceBean" />
+		<mapping class="tneb.ccms.admin.model.DistrictBean" />
+		<mapping class="tneb.ccms.admin.model.DivisionBean" />
+		<mapping class="tneb.ccms.admin.model.PublicUserBean" />
+		<mapping class="tneb.ccms.admin.model.RegionBean" />
+		<mapping class="tneb.ccms.admin.model.RescueBean" />
+		<mapping class="tneb.ccms.admin.model.RoleBean" />
+		<mapping class="tneb.ccms.admin.model.SectionBean" />
+		<mapping class="tneb.ccms.admin.model.SubCategoryBean" />
+		<mapping class="tneb.ccms.admin.model.SubDivisionBean" />
+		<mapping class="tneb.ccms.admin.model.ViewComplaintBean" />
+		<mapping class="tneb.ccms.admin.model.ViewComplaintReportBean" />
+		<mapping class="tneb.ccms.admin.model.CallCenterMappingBean" />
+		<mapping class="tneb.ccms.admin.model.CallCenterRoleBean" />
+		<mapping class="tneb.ccms.admin.model.CallCenterUserBean" />
+		<mapping class="tneb.ccms.admin.model.FieldWorkerBean" />
+		<mapping class="tneb.ccms.admin.model.FieldWorkerComplaintBean" />
+		<mapping class="tneb.ccms.admin.model.MinnagamUserRequestBean" />
+		<mapping class="tneb.ccms.admin.model.ComplaintFeedbackBean" />
+		<mapping class="tneb.ccms.admin.model.MinnagamCallDetailsBean" />
+		<mapping class="tneb.ccms.admin.model.TmpCtCirBean" />
+		<mapping class="tneb.ccms.admin.model.TmpCtSecBean" />
+		<mapping class="tneb.ccms.admin.model.OutagesBean" />
+		<mapping class="tneb.ccms.admin.model.CompContactMap" />
+		<mapping class="tneb.ccms.admin.model.DTMasterGISBean" />
+		<mapping class="tneb.ccms.admin.model.SchOutageBean" />
+		<mapping class="tneb.ccms.admin.model.CompTransferBean" />
+		<mapping class="tneb.ccms.admin.model.CallCenterUserHistoryBean" />
+		<mapping class="tneb.ccms.admin.model.FeederMasterGisBean" />
+		<mapping class="tneb.ccms.admin.model.SsMasterGisBean" />
+		<mapping class="tneb.ccms.admin.model.CompDeviceBean" />
+		<mapping class="tneb.ccms.admin.model.FeedbackBean" />
+		<mapping class="tneb.ccms.admin.model.MinnagamHistoryBean" />
+		<mapping class="tneb.ccms.admin.model.CustMasterBean" />
+
+
+	</session-factory>
+
+
+</hibernate-configuration>

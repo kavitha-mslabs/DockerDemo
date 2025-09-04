@@ -1,0 +1,519 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/effect.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/flashy.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/count.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/ticker.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/leaflet.css" />
+    <link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+
+    <script>
+        document.querySelector('button[value="GENERATE"]').addEventListener('click', function() {
+            document.getElementById('reportLoader').style.display = 'flex';
+        });
+
+        document.querySelectorAll('.fixed-column-circle a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.getElementById('reportLoader').style.display = 'flex';
+            });
+        });
+    </script>
+
+    <style>
+        #reportLoader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        #circleReportForm{
+            margin-top:-40px !important;
+        }
+        
+        .loader-content {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .loader-spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .scrollable-container {
+            width: 100%;
+            height: calc(100vh - 100px);
+            overflow: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .inner-scrollable {
+            width: 100%;
+            min-width: fit-content;
+        }
+        
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .report-header span {
+            font-size: 15px;
+            font-weight: bold;
+        }
+        
+        .export-buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .compact-table .ui-datatable-tablewrapper {
+            overflow: visible;
+        }
+        
+        .compact-table .ui-datatable-tablewrapper td, .compact-table .ui-datatable-tablewrapper th {
+            border: 0.5px solid black !important; 
+        }
+        
+        .total-column {
+            background-color: #f2f2f2 !important;
+        }
+        
+        .total-footer {
+            background-color: #f8f9fa !important;
+            font-weight: bold;
+            text-align: center !important;
+            border-top: 1.5px solid #333;
+            padding-left: 80px !important;
+        }
+        
+        .ui-datatable tfoot td {
+            font-size: 0.85em;
+            color: #000;
+        }
+        
+        .compact-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+        
+        .compact-table .ui-datatable-header, .compact-table th {
+            font-size: 0.95em;
+            background: #f8f9fa !important;
+            border: 1px solid #ddd;
+            text-align: center !important;
+        }
+        
+        .compact-table td {
+            font-size: 0.8em;
+            padding: 7px !important;
+            border: 1px solid #ddd;
+            text-align: center !important;
+            word-break: break-word;
+        }
+        
+        .category-header {
+            background-color: #e9ecef !important;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background: white !important;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            font-size: 1rem !important;
+        }
+        
+        /* Role-based column width adjustments */
+        .fixed-column-sno {
+            width: #{(sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3) ? '8%' : '5%'} !important;
+            text-align: center !important;
+        }
+        
+        .fixed-column-circle {
+            width: #{(sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3) ? '25%' : '15%'} !important;
+            text-align: left !important;
+        }
+        
+        .role-specific-column {
+            width: #{(sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3) ? '20%' : '10%'} !important;
+        }
+        
+        .custom-table th, .custom-table td {
+            border-right: 1px solid #ccc;
+            text-align: left;
+        }
+        
+        					  /* CUSTOMIZING THE REPORT SIZE FOR SM */
+    
+    /* Target only the table when in mAdmin view */
+    body .ui-datatable.compact-table.madmin-view {
+        width: auto !important;
+        max-width: 1000px !important;
+        margin: 0 auto !important;
+    }
+    
+    body .ui-datatable.compact-table.madmin-view td {
+        padding: 4px 8px !important;
+        font-size: 0.8em !important;
+    }
+      body .ui-datatable.compact-table.madmin-view th{
+      font-size :0.9em !important;
+      }
+    
+    /* Specific column widths for mAdmin view */
+    body .ui-datatable.compact-table.madmin-view th:first-child,
+    body .ui-datatable.compact-table.madmin-view td:first-child {
+        width: 40px !important; /* S.No column */
+    }
+    
+    body .ui-datatable.compact-table.madmin-view th:nth-child(2),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(2) {
+        width: 120px !important; /* Circle column */
+    }
+    
+    /* MI columns */
+    body .ui-datatable.compact-table.madmin-view th:nth-child(3),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(3),
+    body .ui-datatable.compact-table.madmin-view th:nth-child(4),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(4),
+    body .ui-datatable.compact-table.madmin-view th:nth-child(5),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(5) {
+        width: 60px !important;
+    }
+    
+    /* Make header more compact */
+    body .ui-datatable.compact-table.madmin-view .ui-datatable-header {
+        padding: 4px !important;
+    }
+    </style>
+</h:head>
+
+<h:body class="home-01">
+
+    <ui:insert name="header">
+        <ui:include src="/callcenterheader.xhtml" />
+    </ui:insert>
+
+    <!-- Loading Dialog -->
+    <p:ajaxStatus onstart="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()" />
+    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage name="images/ajax-loader.gif" />
+    </p:dialog>
+
+    <h:form id="circleReportForm">
+        <div class="scrollable-container">
+            <div class="inner-scrollable">
+                <p:panel id="reportPanel" styleClass="mb-3">
+                    <f:facet name="header">
+                        <div class="report-header">
+                            <span>MODE WISE COMPLAINTS ABSTRACT REPORT - CIRCLE WISE - FORMAT TWO</span>
+                            <div class="export-buttons">
+                                <p:commandButton value="Export as Excel"
+                                    actionListener="#{deviceWiseAbstractFormatTwo.exportCircleToExcelFormatTwo(deviceWiseAbstractFormatTwo.circleListFormatTwo)}"
+                                    ajax="false"
+                                    styleClass="ui-button-success"
+                                    style="margin-right: 10px;">
+                                    <p:fileDownload value="#{deviceWiseAbstractFormatTwo.excelFile}" />
+                                </p:commandButton>
+
+                                <p:commandButton value="Export as PDF"
+                                    actionListener="#{deviceWiseAbstractFormatTwo.exportCircleToPdfFormatTwo(deviceWiseAbstractFormatTwo.circleListFormatTwo)}"
+                                    ajax="false"
+                                    styleClass="ui-button-danger">
+                                    <p:fileDownload value="#{deviceWiseAbstractFormatTwo.pdfFile}" />
+                                </p:commandButton>
+                            </div>
+                        </div>
+                    </f:facet>
+
+                    <!-- Report Table -->
+                    <p:dataTable id="reportTable" var="report"
+                                 value="#{deviceWiseAbstractFormatTwo.circleListFormatTwo}"
+	               styleClass="compact-table #{(sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId ==7) ? 'madmin-view' : ''}" 
+                                  liveResize="true" resizableColumns="true"
+                                 columnVisibility="true" showGridlines="true" rowIndexVar="rowIndex">
+                               
+                        <p:columnGroup type="header" class="sticky-header">
+                            <p:row>
+                                <p:column headerText="S.No" rowspan="2" styleClass="fixed-column-sno" 
+                                         style="background: #e5e7eb !important; color: #000;
+                                          width: #{sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 7 ? '10px' : '20px'};" />
+                                         
+                            
+                                <p:column headerText="CIRCLE" rowspan="2" styleClass="fixed-column-circle" 
+                                         style="background: #e5e7eb !important;color:#000;"/>                                      
+                                
+                                <!-- Dynamic colspan based on role -->
+                                <p:column headerText="RECEIVED" 
+                                         colspan="#{(sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3) ? 1 : 6}" 
+                                         styleClass="category-header" 
+                                         style="background:#1a237e !important;color:#fff !important;
+                                         width: #{sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 7 ? '100px' : '300px'};"/>
+                                
+                                <p:column headerText="COMPLETED" 
+                                         colspan="#{(sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3) ? 1 : 6}" 
+                                         styleClass="category-header" 
+                                         style="background:#1a237e !important;color:#fff !important;
+                                         width: #{sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 7 ? '100px' : '300px'};"/>
+                                         
+                                
+                                <p:column headerText="PENDING" 
+                                         colspan="#{(sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3) ? 1 : 6}" 
+                                         styleClass="category-header" 
+                                         style="background:#1a237e !important;color:#fff !important;
+                                          width: #{sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 7 ? '100px' : '300px'};"/>
+                                                               
+                            </p:row>
+                            
+                            <p:row>
+                                <!-- RECEIVED Subheaders - Role-based rendering -->
+                                <p:column headerText="WEB" styleClass="role-specific-column"
+                                         style="background: rgb(38 170 206) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" />
+                                <p:column headerText="Mob.App" styleClass="role-specific-column"
+                                         style="background: rgb(6 172 29) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="FOC" styleClass="role-specific-column"
+                                         style="background: rgb(195 50 50) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="SM" styleClass="role-specific-column"
+                                         style="background: rgb(221 43 43) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}"/>
+                                <p:column headerText="MI" styleClass="role-specific-column"
+                                         style="background: rgb(239 28 28) !important;color: #fff;padding :10px !important"
+                                         rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="TOTAL" styleClass="role-specific-column"
+                                         style="background: rgb(255 3 3) !important;color: #fff;padding :10px !important;border-right: 2px solid #1a237e !important;" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         sortBy="#{report.miTotal + report.webTotal + report.mobileTotal + report.smsTotal + report.adminTotal}" sortable="true"/> 
+                                
+                                <!-- COMPLETED Subheaders - Role-based rendering -->
+                                <p:column headerText="WEB" styleClass="role-specific-column"
+                                         style="background: rgb(38 170 206) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="Mob.App" styleClass="role-specific-column"
+                                         style="background: rgb(6 172 29) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="FOC" styleClass="role-specific-column"
+                                         style="background: rgb(195 50 50) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="SM" styleClass="role-specific-column"
+                                         style="background: rgb(221 43 43) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}"/>
+                                <p:column headerText="MI" styleClass="role-specific-column"
+                                         style="background: rgb(239 28 28) !important;color: #fff;padding :10px !important"
+                                         rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="TOTAL" styleClass="role-specific-column"
+                                         style="background: rgb(255 3 3) !important;color: #fff;padding :10px !important;border-right: 2px solid #1a237e !important;" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         sortBy="#{report.miTotal + report.webTotal + report.mobileTotal + report.smsTotal + report.adminTotal}" sortable="true"/> 
+                                
+                                <!-- PENDING Subheaders - Role-based rendering -->
+                                <p:column headerText="WEB" styleClass="role-specific-column"
+                                         style="background: rgb(38 170 206) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="Mob.App" styleClass="role-specific-column"
+                                         style="background: rgb(6 172 29) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="FOC" styleClass="role-specific-column"
+                                         style="background: rgb(195 50 50) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="SM" styleClass="role-specific-column"
+                                         style="background: rgb(221 43 43) !important;color: #fff;padding :10px !important" 
+                                         rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}"/>
+                                <p:column headerText="MI" styleClass="role-specific-column"
+                                         style="background: rgb(239 28 28) !important;color: #fff;padding :10px !important"
+                                         rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}"/>
+                                <p:column headerText="TOTAL" styleClass="role-specific-column"
+                                         style="background: rgb(255 3 3) !important;color: #fff;padding :10px !important;border-right: 2px solid #1a237e !important;" 
+                                         rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         sortBy="#{report.miPending + report.webPending + report.mobilePending + report.adminPending + report.smsPending}" sortable="true"/>                                         
+                            </p:row>
+                        </p:columnGroup>
+
+                        <!-- S.No Column -->
+                        <p:column styleClass="fixed-column-sno">
+                            <h:outputText value="#{rowIndex + 1}"/>
+                        </p:column>
+
+                        <!-- Circle Column -->
+                        <p:column styleClass="fixed-column-circle" style="text-align:left !important">
+                            <p:commandLink value="#{report.circleName}"
+                                           onstart="document.getElementById('reportLoader').style.display='flex';" 
+                                           oncomplete="document.getElementById('reportLoader').style.display='none';"
+                                           actionListener="#{deviceWiseAbstractFormatTwo.fetchReportByCircleFormatTwoForRegionAndCircle(report.circleCode,report.circleName)}"
+                                           update="reportTable" process="@this" style="white-space: normal; word-wrap: break-word;">
+                            </p:commandLink>
+                        </p:column>
+
+                        <!-- RECEIVED Data Columns - Role-based rendering -->
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.webTotal}"/>
+                        </p:column>
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.mobileTotal}"/>
+                        </p:column>
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.adminTotal}"/>
+                        </p:column>
+                        <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}">
+                            <h:outputText value="#{report.smsTotal}"/>
+                        </p:column>
+                        <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.miTotal}"/>
+                        </p:column>
+                        <p:column style="border-right: 2px solid #1a237e !important; background-color: #f2f2f2 !important;" 
+                                 rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.webTotal + report.mobileTotal + report.adminTotal + report.smsTotal + report.miTotal}"/>
+                        </p:column>
+
+                        <!-- COMPLETED Data Columns - Role-based rendering -->
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.webComp}"/>
+                        </p:column>
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.mobileComp}"/>
+                        </p:column>
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.adminComp}"/>
+                        </p:column>
+                        <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}">
+                            <h:outputText value="#{report.smsComp}"/>
+                        </p:column>
+                        <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.miComp}"/>
+                        </p:column>
+                        <p:column style="border-right: 2px solid #1a237e !important; background-color: #f2f2f2 !important;" 
+                                 rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.webComp + report.mobileComp + report.adminComp + report.smsComp + report.miComp}"/>
+                        </p:column>
+                        
+                        <!-- PENDING Data Columns - Role-based rendering -->
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.webPending}"/>
+                        </p:column>
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.mobilePending}"/>
+                        </p:column>
+                        <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.adminPending}"/>
+                        </p:column>
+                        <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}">
+                            <h:outputText value="#{report.smsPending}"/>
+                        </p:column>
+                        <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.miPending}"/>
+                        </p:column>
+                        <p:column style="border-right: 2px solid #1a237e !important; background-color: #f2f2f2 !important;" 
+                                 rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}">
+                            <h:outputText value="#{report.webPending + report.mobilePending + report.adminPending + report.smsPending + report.miPending}"/>
+                        </p:column>
+
+                        <!-- Footer with role-based totals -->
+                        <p:columnGroup type="footer">
+                            <p:row styleClass="total-footer">
+                                <p:column colspan="2" footerText="TOTAL" style="text-align:right !important;padding:10px !important;"
+                                    styleClass="category-header" />
+                                
+                                <!-- Received Total Footer - Role-based -->
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalWebTotal}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalMobileTotal}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalAdminTotal}" />
+                                <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalSmsTotal}" />
+                                <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalMiTotal}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.grandTotalRevd}" 
+                                         style="border-right: 2px solid #1a237e !important"/>
+                                
+                                <!-- Completed Total Footer - Role-based -->
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalWebComp}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalMobileComp}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalAdminComp}" />
+                                <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalSmsComp}" />
+                                <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalMiComp}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.grandTotalComp}" 
+                                         style="border-right: 2px solid #1a237e !important"/>
+                                
+                                <!-- Pending Total Footer - Role-based -->
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalWebPending}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalMobilePending}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalAdminPending}" />
+                                <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 3 or not (sessionCallCenterUserValueBean.roleId == 7)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalSmsPending}" />
+                                <p:column rendered="#{sessionCallCenterUserValueBean.roleId == 7 or not (sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.totalMiPending}" />
+                                <p:column rendered="#{not (sessionCallCenterUserValueBean.roleId == 7 or sessionCallCenterUserValueBean.roleId == 3)}" 
+                                         footerText="#{deviceWiseAbstractFormatTwo.grandTotalPend}" 
+                                         style="border-right: 2px solid #1a237e !important"/>
+                            </p:row>
+                        </p:columnGroup>
+
+                    </p:dataTable>
+                </p:panel>
+            </div>
+        </div>
+        
+				<div id="reportLoader">
+				    <div class="loader-content">
+				        <div class="loader-spinner"></div>
+				        <h4>Generating Report... Please Wait.</h4>
+				    </div>
+				</div>
+    </h:form>
+</h:body>
+</html>

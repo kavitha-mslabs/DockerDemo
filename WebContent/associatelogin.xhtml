@@ -1,0 +1,262 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf"
+     xmlns:p="http://primefaces.org/ui">
+
+   <h:head>
+   	  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	  <meta http-equiv="Pragma" content="no-cache" />
+	  <meta http-equiv="Expires" content="0" />
+      <!-- All Stylesheets -->
+      <meta charset="utf-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="robots" content="noindex" />
+      <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	  <title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	  
+      <!-- All Stylesheets -->
+      
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/all-stylesheets.css"  />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css" />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css" />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/effect.css" />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/flashy.min.css" />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/count.css" />
+      <link rel="stylesheet" href="#{request.contextPath}/resources/css/ticker.css" />
+      <link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+      <link rel="icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+      <script type="text/javascript"  src="#{request.contextPath}/resources/js/jquery.js"></script>
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.bxslider.min.js"></script>
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/auto-script.js"></script>
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.bootstrap.newsbox.min.js"></script>
+      
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/jquery.flashy.min.js"></script>
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/main.js"></script>
+      <!-- Parallax -->
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/parallax/jquery.parallax-1.1.3.js"></script> 
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/parallax/jquery.localscroll-1.2.7-min.js"></script> 
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/parallax/jquery.scrollTo-1.4.2-min.js"></script>
+      <!-- AJAX Contact Form --> 			
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/contact/contact-form.js"></script>
+      <!-- FitVids --> 
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/fitvids/jquery.fitvids.js"></script>
+      <!-- Owl Carousel --> 
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/owl-carousel/owl.carousel.js"></script>
+      <!-- Isotope --> 
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/isotope/jquery.isotope.min.js"></script> 
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/isotope/custom-isotope-mansory.js"></script>
+      <!-- Magnific Popup core JS file -->
+      <script type="text/javascript" src="#{request.contextPath}/resources/js/magnific-popup/jquery.magnific-popup.js"></script>		
+      <!-- Retina --> 
+      <!-- <script type="text/javascript" src="js/retina/retina.js"></script>  -->
+      <!-- FlexSlider -->
+      <script  src="#{request.contextPath}/resources/js/flexslider/jquery.flexslider.js"></script>
+      <!-- Custom JS -->
+      <script src="#{request.contextPath}/resources/js/custom/custom.js"></script>	
+        <script src="#{request.contextPath}/resources/js/md5.js"></script>
+
+
+<script type="text/javascript" src="#{request.contextPath}/resources/js/tickerme.min.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+    $('#ticker').tickerme();
+  });
+</script>
+<script src="#{request.contextPath}/resources/js/md5.js"></script>
+<script type="text/javascript">
+function afterLoad() {  
+	
+	var username=document.getElementById("inputForm:username");
+	var password = document.getElementById("inputForm:password");
+    
+    showErrorMessage(username.id, username.value, $(username).prev().text());
+    showErrorMessage(password.id, password.value, $(password).prev().text());
+	
+  	if (username.value=="" || password.value=="" ) {
+        return false;
+    } else {
+    	document.getElementById('inputForm:password').value=hex_md5(document.getElementById('inputForm:password').value);
+    	return true;
+    }
+}
+
+
+
+function showErrorMessage(fieldId, fieldValue, fieldLabel){
+	if(fieldValue == "" || fieldValue == null){
+	 $('[id="span' + fieldId + '"]').remove();
+   	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+   } else if(fieldValue != "" || fieldValue != null){
+		 $('[id="span' + fieldId + '"]').remove();
+   }
+}
+
+//Function to remove the error message on the click off the input field.
+$(document).ready(function () {
+	$("input[type=text]").click(function () {
+		 var currentElement = $(this);
+	     var tagid = currentElement.attr('id');
+	     $('[id="span' + tagid + '"]').remove();
+	});
+	$("input[type=password]").click(function () {
+		 var currentElement = $(this);
+	     var tagid = currentElement.attr('id');
+	     $('[id="span' + tagid + '"]').remove();
+	});
+});
+
+
+</script>
+		<style>
+		.ui-widget{font-size:inherit;}
+	.ui-growl-item-container{ 
+	background:#{admin.auth.style};
+	top : 40% !important;
+	
+	}
+	
+
+
+	
+	/* GROWL CONTAINER (POSITION LOWER, CENTERED) */
+.ui-growl {
+    top: 495px !important;          /* Lower position (was 10px) */
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    min-width: 400px !important;    /* Slightly wider for larger text */
+    border: none !important;
+    
+}
+.ui-growl-item{
+font-size:17px !important;
+ font-weight: 700 !important;
+ color:#721c24 !important;
+ background-color:white;
+}
+
+/* TITLE (LARGER FONT) */
+.ui-growl-title {
+    font-size: 16px !important;     /* Increased from 18px */
+    font-weight: 700 !important;
+    color: #721c24 !important;
+    margin: 0 0 8px 0 !important;   /* Small space below title */
+    padding: 0 !important;
+    text-align: center !important;
+    display:none;
+}
+.ui-growl-message p {
+     font-weight: bold; 
+     color:#ff0848;
+     font-size:20px;
+     margin-right:50px !important;
+         padding: 10px 1px 30px 0;
+}
+
+
+.title-box {
+	color: #4CAF50;
+	font-size: 22px;
+}
+
+.card {
+	border-radius: 0 0 10px 10px;
+	border: 1px solid #ddd;
+	/* background-color: #f7f7f7; */
+}
+
+.card-body {
+	padding: 20px;
+}
+
+.btn-primary {
+	background-color: #007bff;
+	border-color: #007bff;
+}
+
+.ui-dialog.error-dialog .ui-dialog-titlebar {
+	display: none; /* Hide title bar */
+}
+
+.ui-dialog.error-dialog .ui-dialog-content {
+	background-color: #black; /* Light red */
+	border: 1px solid #f5c6cb; /* Darker border */
+	color: #721c24; /* Dark red text for contrast */
+	border-radius: 8px;
+	text-align: center;
+	padding: 20px;
+}
+
+.ui-dialog.error-dialog .ui-dialog-content .pi-times-circle {
+	color: #721c24; /* Darker red icon */
+}
+</style>
+<style>
+.ui-widget{font-size:inherit;}
+
+</style>
+
+</h:head>
+   <body class="home-01 admin-bg">
+    <p:ajaxStatus onstart="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()" />
+    <h:form id="inputForm">
+     <f:event type="preRenderView" listener="#{admin.auth.checkAlreadyCallcenterLoggedIn}" />  
+      <p:growl id="growl" styleClass="ng-deep"    showDetail="true"  />
+      
+      <div class="container-fluid">
+	      <div class="row">
+	      	<div class="col-lg-6 col-md-6 col-sm-6 offset-3 text-center">
+	      		<a href=""><img src="resources/images/logo/logo.png" class="img-fluid" alt="" /></a>
+	      	</div>
+	      </div>
+	  </div>
+      <div class="container-fluid">
+      	<div class="row">
+      		<div class="col-md-4 offset-md-4">
+      			<div class="card my-5">
+      				<div class="card-header text-center dark-blue">
+      					<h4 class="mb-0 text-white">Call Center/Social Media Login</h4>
+      				</div>
+      				<div class="card-body col-md-10 offset-md-1">
+      					<div class="form-group">
+   						   	<label>User Name </label>
+					           <p:inputText id="username" value="#{admin.callCenterUser.userName}" styleClass="form-control"/>
+      					</div>
+      					<div class="form-group">
+   						   	<label>Password</label>
+			              		<p:password id="password" styleClass="form-control" value="#{admin.callCenterUser.password}" />
+      					</div>
+      					 <p:commandButton value="Login"  onclick="return afterLoad();" action="#{admin.auth.callCenterAuthentication(admin.callCenterUser)}" 
+        					 id="ajax" update="growl"  ajax="true" style="margin-right:20px;" styleClass="btn btn-primary ui-priority-primary" />
+      				</div>
+      			</div>
+                <div class="col-md-12">
+                   <div class="text-center p-4 w-100">Copyright &#169; TANGEDCO&#160;<script>document.write(new Date().getFullYear())</script></div>
+                </div>
+      		</div>
+      	</div>
+      </div>
+	<p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+			showEffect="fade" hideEffect="fade" closable="false" width="420"
+			height="140" styleClass="success-dialog">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+				<i class="pi pi-check-circle"
+					style="font-size: 2.5em; color: green;"></i>
+				<h:outputText id="dialogMessage"
+					value="Outage scheduled successfully!"
+					style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+			</div>
+		</p:dialog>
+     </h:form>
+     <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+   </body>
+</html>

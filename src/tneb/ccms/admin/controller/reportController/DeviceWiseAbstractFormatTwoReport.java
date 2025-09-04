@@ -1,0 +1,2825 @@
+package tneb.ccms.admin.controller.reportController;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
+import javax.inject.Named;
+import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
+
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
+
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+
+import tneb.ccms.admin.model.ViewComplaintReportBean;
+import tneb.ccms.admin.util.CCMSConstants;
+import tneb.ccms.admin.util.DataModel;
+import tneb.ccms.admin.util.HibernateUtil;
+import tneb.ccms.admin.valuebeans.AdminUserValueBean;
+import tneb.ccms.admin.valuebeans.CallCenterUserValueBean;
+import tneb.ccms.admin.valuebeans.ModeWiseAbstractValueBean;
+import tneb.ccms.admin.valuebeans.ViewComplaintReportValueBean;
+
+import com.itextpdf.text.Font;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+
+@Named
+@ViewScoped
+public class DeviceWiseAbstractFormatTwoReport implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	private SessionFactory sessionFactory;
+	DataModel dmFilter;
+	List<ModeWiseAbstractValueBean> circleListFormatTwo = new ArrayList<>(); // FORMAT 2 REPORT - REVD, CPL, PEND
+
+	List<ModeWiseAbstractValueBean> sectionListFormatTwo = new ArrayList<>(); // FORMAT 2 REPORT - REVD, CPL, PEND
+
+	StreamedContent excelFile;
+	StreamedContent pdfFile;
+	List<ViewComplaintReportValueBean> complaintList = new ArrayList<>();
+	String selectedCircleName = null;
+	String selectedSectionName = null;
+	String redirectFrom;
+	ViewComplaintReportValueBean selectedComplaintId;
+	private Date currentDate = new Date();
+	private String currentYear = String.valueOf(Year.now().getValue());
+	AdminUserValueBean adminUserValueBean;
+
+	private BigDecimal totalMobileTotal = BigDecimal.ZERO;
+	private BigDecimal totalAdminTotal = BigDecimal.ZERO;
+	private BigDecimal totalSmsTotal = BigDecimal.ZERO;
+
+	private BigDecimal totalMiTotal = BigDecimal.ZERO;
+	private BigDecimal totalWebTotal = BigDecimal.ZERO;
+	private BigDecimal totalWebComp = BigDecimal.ZERO;
+
+	private BigDecimal totalMobileComp = BigDecimal.ZERO;
+	private BigDecimal totalAdminComp = BigDecimal.ZERO;
+	private BigDecimal totalSmsComp = BigDecimal.ZERO;
+
+	private BigDecimal totalMiComp = BigDecimal.ZERO;
+	private BigDecimal totalWebPending = BigDecimal.ZERO;
+	private BigDecimal totalMobilePending = BigDecimal.ZERO;
+
+	private BigDecimal totalAdminPending = BigDecimal.ZERO;
+	private BigDecimal totalSmsPending = BigDecimal.ZERO;
+	private BigDecimal totalMiPending = BigDecimal.ZERO;
+
+	private BigDecimal totalMobileTotalSection = BigDecimal.ZERO;
+	private BigDecimal totalAdminTotalSection = BigDecimal.ZERO;
+	private BigDecimal totalSmsTotalSection = BigDecimal.ZERO;
+
+	private BigDecimal totalMiTotalSection = BigDecimal.ZERO;
+	private BigDecimal totalWebTotalSection = BigDecimal.ZERO;
+	private BigDecimal totalWebCompSection = BigDecimal.ZERO;
+
+	private BigDecimal totalMobileCompSection = BigDecimal.ZERO;
+	private BigDecimal totalAdminCompSection = BigDecimal.ZERO;
+	private BigDecimal totalSmsCompSection = BigDecimal.ZERO;
+
+	private BigDecimal totalMiCompSection = BigDecimal.ZERO;
+	private BigDecimal totalWebPendingSection = BigDecimal.ZERO;
+	private BigDecimal totalMobilePendingSection = BigDecimal.ZERO;
+
+	private BigDecimal totalAdminPendingSection = BigDecimal.ZERO;
+	private BigDecimal totalSmsPendingSection = BigDecimal.ZERO;
+	private BigDecimal totalMiPendingSection = BigDecimal.ZERO;
+	
+	private BigDecimal grandTotalRevd = BigDecimal.ZERO;
+	private BigDecimal grandTotalComp = BigDecimal.ZERO;
+	private BigDecimal grandTotalPend = BigDecimal.ZERO;
+	
+	private BigDecimal grandTotalRevdSection = BigDecimal.ZERO;
+	private BigDecimal grandTotalCompSection = BigDecimal.ZERO;
+	private BigDecimal grandTotalPendSection = BigDecimal.ZERO;
+
+	@PostConstruct
+	public void init() {
+		System.out.println("Initializing Device WISE ABSTRACT...");
+		sessionFactory = HibernateUtil.getSessionFactory();
+		dmFilter = new DataModel();
+		
+		HttpSession httpSession = (HttpSession) FacesContext.getCurrentInstance()
+                .getExternalContext().getSession(false);
+		
+		adminUserValueBean = (AdminUserValueBean) 
+				httpSession.getAttribute("sessionAdminValueBean");
+		
+		if(adminUserValueBean!=null) {
+		Integer roleId = adminUserValueBean.getRoleId();
+		
+		// IF ROLE ID IN 1,2,3 --> SHOW SECTION ABSTRACT REPORT
+		if (roleId >= 1 && roleId <= 3) {	
+			
+			Integer loggedInCircleId = (Integer) httpSession.getAttribute("loggedInCircleId");
+			String loggedInCircleName = (String) httpSession.getAttribute("loggedInCircleName");
+			fetchReportForSectionUsers(loggedInCircleId.toString(), loggedInCircleName);
+			
+		}else {
+			
+			searchDeviceWiseAbstractFormatTwo();
+		}
+		}
+		else {
+			searchDeviceWiseAbstractFormatTwo();
+		}
+		
+
+	}
+
+	// DEFAULT DATE FOR FORMAT 2 REPORT
+	private void setDefaultDatesIfNeededFormat2() {
+
+		if (dmFilter == null) {
+			dmFilter = new DataModel();
+		}
+
+		if (dmFilter.getFromDate() == null && dmFilter.getToDate() == null) {
+
+			Calendar cal = Calendar.getInstance();
+			cal.set(2024, Calendar.JANUARY, 1, 0, 0, 0);
+			dmFilter.setFromDate(cal.getTime());
+			dmFilter.setToDate(new Date());
+		} else if (dmFilter.getToDate() == null) {
+
+			dmFilter.setToDate(new Date());
+			if (dmFilter.getFromDate() == null) {
+				Calendar cal = Calendar.getInstance();
+				cal.set(2024, Calendar.JANUARY, 1, 0, 0, 0);
+				dmFilter.setFromDate(cal.getTime());
+			}
+		} else if (dmFilter.getFromDate() == null) {
+			Calendar cal = Calendar.getInstance();
+			cal.set(2024, Calendar.JANUARY, 1, 0, 0, 0);
+			dmFilter.setFromDate(cal.getTime());
+		}
+
+	}
+	
+	
+	
+	// LOGIN WISE FILTER
+		public void updateLoginWiseFilters() {
+			
+		    
+		    HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance() .getExternalContext().getSession(false);
+
+		    AdminUserValueBean adminUserValueBean =  (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+
+		    CallCenterUserValueBean callCenterValueBean = (CallCenterUserValueBean) httpsession.getAttribute("sessionCallCenterUserValueBean");
+
+		    // IF CALL CENTER USER LOGIN
+		    if (callCenterValueBean != null) {
+		        Integer callCenterRole = callCenterValueBean.getRoleId();
+		        Integer userId = callCenterValueBean.getId();
+
+		        switch (callCenterRole) {
+		            // AE FOC
+		            case 1: {
+		                dmFilter.setRegionCode("A");
+
+		                Session session = sessionFactory.openSession();
+		                try {
+		                    session.beginTransaction();
+
+		                    @SuppressWarnings("unchecked")
+							List<Integer> circleId = session.createQuery(
+		                            "select c.circleBean.id from CallCenterMappingBean c " +
+		                            "where c.callCenterUserBean.id = :userId")
+		                            .setParameter("userId", userId)
+		                            .getResultList();
+		                    
+		                    if(circleId.size()>1) {
+		                    	dmFilter.setCircleCode("A");
+		                    }else {
+		                    	@SuppressWarnings("unchecked")
+								List<Integer> regionId = session.createQuery(
+			                            "select c.circleBean.regionBean.id from CallCenterMappingBean c " +
+			                            "where c.callCenterUserBean.id = :userId")
+			                            .setParameter("userId", userId)
+			                            .getResultList();
+			                    dmFilter.setCircleCode(String.valueOf(circleId.get(0)));	
+			                    dmFilter.setRegionCode(String.valueOf(regionId.get(0)));
+		                    }
+
+
+		                    session.getTransaction().commit();
+		                } finally {
+		                    session.close();
+		                }
+		                break;
+		            }
+
+		            // SOCIAL MEDIA USER
+		            case 3: {
+		                dmFilter.setRegionCode("A");
+		                dmFilter.setCircleCode("A");
+		                dmFilter.setDevice("S");
+		                break;
+		            }
+
+		            // MINNAGAM ADMIN
+		            case 5: {
+		                dmFilter.setRegionCode("A");
+		                dmFilter.setCircleCode("A");
+		                dmFilter.setDevice("MI");
+		                break;
+		            }
+
+		            // CIRCLE AGENT
+		            case 7: {
+		                dmFilter.setDevice("MI");
+
+		                Session session = sessionFactory.openSession();
+		                try {
+		                    session.beginTransaction();
+
+		                    @SuppressWarnings("unchecked")
+							List<Integer> circleId =session.createQuery(
+		                            "select c.circleBean.id from CallCenterMappingBean c " +
+		                            "where c.callCenterUserBean.id = :userId")
+		                            .setParameter("userId", userId)
+		                            .getResultList();
+
+		                    if(circleId.size()>1) {
+		                    	dmFilter.setCircleCode("A");
+		                    }else {
+		                    	@SuppressWarnings("unchecked")
+								List<Integer> regionId =session.createQuery(
+			                            "select c.circleBean.regionBean.id from CallCenterMappingBean c " +
+			                            "where c.callCenterUserBean.id = :userId")
+			                            .setParameter("userId", userId)
+			                            .getResultList();
+			                    dmFilter.setCircleCode(String.valueOf(circleId));	
+			                    dmFilter.setRegionCode(String.valueOf(regionId.get(0)));
+		                    }
+
+		                    session.getTransaction().commit();
+		                } finally {
+		                    session.close();
+		                }
+		                break;
+		            }
+		        }
+		    }
+
+		    // IF ADMIN USER LOGIN
+		    else if (adminUserValueBean != null) {
+		        Integer roleId = adminUserValueBean.getRoleId();
+
+		        if (roleId >= 6 && roleId <= 9) {
+		            // HEADQUARTERS
+		            dmFilter.setRegionCode("A");
+		            dmFilter.setCircleCode("A");
+		        } else if (roleId == 5) {
+		            // REGION
+		            dmFilter.setRegionCode(adminUserValueBean.getRegionId().toString());
+		            dmFilter.setCircleCode("A");
+		        } else if (roleId == 4) {
+		            // CIRCLE
+		            dmFilter.setRegionCode(adminUserValueBean.getRegionId().toString());
+		            dmFilter.setCircleCode(adminUserValueBean.getCircleId().toString());
+		        } else {
+		            dmFilter.setRegionCode("A");
+		            dmFilter.setCircleCode("A");
+		        }
+		    }
+
+		    // IF NO USER LOGGED IN
+		    else {
+		        dmFilter.setRegionCode("A");
+		        dmFilter.setCircleCode("A");
+		    }
+		}
+
+	@Transactional
+	public void searchDeviceWiseAbstractFormatTwo() { // FORMAT TWO REPORT
+		System.out.println("THE FORMAT TWO REPORT FETCHED SUCCESFULLY");
+
+		setDefaultDatesIfNeededFormat2();
+		
+		updateLoginWiseFilters();
+		
+		Session session = null;
+		try {
+			session = sessionFactory.openSession();
+			session.beginTransaction();
+
+			if (dmFilter.getRegionCode() == null) {
+				dmFilter.setRegionCode("A");
+			}
+			if (dmFilter.getCircleCode() == null) {
+				dmFilter.setCircleCode("A");
+			}
+			String hql = "SELECT REGCODE, REGNAME, CIRCODE, CIRNAME, WBTOT, WBCOM, WBPEN, MBTOT, MBCOM, MBPEN, ADTOT, ADCOM, ADPEN, SMTOT, SMCOM, SMPEN, MITOT, MICOM, MIPEN FROM ABST_CIR_DEV";
+
+			List<Object[]> results = session.createNativeQuery(hql).getResultList();
+			List<ModeWiseAbstractValueBean> resultList = new ArrayList<>();
+
+			for (Object[] row : results) {
+				ModeWiseAbstractValueBean report = new ModeWiseAbstractValueBean();
+				report.setRegionCode((String) row[0]);
+				report.setRegionName((String) row[1]);
+				report.setCircleCode((String) row[2]);
+				report.setCircleName((String) row[3]);
+
+				report.setWebTotal((BigDecimal) row[4]);
+				report.setWebComp((BigDecimal) row[5]);
+				report.setWebPending((BigDecimal) row[6]);
+
+				report.setMobileTotal((BigDecimal) row[7]);
+				report.setMobileComp((BigDecimal) row[8]);
+				report.setMobilePending((BigDecimal) row[9]);
+
+				report.setAdminTotal((BigDecimal) row[10]);
+				report.setAdminComp((BigDecimal) row[11]);
+				report.setAdminPending((BigDecimal) row[12]);
+
+				report.setSmsTotal((BigDecimal) row[13]);
+				report.setSmsComp((BigDecimal) row[14]);
+				report.setSmsPending((BigDecimal) row[15]);
+
+				report.setMiTotal((BigDecimal) row[16]);
+				report.setMiComp((BigDecimal) row[17]);
+				report.setMiPending((BigDecimal) row[18]);
+
+				resultList.add(report);
+			}
+				
+			HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance() .getExternalContext().getSession(false);
+
+		    //AdminUserValueBean adminUserValueBean =  (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+
+		    CallCenterUserValueBean callCenterValueBean = (CallCenterUserValueBean) httpsession.getAttribute("sessionCallCenterUserValueBean");
+		    
+		    if(callCenterValueBean!=null && (callCenterValueBean.getRoleId()==1 || callCenterValueBean.getRoleId()==7)) {
+	        	int userId = callCenterValueBean.getId();
+		    	@SuppressWarnings("unchecked")
+				List<Integer> circleId = session.createQuery(
+                        "select c.circleBean.id from CallCenterMappingBean c " +
+                        "where c.callCenterUserBean.id = :userId")
+                        .setParameter("userId", userId)
+                        .getResultList();
+		    	
+		    	@SuppressWarnings("unchecked")
+				List<Integer> regionId = session.createQuery(
+						"select DISTINCT c.regionBean.id from CircleBean c " +
+						"where c.id IN :circleId")
+						.setParameter("circleId", circleId)
+						.getResultList();
+
+		    	resultList = resultList.stream()
+					.filter(r -> regionId.contains(Integer.valueOf(r.getRegionCode())))
+					.filter(c -> circleId.contains(Integer.valueOf(c.getCircleCode())))
+					.collect(Collectors.toList());
+	        }
+		    
+		    
+		    if(dmFilter.getRegionCode().equals("A")) {
+				if(dmFilter.getCircleCode().equals("A")) {
+					circleListFormatTwo = resultList;
+				}else {
+					circleListFormatTwo = resultList.stream().filter(c ->c.getCircleCode().equals(dmFilter.getCircleCode())).collect(Collectors.toList());
+				}
+			}else {
+				if(dmFilter.getCircleCode().equals("A")) {
+					circleListFormatTwo = resultList.stream().filter(a -> a.getRegionCode().equals(dmFilter.getRegionCode())).collect(Collectors.toList());
+				}else {
+
+					circleListFormatTwo = resultList.stream().filter(a -> dmFilter.getRegionCode().equals(a.getRegionCode())).filter(c->dmFilter.getCircleCode().contains(c.getCircleCode())).collect(Collectors.toList());
+
+				}
+			}
+				
+				computeTotal();
+				System.out.println("THE CIRCLE LIST FORMAT TWO REPORT SIZE**********" + circleListFormatTwo.size());
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error in database operation");
+		}
+	}
+
+	private void computeTotal() {
+		HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);		
+		AdminUserValueBean adminUserValueBean = (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+		
+		if(adminUserValueBean!=null && adminUserValueBean.getRoleId()==10) {
+			
+			totalWebTotal = BigDecimal.ZERO;
+			totalMobileTotal = BigDecimal.ZERO;
+			totalAdminTotal =BigDecimal.ZERO;
+			totalSmsTotal = BigDecimal.ZERO;
+			totalMiTotal = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiTotal).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+
+			totalWebComp =BigDecimal.ZERO;
+			totalMobileComp = BigDecimal.ZERO;
+			totalAdminComp = BigDecimal.ZERO;
+			totalSmsComp =BigDecimal.ZERO;
+			totalMiComp = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiComp).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+
+			totalWebPending = BigDecimal.ZERO;
+			totalMobilePending =BigDecimal.ZERO;
+			totalAdminPending = BigDecimal.ZERO;
+			totalSmsPending = BigDecimal.ZERO;
+			totalMiPending = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiPending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+			grandTotalRevd = totalMiTotal;
+			grandTotalComp = totalMiComp;
+			grandTotalPend = totalMiPending;
+			
+		}else {
+			totalWebTotal = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getWebTotal).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+			totalMobileTotal = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMobileTotal)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalAdminTotal = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getAdminTotal)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalSmsTotal = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getSmsTotal).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+			totalMiTotal = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiTotal).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+
+			totalWebComp = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getWebComp).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+			totalMobileComp = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMobileComp)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalAdminComp = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getAdminComp)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalSmsComp = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getSmsComp).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+			totalMiComp = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiComp).reduce(BigDecimal.ZERO,
+					BigDecimal::add);
+
+			totalWebPending = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getWebPending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalMobilePending = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMobilePending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalAdminPending = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getAdminPending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalSmsPending = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getSmsPending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			totalMiPending = circleListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiPending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			
+			grandTotalRevd = totalWebTotal.add(totalMobileTotal).add(totalAdminTotal).add(totalSmsTotal).add(totalMiTotal);
+			grandTotalComp = totalWebComp.add(totalMobileComp).add(totalAdminComp).add(totalSmsComp).add(totalMiComp);
+			grandTotalPend = totalWebPending.add(totalMobilePending).add(totalAdminPending).add(totalSmsPending).add(totalMiPending);
+
+		}
+		
+
+	}
+
+	public void redirectToCircleReportFormatTwo() throws IOException {
+		FacesContext.getCurrentInstance().getExternalContext()
+				.redirect("deviceWiseCircleAbstarctReportFormatTwo.xhtml");
+	}
+
+	// SECTION REPORT FOR REGION AND CIRCLE
+	@SuppressWarnings("unchecked")
+	@Transactional
+	public void fetchReportForSectionUsers(String circleCode,String circleName) {
+
+		HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance()
+                .getExternalContext().getSession(false);
+		
+		AdminUserValueBean adminUserValueBean = (AdminUserValueBean) 
+				httpsession.getAttribute("sessionAdminValueBean");
+		
+		
+		String sectionCode = adminUserValueBean.getSectionId().toString();
+
+		if(sectionCode==null || sectionCode.equals("0") || sectionCode.isEmpty()) {
+			dmFilter.setSectionCode("A");
+		}else {
+			dmFilter.setSectionCode(sectionCode);
+		}
+		
+		String subDivisionId = adminUserValueBean.getSubDivisionId().toString();
+		String divisionId = adminUserValueBean.getDivisionId().toString();
+
+		
+		Session session = null;
+		try {
+			session = sessionFactory.openSession();
+			session.beginTransaction();
+
+			String hql = "SELECT c.*, d.NAME AS DIVISION_NAME,d.id as DivisionId,s.sub_division_id as SubDivisionId FROM ABST_SEC_DEV c, SECTION s, DIVISION d WHERE c.SECCODE = s.ID AND d.ID = s.DIVISION_ID AND c.CIRCODE = :circleCode";
+
+			List<Object[]> results = session.createNativeQuery(hql).setParameter("circleCode", circleCode).getResultList();
+			List<ModeWiseAbstractValueBean> circleSection = new ArrayList<>();
+
+			for (Object[] row : results) {
+				ModeWiseAbstractValueBean report = new ModeWiseAbstractValueBean();
+
+				report.setCircleCode((String) row[0]);
+				report.setCircleName((String) row[1]);
+
+				report.setSectionCode((String) row[2]);
+				report.setSectionName((String) row[3]);
+
+				report.setRegionCode((String) row[4]);
+
+				report.setWebTotal((BigDecimal) row[5]);
+				report.setWebComp((BigDecimal) row[6]);
+				report.setWebPending((BigDecimal) row[7]);
+
+				report.setMobileTotal((BigDecimal) row[8]);
+				report.setMobileComp((BigDecimal) row[9]);
+				report.setMobilePending((BigDecimal) row[10]);
+
+				report.setAdminTotal((BigDecimal) row[11]);
+				report.setAdminComp((BigDecimal) row[12]);
+				report.setAdminPending((BigDecimal) row[13]);
+
+				report.setSmsTotal((BigDecimal) row[14]);
+				report.setSmsComp((BigDecimal) row[15]);
+				report.setSmsPending((BigDecimal) row[16]);
+
+				report.setMiTotal((BigDecimal) row[17]);
+				report.setMiComp((BigDecimal) row[18]);
+				report.setMiPending((BigDecimal) row[19]);
+
+				report.setDivisionName((String) row[20]);
+				report.setDivisionId((String) row[21].toString());
+				report.setSubDivisionId((String) row[22].toString());
+
+				circleSection.add(report);
+			}
+			
+
+			//SECTION
+			if(adminUserValueBean.getRoleId()==1) {
+				sectionListFormatTwo = circleSection.stream().filter(circle -> circle.getCircleCode().equalsIgnoreCase(circleCode))
+						.filter(section -> section.getSectionCode().equalsIgnoreCase(sectionCode))
+						.collect(Collectors.toList());
+			}
+			// SUB DIVISION
+			else if(adminUserValueBean.getRoleId()==2) {
+				sectionListFormatTwo = circleSection.stream().filter(circle -> circle.getCircleCode().equalsIgnoreCase(circleCode))
+						.filter(sd -> sd.getSubDivisionId().equalsIgnoreCase(subDivisionId))
+						.collect(Collectors.toList());
+			}
+			// DIVISION
+			else if(adminUserValueBean.getRoleId()==3) {
+				sectionListFormatTwo = circleSection.stream().filter(circle -> circle.getCircleCode().equalsIgnoreCase(circleCode))
+						.filter(d -> d.getDivisionId().equalsIgnoreCase(divisionId))
+						.collect(Collectors.toList());
+			}
+			//ALL SECTION
+			else {
+				sectionListFormatTwo = circleSection.stream().filter(circle -> circle.getCircleCode().equalsIgnoreCase(circleCode))
+						.collect(Collectors.toList());
+			}
+			selectedCircleName = circleName;
+			
+			computeTotalForSection();
+						
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error in database operation");
+		}
+	}
+	
+	// SECTION REPORT FORMAT TWO - REVD, CPL, PEND - REGION AND CIRCLE
+		@Transactional
+		public void fetchReportByCircleFormatTwoForRegionAndCircle(String circleCode, String circleName) {
+
+			Session session = null;
+			try {
+				session = sessionFactory.openSession();
+				session.beginTransaction();
+
+				String hql = "SELECT c.*, d.NAME AS DIVISION_NAME FROM ABST_SEC_DEV c, SECTION s, DIVISION d WHERE c.SECCODE = s.ID AND d.ID = s.DIVISION_ID AND c.CIRCODE = :circleCode";
+
+				List<Object[]> results = session.createNativeQuery(hql).setParameter("circleCode", circleCode).getResultList();
+				List<ModeWiseAbstractValueBean> circleSection = new ArrayList<>();
+
+				for (Object[] row : results) {
+					ModeWiseAbstractValueBean report = new ModeWiseAbstractValueBean();
+
+					report.setCircleCode((String) row[0]);
+					report.setCircleName((String) row[1]);
+
+					report.setSectionCode((String) row[2]);
+					report.setSectionName((String) row[3]);
+
+					report.setRegionCode((String) row[4]);
+
+					report.setWebTotal((BigDecimal) row[5]);
+					report.setWebComp((BigDecimal) row[6]);
+					report.setWebPending((BigDecimal) row[7]);
+
+					report.setMobileTotal((BigDecimal) row[8]);
+					report.setMobileComp((BigDecimal) row[9]);
+					report.setMobilePending((BigDecimal) row[10]);
+
+					report.setAdminTotal((BigDecimal) row[11]);
+					report.setAdminComp((BigDecimal) row[12]);
+					report.setAdminPending((BigDecimal) row[13]);
+
+					report.setSmsTotal((BigDecimal) row[14]);
+					report.setSmsComp((BigDecimal) row[15]);
+					report.setSmsPending((BigDecimal) row[16]);
+
+					report.setMiTotal((BigDecimal) row[17]);
+					report.setMiComp((BigDecimal) row[18]);
+					report.setMiPending((BigDecimal) row[19]);
+
+					report.setDivisionName((String) row[20]);
+
+					circleSection.add(report);
+				}
+
+				sectionListFormatTwo = circleSection.stream().filter(c -> c.getCircleCode().equals(circleCode))
+						.collect(Collectors.toList());
+				computeTotalForSection();
+				selectedCircleName = circleName;
+				computeTotalForSection();
+				FacesContext.getCurrentInstance().getExternalContext().redirect("deviceWiseSectionAbstractReportFormatTwo.xhtml");
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.out.println("Error in database operation");
+			}
+		}
+
+	// REFRESH REPORT LIST BUTTON
+	public void clearReportData() {
+
+		circleListFormatTwo = null;
+		dmFilter = new DataModel();
+		dmFilter.setFromDate(null);
+		dmFilter.setToDate(null);
+
+	}
+
+	private void computeTotalForSection() {
+		HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance()
+                .getExternalContext().getSession(false);
+		
+		AdminUserValueBean adminUserValueBean = (AdminUserValueBean) 
+				httpsession.getAttribute("sessionAdminValueBean");
+		
+		if(adminUserValueBean!=null && adminUserValueBean.getRoleId()==10) {
+			totalMiTotalSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiTotal)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			
+			totalMiCompSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiComp)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			
+			totalMiPendingSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiPending)
+					.reduce(BigDecimal.ZERO, BigDecimal::add);
+			
+			totalWebTotalSection = BigDecimal.ZERO;
+			totalMobileTotalSection = BigDecimal.ZERO;
+			totalAdminTotalSection = BigDecimal.ZERO;
+			totalSmsTotalSection = BigDecimal.ZERO;
+
+			totalWebCompSection =BigDecimal.ZERO;
+			totalMobileCompSection = BigDecimal.ZERO;
+			totalAdminCompSection = BigDecimal.ZERO;
+			totalSmsCompSection =BigDecimal.ZERO;
+
+
+			totalWebPendingSection =BigDecimal.ZERO;
+			totalMobilePendingSection =BigDecimal.ZERO;
+			totalAdminPendingSection = BigDecimal.ZERO;
+			totalSmsPendingSection = BigDecimal.ZERO;
+
+			
+			
+			grandTotalRevdSection =totalMiTotalSection;
+			grandTotalCompSection = totalMiCompSection;
+			grandTotalPendSection = totalMiPendingSection;
+			
+			
+		}else {
+		
+		totalWebTotalSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getWebTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalMobileTotalSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMobileTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalAdminTotalSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getAdminTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalSmsTotalSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getSmsTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalMiTotalSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiTotal)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		totalWebCompSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getWebComp)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalMobileCompSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMobileComp)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalAdminCompSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getAdminComp)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalSmsCompSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getSmsComp)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalMiCompSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiComp)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		totalWebPendingSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getWebPending)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalMobilePendingSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMobilePending)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalAdminPendingSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getAdminPending)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalSmsPendingSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getSmsPending)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		totalMiPendingSection = sectionListFormatTwo.stream().map(ModeWiseAbstractValueBean::getMiPending)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+		
+		grandTotalRevdSection =totalWebTotalSection.add(totalMobileTotalSection).add(totalAdminTotalSection).add(totalSmsTotalSection).add(totalMiTotalSection);
+		grandTotalCompSection = totalWebCompSection.add(totalMobileCompSection).add(totalAdminCompSection).add(totalSmsCompSection).add(totalMiCompSection);
+		grandTotalPendSection = totalWebPendingSection.add(totalMobilePendingSection).add(totalAdminPendingSection).add(totalSmsPendingSection).add(totalMiPendingSection);
+		}
+
+	}
+
+	// CIRCLE REPORT TO EXCEL DOWNLOAD - FORMAT TWO - REVD, CPL,PEND
+	public void exportCircleToExcelFormatTwo(List<ModeWiseAbstractValueBean> reports) throws IOException {
+	    HSSFWorkbook workbook = new HSSFWorkbook();
+	    Sheet sheet = workbook.createSheet("ModeWise_Complaints_Abstract_Report_CircleWise_Format_Two");
+
+	    // Get user session information
+	    HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+	    AdminUserValueBean adminUserValueBean = (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+	    CallCenterUserValueBean callCenterValueBean = (CallCenterUserValueBean) httpsession.getAttribute("sessionCallCenterUserValueBean");
+
+	    boolean isRole3 = false;
+	    boolean isRole7 = false;
+	    boolean isRole10=false;
+	    
+	    if (callCenterValueBean != null) {
+	        if (callCenterValueBean.getRoleId() == 3) {
+	            isRole3 = true;
+	        } else if (callCenterValueBean.getRoleId() == 7) {
+	            isRole7 = true;
+	        }
+	    }
+	    if(adminUserValueBean!=null && adminUserValueBean.getRoleId()==10) {
+	    	isRole10=true;
+	    }
+
+	    // Set column widths based on role
+	    if (isRole3 || isRole7 || isRole10) {
+	        sheet.setColumnWidth(0, 2000); // S.NO
+	        sheet.setColumnWidth(1, 6000); // CIRCLE
+	        for (int i = 2; i < 5; i++) {
+	            sheet.setColumnWidth(i, 3000);
+	        }
+	    } else {
+	        // Original column widths for other roles
+	        sheet.setColumnWidth(0, 2000); // S.NO
+	        sheet.setColumnWidth(1, 6000); // CIRCLE
+	        for (int i = 2; i < 20; i++) {
+	            sheet.setColumnWidth(i, 3000);
+	        }
+	    }
+
+	    CellStyle headingStyle = workbook.createCellStyle();
+	    HSSFFont headingFont = workbook.createFont();
+	    headingFont.setBold(true);
+	    headingFont.setFontHeightInPoints((short) 10);
+	    headingStyle.setFont(headingFont);
+	    headingStyle.setAlignment(HorizontalAlignment.CENTER);
+	    headingStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    headingStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    headingStyle.setBorderBottom(BorderStyle.THIN);
+	    headingStyle.setBorderTop(BorderStyle.THIN);
+	    headingStyle.setBorderLeft(BorderStyle.THIN);
+	    headingStyle.setBorderRight(BorderStyle.THIN);
+	    headingStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+	    CellStyle dateStyle = workbook.createCellStyle();
+	    HSSFFont dateFont = workbook.createFont();
+	    dateFont.setBold(true);
+	    dateFont.setFontHeightInPoints((short) 10);
+	    dateStyle.setFont(dateFont);
+	    dateStyle.setAlignment(HorizontalAlignment.CENTER);
+	    dateStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+	    CellStyle headerStyle = workbook.createCellStyle();
+	    HSSFFont headerFont = workbook.createFont();
+	    headerFont.setBold(true);
+	    headerStyle.setFont(headerFont);
+	    headerStyle.setAlignment(HorizontalAlignment.CENTER);
+	    headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    headerStyle.setBorderBottom(BorderStyle.THIN);
+	    headerStyle.setBorderTop(BorderStyle.THIN);
+	    headerStyle.setBorderLeft(BorderStyle.THIN);
+	    headerStyle.setBorderRight(BorderStyle.THIN);
+
+	    Row headingRow = sheet.createRow(0);
+	    Cell headingCell = headingRow.createCell(0);
+	    headingCell.setCellValue("MODE WISE COMPLAINTS ABSTRACT REPORT - CIRCLE WISE - FORMAT TWO");
+	    headingCell.setCellStyle(headingStyle);
+	    
+	    if (isRole3 || isRole7 || isRole10) {
+	        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 4));
+	    } else {
+	        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 20));
+	    }
+
+	    Row dateRow = sheet.createRow(1);
+	    Cell dateCell = dateRow.createCell(0);
+
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	    String fromDateStr = dmFilter.getFromDate() != null ? dateFormat.format(dmFilter.getFromDate()) : "N/A";
+	    String toDateStr = dmFilter.getToDate() != null ? dateFormat.format(dmFilter.getToDate()) : "N/A";
+
+	    dateCell.setCellValue("From Date: " + fromDateStr + "  To Date: " + toDateStr);
+	    dateCell.setCellStyle(dateStyle);
+	    
+	    if (isRole3 || isRole7 || isRole10) {
+	        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 4));
+	    } else {
+	        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 20));
+	    }
+
+	    Row headerRow1 = sheet.createRow(2);
+	    Row headerRow2 = sheet.createRow(3);
+
+	    Cell snoHeader = headerRow1.createCell(0);
+	    snoHeader.setCellValue("S.NO");
+	    snoHeader.setCellStyle(headerStyle);
+	    sheet.addMergedRegion(new CellRangeAddress(2, 3, 0, 0));
+
+	    Cell circleHeader = headerRow1.createCell(1);
+	    circleHeader.setCellValue("CIRCLE");
+	    circleHeader.setCellStyle(headerStyle);
+	    sheet.addMergedRegion(new CellRangeAddress(2, 3, 1, 1));
+
+	    if (isRole3) {
+	        // Role 3 - Only show Social Media columns
+	        Cell smHeader = headerRow1.createCell(2);
+	        smHeader.setCellValue("SOCIAL MEDIA (SM)");
+	        smHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 4));
+	        
+	        // Sub headers for SM
+	        String[] smSubHeaders = {"Revd.", "Comp", "Pend"};
+	        for (int i = 0; i < smSubHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(2 + i);
+	            subCell.setCellValue(smSubHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+	    } else if (isRole7 || isRole10) {
+	        // Role 7 - Only show MI columns
+	        Cell miHeader = headerRow1.createCell(2);
+	        miHeader.setCellValue("MI");
+	        miHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 4));
+	        
+	        // Sub headers for MI
+	        String[] miSubHeaders = {"Revd.", "Comp", "Pend"};
+	        for (int i = 0; i < miSubHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(2 + i);
+	            subCell.setCellValue(miSubHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+	    } else {
+	        // Original headers for other roles
+	        Cell receivedHeader = headerRow1.createCell(2);
+	        receivedHeader.setCellValue("RECEIVED");
+	        receivedHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 2, 7));
+
+	        Cell completedHeader = headerRow1.createCell(8);
+	        completedHeader.setCellValue("COMPLETED");
+	        completedHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 8, 13));
+
+	        Cell pendingHeader = headerRow1.createCell(14);
+	        pendingHeader.setCellValue("PENDING");
+	        pendingHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 14, 19));
+
+	        String[] subHeaders = { "WEB", "MOBILE.APP", "FOC", "SM", "MI", "TOTAL" };
+
+	        for (int i = 0; i < subHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(2 + i);
+	            subCell.setCellValue(subHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+
+	        for (int i = 0; i < subHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(8 + i);
+	            subCell.setCellValue(subHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+
+	        for (int i = 0; i < subHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(14 + i);
+	            subCell.setCellValue(subHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+	    }
+
+	    int rowNum = 4;
+	    BigDecimal[] columnTotals;
+	    
+	    if (isRole3 || isRole7 || isRole10) {
+	        columnTotals = new BigDecimal[3];
+	    } else {
+	        columnTotals = new BigDecimal[18];
+	    }
+	    Arrays.fill(columnTotals, BigDecimal.ZERO);
+	    int serialNumber = 1;
+
+	    for (ModeWiseAbstractValueBean report : reports) {
+	        Row row = sheet.createRow(rowNum++);
+
+	        row.createCell(0).setCellValue(serialNumber++);
+	        row.createCell(1).setCellValue(report.getCircleName());
+
+	        if (isRole3) {
+	            // For Role 3 - Only show SM data
+	            BigDecimal[] smValues = {
+	                report.getSmsTotal(),    // Revd
+	                report.getSmsComp(),    // Comp
+	                report.getSmsPending()  // Pend
+	            };
+	            
+	            for (int i = 0; i < smValues.length; i++) {
+	                setCellValue(row, 2 + i, smValues[i]);
+	                columnTotals[i] = columnTotals[i].add(smValues[i] != null ? smValues[i] : BigDecimal.ZERO);
+	            }
+	        } else if (isRole7 || isRole10) {
+	            // For Role 7 - Only show MI data
+	            BigDecimal[] miValues = {
+	                report.getMiTotal(),    // Revd
+	                report.getMiComp(),     // Comp
+	                report.getMiPending()   // Pend
+	            };
+	            
+	            for (int i = 0; i < miValues.length; i++) {
+	                setCellValue(row, 2 + i, miValues[i]);
+	                columnTotals[i] = columnTotals[i].add(miValues[i] != null ? miValues[i] : BigDecimal.ZERO);
+	            }
+	        } else {
+	            // Original data for other roles
+	            BigDecimal[] receivedValues = { report.getWebTotal(), report.getMobileTotal(), report.getAdminTotal(),
+	                    report.getSmsTotal(), report.getMiTotal(), report.getWebTotal().add(report.getMobileTotal())
+	                            .add(report.getAdminTotal()).add(report.getSmsTotal()).add(report.getMiTotal()) };
+
+	            BigDecimal[] completedValues = { report.getWebComp(), report.getMobileComp(), report.getAdminComp(),
+	                    report.getSmsComp(), report.getMiComp(), report.getWebComp().add(report.getMobileComp())
+	                            .add(report.getAdminComp()).add(report.getSmsComp()).add(report.getMiComp()) };
+
+	            BigDecimal[] pendingValues = { report.getWebPending(), report.getMobilePending(), report.getAdminPending(),
+	                    report.getSmsPending(), report.getMiPending(), report.getWebPending().add(report.getMobilePending())
+	                            .add(report.getAdminPending()).add(report.getSmsPending()).add(report.getMiPending()) };
+
+	            for (int i = 0; i < receivedValues.length; i++) {
+	                setCellValue(row, 2 + i, receivedValues[i]);
+	                columnTotals[i] = columnTotals[i].add(receivedValues[i] != null ? receivedValues[i] : BigDecimal.ZERO);
+	            }
+
+	            for (int i = 0; i < completedValues.length; i++) {
+	                setCellValue(row, 8 + i, completedValues[i]);
+	                columnTotals[6 + i] = columnTotals[6 + i]
+	                        .add(completedValues[i] != null ? completedValues[i] : BigDecimal.ZERO);
+	            }
+
+	            for (int i = 0; i < pendingValues.length; i++) {
+	                setCellValue(row, 14 + i, pendingValues[i]);
+	                columnTotals[12 + i] = columnTotals[12 + i]
+	                        .add(pendingValues[i] != null ? pendingValues[i] : BigDecimal.ZERO);
+	            }
+	        }
+	    }
+
+	    CellStyle totalRowStyle = workbook.createCellStyle();
+	    HSSFFont totalFont = workbook.createFont();
+	    totalFont.setBold(true);
+	    totalRowStyle.setFont(totalFont);
+	    totalRowStyle.setAlignment(HorizontalAlignment.CENTER);
+	    totalRowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    totalRowStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    totalRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    totalRowStyle.setBorderBottom(BorderStyle.THIN);
+	    totalRowStyle.setBorderTop(BorderStyle.THIN);
+	    totalRowStyle.setBorderLeft(BorderStyle.THIN);
+	    totalRowStyle.setBorderRight(BorderStyle.THIN);
+
+	    Row totalRow = sheet.createRow(rowNum);
+	    totalRow.createCell(0).setCellValue("");
+	    totalRow.createCell(1).setCellValue("TOTAL");
+	    totalRow.getCell(0).setCellStyle(totalRowStyle);
+	    totalRow.getCell(1).setCellStyle(totalRowStyle);
+
+	    if (isRole3 || isRole7 || isRole10) {
+	        for (int i = 0; i < 3; i++) {
+	            setCellValue(totalRow, 2 + i, columnTotals[i]);
+	            totalRow.getCell(2 + i).setCellStyle(totalRowStyle);
+	        }
+	    } else {
+	        for (int i = 0; i < columnTotals.length; i++) {
+	            setCellValue(totalRow, 2 + i, columnTotals[i]);
+	            totalRow.getCell(2 + i).setCellStyle(totalRowStyle);
+	        }
+	    }
+
+	    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	    workbook.write(outputStream);
+	    workbook.close();
+
+	    ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+	    try {
+	        String fileName = "ModeWise_Complaints_Abstract_Report_CircleWise_Format_Two.xls";
+	        
+	        excelFile = DefaultStreamedContent.builder().name(fileName)
+	                .contentType("application/vnd.ms-excel").stream(() -> inputStream).build();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+
+	// SECTION REPORT TO EXCEL DOWNLOAD
+	public void exportSectionToExcelFormatTwo(List<ModeWiseAbstractValueBean> reports) throws IOException {
+	    HSSFWorkbook workbook = new HSSFWorkbook();
+	    Sheet sheet = workbook.createSheet("ModeWise_Complaints_Abstract_Report_SectionWise_Format_Two");
+
+	    // Get user session information
+	    HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+	    AdminUserValueBean adminUserValueBean = (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+	    CallCenterUserValueBean callCenterValueBean = (CallCenterUserValueBean) httpsession.getAttribute("sessionCallCenterUserValueBean");
+
+	    boolean isRole3 = false;
+	    boolean isRole7 = false;
+	    boolean isRole10= false;
+	    
+	    if (callCenterValueBean != null) {
+	        if (callCenterValueBean.getRoleId() == 3) {
+	            isRole3 = true;
+	        } else if (callCenterValueBean.getRoleId() == 7) {
+	            isRole7 = true;
+	        }
+	    }
+	    if(adminUserValueBean!=null && adminUserValueBean.getRoleId()==10) {
+	    	isRole10=true;
+	    }
+
+	    // Set column widths based on role
+	    if (isRole3 || isRole7 ||isRole10) {
+	        sheet.setColumnWidth(0, 2000); // S.NO
+	        sheet.setColumnWidth(1, 5000); // SECTION
+	        sheet.setColumnWidth(2, 5000); // DIVISION
+	        for (int i = 3; i < 6; i++) {
+	            sheet.setColumnWidth(i, 3000);
+	        }
+	    } else {
+	        // Original column widths for other roles
+	        sheet.setColumnWidth(0, 2000); // S.NO
+	        sheet.setColumnWidth(1, 5000); // SECTION
+	        sheet.setColumnWidth(2, 5000); // DIVISION
+	        for (int i = 3; i < 21; i++) {
+	            sheet.setColumnWidth(i, 3000);
+	        }
+	    }
+
+	    CellStyle headingStyle = workbook.createCellStyle();
+	    HSSFFont headingFont = workbook.createFont();
+	    headingFont.setBold(true);
+	    headingFont.setFontHeightInPoints((short) 10);
+	    headingStyle.setFont(headingFont);
+	    headingStyle.setAlignment(HorizontalAlignment.CENTER);
+	    headingStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    headingStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    headingStyle.setBorderBottom(BorderStyle.THIN);
+	    headingStyle.setBorderTop(BorderStyle.THIN);
+	    headingStyle.setBorderLeft(BorderStyle.THIN);
+	    headingStyle.setBorderRight(BorderStyle.THIN);
+	    headingStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+	    CellStyle dateStyle = workbook.createCellStyle();
+	    HSSFFont dateFont = workbook.createFont();
+	    dateFont.setBold(true);
+	    dateFont.setFontHeightInPoints((short) 10);
+	    dateStyle.setFont(dateFont);
+	    dateStyle.setAlignment(HorizontalAlignment.CENTER);
+	    dateStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+	    CellStyle headerStyle = workbook.createCellStyle();
+	    HSSFFont headerFont = workbook.createFont();
+	    headerFont.setBold(true);
+	    headerStyle.setFont(headerFont);
+	    headerStyle.setAlignment(HorizontalAlignment.CENTER);
+	    headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    headerStyle.setBorderBottom(BorderStyle.THIN);
+	    headerStyle.setBorderTop(BorderStyle.THIN);
+	    headerStyle.setBorderLeft(BorderStyle.THIN);
+	    headerStyle.setBorderRight(BorderStyle.THIN);
+
+	    Row headingRow = sheet.createRow(0);
+	    Cell headingCell = headingRow.createCell(0);
+	    headingCell.setCellValue("MODE WISE COMPLAINTS ABSTRACT REPORT - SECTION WISE - FORMAT TWO");
+	    headingCell.setCellStyle(headingStyle);
+	    
+	    if (isRole3 || isRole7 || isRole10) {
+	        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 5));
+	    } else {
+	        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 21));
+	    }
+
+	    Row dateRow = sheet.createRow(1);
+	    Cell dateCell = dateRow.createCell(0);
+
+	    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	    String fromDateStr = dmFilter.getFromDate() != null ? dateFormat.format(dmFilter.getFromDate()) : "N/A";
+	    String toDateStr = dmFilter.getToDate() != null ? dateFormat.format(dmFilter.getToDate()) : "N/A";
+
+	    dateCell.setCellValue("From Date: " + fromDateStr + "  To Date: " + toDateStr);
+	    dateCell.setCellStyle(dateStyle);
+	    
+	    if (isRole3 || isRole7 || isRole10) {
+	        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 5));
+	    } else {
+	        sheet.addMergedRegion(new CellRangeAddress(1, 1, 0, 21));
+	    }
+
+	    Row headerRow1 = sheet.createRow(2);
+	    Row headerRow2 = sheet.createRow(3);
+
+	    Cell snoHeader = headerRow1.createCell(0);
+	    snoHeader.setCellValue("S.NO");
+	    snoHeader.setCellStyle(headerStyle);
+	    sheet.addMergedRegion(new CellRangeAddress(2, 3, 0, 0));
+
+	    Cell sectionHeader = headerRow1.createCell(1);
+	    sectionHeader.setCellValue("SECTION");
+	    sectionHeader.setCellStyle(headerStyle);
+	    sheet.addMergedRegion(new CellRangeAddress(2, 3, 1, 1));
+
+	    Cell divisionHeader = headerRow1.createCell(2);
+	    divisionHeader.setCellValue("DIVISION");
+	    divisionHeader.setCellStyle(headerStyle);
+	    sheet.addMergedRegion(new CellRangeAddress(2, 3, 2, 2));
+
+	    if (isRole3) {
+	        // Role 3 - Only show Social Media columns
+	        Cell smHeader = headerRow1.createCell(3);
+	        smHeader.setCellValue("SOCIAL MEDIA (SM)");
+	        smHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 3, 5));
+	        
+	        // Sub headers for SM
+	        String[] smSubHeaders = {"Revd.", "Comp", "Pend"};
+	        for (int i = 0; i < smSubHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(3 + i);
+	            subCell.setCellValue(smSubHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+	    } else if (isRole7 || isRole10) {
+	        // Role 7 - Only show MI columns
+	        Cell miHeader = headerRow1.createCell(3);
+	        miHeader.setCellValue("MI");
+	        miHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 3, 5));
+	        
+	        // Sub headers for MI
+	        String[] miSubHeaders = {"Revd.", "Comp", "Pend"};
+	        for (int i = 0; i < miSubHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(3 + i);
+	            subCell.setCellValue(miSubHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+	    } else {
+	        // Original headers for other roles
+	        Cell receivedHeader = headerRow1.createCell(3);
+	        receivedHeader.setCellValue("RECEIVED");
+	        receivedHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 3, 8));
+
+	        Cell completedHeader = headerRow1.createCell(9);
+	        completedHeader.setCellValue("COMPLETED");
+	        completedHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 9, 14));
+
+	        Cell pendingHeader = headerRow1.createCell(15);
+	        pendingHeader.setCellValue("PENDING");
+	        pendingHeader.setCellStyle(headerStyle);
+	        sheet.addMergedRegion(new CellRangeAddress(2, 2, 15, 20));
+
+	        String[] subHeaders = { "WEB", "MOBILE.APP", "FOC", "SM", "MI", "TOTAL" };
+
+	        for (int i = 0; i < subHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(3 + i);
+	            subCell.setCellValue(subHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+
+	        for (int i = 0; i < subHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(9 + i);
+	            subCell.setCellValue(subHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+
+	        for (int i = 0; i < subHeaders.length; i++) {
+	            Cell subCell = headerRow2.createCell(15 + i);
+	            subCell.setCellValue(subHeaders[i]);
+	            subCell.setCellStyle(headerStyle);
+	        }
+	    }
+
+	    int rowNum = 4;
+	    BigDecimal[] columnTotals;
+	    
+	    if (isRole3 || isRole7 || isRole10) {
+	        columnTotals = new BigDecimal[3];
+	    } else {
+	        columnTotals = new BigDecimal[18];
+	    }
+	    Arrays.fill(columnTotals, BigDecimal.ZERO);
+	    int serialNumber = 1;
+
+	    for (ModeWiseAbstractValueBean report : reports) {
+	        Row row = sheet.createRow(rowNum++);
+
+	        row.createCell(0).setCellValue(serialNumber++);
+	        row.createCell(1).setCellValue(report.getSectionName());
+	        row.createCell(2).setCellValue(report.getDivisionName());
+
+	        if (isRole3) {
+	            // For Role 3 - Only show SM data
+	            BigDecimal[] smValues = {
+	                report.getSmsTotal(),    // Revd
+	                report.getSmsComp(),    // Comp
+	                report.getSmsPending()  // Pend
+	            };
+	            
+	            for (int i = 0; i < smValues.length; i++) {
+	                setCellValue(row, 3 + i, smValues[i]);
+	                columnTotals[i] = columnTotals[i].add(smValues[i] != null ? smValues[i] : BigDecimal.ZERO);
+	            }
+	        } else if (isRole7 || isRole10) {
+	            // For Role 7 - Only show MI data
+	            BigDecimal[] miValues = {
+	                report.getMiTotal(),    // Revd
+	                report.getMiComp(),     // Comp
+	                report.getMiPending()   // Pend
+	            };
+	            
+	            for (int i = 0; i < miValues.length; i++) {
+	                setCellValue(row, 3 + i, miValues[i]);
+	                columnTotals[i] = columnTotals[i].add(miValues[i] != null ? miValues[i] : BigDecimal.ZERO);
+	            }
+	        } else {
+	            // Original data for other roles
+	            BigDecimal[] receivedValues = { report.getWebTotal(), report.getMobileTotal(), report.getAdminTotal(),
+	                    report.getSmsTotal(), report.getMiTotal(), report.getWebTotal().add(report.getMobileTotal())
+	                            .add(report.getAdminTotal()).add(report.getSmsTotal()).add(report.getMiTotal()) };
+
+	            BigDecimal[] completedValues = { report.getWebComp(), report.getMobileComp(), report.getAdminComp(),
+	                    report.getSmsComp(), report.getMiComp(), report.getWebComp().add(report.getMobileComp())
+	                            .add(report.getAdminComp()).add(report.getSmsComp()).add(report.getMiComp()) };
+
+	            BigDecimal[] pendingValues = { report.getWebPending(), report.getMobilePending(), report.getAdminPending(),
+	                    report.getSmsPending(), report.getMiPending(), report.getWebPending().add(report.getMobilePending())
+	                            .add(report.getAdminPending()).add(report.getSmsPending()).add(report.getMiPending()) };
+
+	            for (int i = 0; i < receivedValues.length; i++) {
+	                setCellValue(row, 3 + i, receivedValues[i]);
+	                columnTotals[i] = columnTotals[i].add(receivedValues[i] != null ? receivedValues[i] : BigDecimal.ZERO);
+	            }
+
+	            for (int i = 0; i < completedValues.length; i++) {
+	                setCellValue(row, 9 + i, completedValues[i]);
+	                columnTotals[6 + i] = columnTotals[6 + i]
+	                        .add(completedValues[i] != null ? completedValues[i] : BigDecimal.ZERO);
+	            }
+
+	            for (int i = 0; i < pendingValues.length; i++) {
+	                setCellValue(row, 15 + i, pendingValues[i]);
+	                columnTotals[12 + i] = columnTotals[12 + i]
+	                        .add(pendingValues[i] != null ? pendingValues[i] : BigDecimal.ZERO);
+	            }
+	        }
+	    }
+
+	    CellStyle totalRowStyle = workbook.createCellStyle();
+	    HSSFFont totalFont = workbook.createFont();
+	    totalFont.setBold(true);
+	    totalRowStyle.setFont(totalFont);
+	    totalRowStyle.setAlignment(HorizontalAlignment.CENTER);
+	    totalRowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+	    totalRowStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+	    totalRowStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    totalRowStyle.setBorderBottom(BorderStyle.THIN);
+	    totalRowStyle.setBorderTop(BorderStyle.THIN);
+	    totalRowStyle.setBorderLeft(BorderStyle.THIN);
+	    totalRowStyle.setBorderRight(BorderStyle.THIN);
+
+	    Row totalRow = sheet.createRow(rowNum);
+	    totalRow.createCell(0).setCellValue("");
+	    totalRow.createCell(1).setCellValue("TOTAL");
+	    totalRow.getCell(0).setCellStyle(totalRowStyle);
+	    totalRow.getCell(1).setCellStyle(totalRowStyle);
+
+	    if (isRole3 || isRole7 || isRole10) {
+	        for (int i = 0; i < 3; i++) {
+	            setCellValue(totalRow, 3 + i, columnTotals[i]);
+	            totalRow.getCell(3 + i).setCellStyle(totalRowStyle);
+	        }
+	    } else {
+	        for (int i = 0; i < columnTotals.length; i++) {
+	            setCellValue(totalRow, 3 + i, columnTotals[i]);
+	            totalRow.getCell(3 + i).setCellStyle(totalRowStyle);
+	        }
+	    }
+
+	    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	    workbook.write(outputStream);
+	    workbook.close();
+
+	    ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+	    try {
+	        String fileName = "ModeWise_Complaints_Abstract_Report_SectionWise_Format_Two.xls";
+	        
+	        excelFile = DefaultStreamedContent.builder().name(fileName)
+	                .contentType("application/vnd.ms-excel").stream(() -> inputStream).build();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+
+
+	// CIRCLE REPORT TO PDF DOWNLOAD - FORMAT TWO
+	public void exportCircleToPdfFormatTwo(List<ModeWiseAbstractValueBean> reports) throws IOException {
+	    try {
+	        // Get user session information
+	        HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+	        CallCenterUserValueBean callCenterValueBean = (CallCenterUserValueBean) httpsession.getAttribute("sessionCallCenterUserValueBean");
+		    AdminUserValueBean adminUserValueBean = (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+
+	        boolean isRole3 = false;
+	        boolean isRole7 = false;
+	        boolean isRole10=false;
+	        
+	        if (callCenterValueBean != null) {
+	            if (callCenterValueBean.getRoleId() == 3) {
+	                isRole3 = true;
+	            } else if (callCenterValueBean.getRoleId() == 7) {
+	                isRole7 = true;
+	            }
+	        }
+	        if(adminUserValueBean!=null && adminUserValueBean.getRoleId()==10) {
+	        	isRole10=true;
+	        }
+
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        Document document = new Document(isRole3 || isRole7 ||isRole10 ? PageSize.A4 : PageSize.A2.rotate());
+	        PdfWriter.getInstance(document, baos);
+	        document.open();
+
+	        Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
+	        String titleText = "MODE WISE COMPLAINTS ABSTRACT REPORT - CIRCLE WISE - FORMAT TWO";
+	        
+	        Paragraph title = new Paragraph(titleText, titleFont);
+	        title.setAlignment(Element.ALIGN_CENTER);
+	        title.setSpacingAfter(20);
+	        document.add(title);
+
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	        String fromDateStr = dmFilter.getFromDate() != null ? dateFormat.format(dmFilter.getFromDate()) : "N/A";
+	        String toDateStr = dmFilter.getToDate() != null ? dateFormat.format(dmFilter.getToDate()) : "N/A";
+
+	        Font subTitleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+	        Paragraph subTitle = new Paragraph("FROM :" + fromDateStr + " | " + "TO :" + toDateStr, subTitleFont);
+	        subTitle.setAlignment(Element.ALIGN_CENTER);
+	        subTitle.setSpacingAfter(20);
+	        document.add(subTitle);
+
+	        PdfPTable table;
+	        if (isRole3 || isRole7 || isRole10) {
+	            table = new PdfPTable(5); // S.NO, CIRCLE, Revd, Comp, Pend
+	            float[] columnWidths = {0.5f, 2f, 1f, 1f, 1f};
+	            table.setWidths(columnWidths);
+	        } else {
+	            table = new PdfPTable(20);
+	            float[] columnWidths = {0.5f, 2f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 1f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 1f, 0.8f,
+	                    0.8f, 0.8f, 0.8f, 0.8f, 1f};
+	            table.setWidths(columnWidths);
+	        }
+	        
+	        table.setWidthPercentage(100);
+	        table.setSpacingBefore(10f);
+	        table.setSpacingAfter(10f);
+
+	        // Add headers based on role
+	        if (isRole3) {
+	            addRoleSpecificPdfHeader(table, "SOCIAL MEDIA (SM)");
+	        } else if (isRole7 || isRole10) {
+	            addRoleSpecificPdfHeader(table, "MI");
+	        } else {
+	            addFullPdfHeader(table);
+	        }
+
+	        BigDecimal[] columnTotals;
+	        if (isRole3 || isRole7 || isRole10) {
+	            columnTotals = new BigDecimal[3];
+	        } else {
+	            columnTotals = new BigDecimal[18];
+	        }
+	        Arrays.fill(columnTotals, BigDecimal.ZERO);
+
+	        int serialNumber = 1;
+	        for (ModeWiseAbstractValueBean report : reports) {
+	            if (isRole3 || isRole7 || isRole10) {
+	                addRoleSpecificPdfRow(table, report, serialNumber++, columnTotals, isRole3);
+	            } else {
+	                addFullPdfRow(table, report, serialNumber++, columnTotals);
+	            }
+	        }
+
+	        addPdfFooter(table, columnTotals, isRole3 || isRole7||isRole10 ? 5 : 20);
+
+	        document.add(table);
+	        document.close();
+
+	        String fileName = "ModeWise_Complaints_Abstract_Report_CircleWise_Format_Two.pdf";
+	        
+	        pdfFile = DefaultStreamedContent.builder().name(fileName)
+	                .contentType("application/pdf").stream(() -> new ByteArrayInputStream(baos.toByteArray())).build();
+
+	    } catch (DocumentException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	private void addRoleSpecificPdfHeader(PdfPTable table, String sectionName) {
+	    Font headerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+	    BaseColor lightGray = new BaseColor(211, 211, 211);
+	    BaseColor borderColor = new BaseColor(13, 1, 1);
+
+	    addHeaderCell(table, "S.NO", headerFont, lightGray, borderColor);
+	    addHeaderCell(table, "CIRCLE", headerFont, lightGray, borderColor);
+	    
+	    // Add section header cell
+	    PdfPCell sectionCell = new PdfPCell(new Phrase(sectionName, headerFont));
+	    sectionCell.setBackgroundColor(lightGray);
+	    sectionCell.setBorderColor(borderColor);
+	    sectionCell.setBorderWidth(1f);
+	    sectionCell.setColspan(3);
+	    sectionCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(sectionCell);
+
+	    // Add sub headers
+	    Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+	    addEmptyCell(table, borderColor);
+	    addEmptyCell(table, borderColor);
+	    
+	    String[] subHeaders = {"Revd.", "Comp", "Pend"};
+	    for (String header : subHeaders) {
+	        addSubHeaderCell(table, header, subHeaderFont, lightGray, borderColor);
+	    }
+	}
+
+	private void addFullPdfHeader(PdfPTable table) {
+	    Font headerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+	    BaseColor lightGray = new BaseColor(211, 211, 211);
+	    BaseColor borderColor = new BaseColor(13, 1, 1);
+
+	    addHeaderCell(table, "S.NO", headerFont, lightGray, borderColor);
+	    addHeaderCell(table, "CIRCLE", headerFont, lightGray, borderColor);
+
+	    String[] sectionHeaders = { "RECEIVED", "COMPLETED", "PENDING" };
+	    for (String header : sectionHeaders) {
+	        PdfPCell sectionCell = new PdfPCell(new Phrase(header, headerFont));
+	        sectionCell.setBackgroundColor(lightGray);
+	        sectionCell.setBorderColor(borderColor);
+	        sectionCell.setBorderWidth(1f);
+	        sectionCell.setColspan(6);
+	        sectionCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(sectionCell);
+	    }
+
+	    String[] subHeaders = { "WEB", "MOBILE.APP", "FOC", "SM", "MI", "TOTAL" };
+	    Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+
+	    addEmptyCell(table, borderColor);
+	    addEmptyCell(table, borderColor);
+
+	    for (int i = 0; i < 3; i++) {
+	        for (String header : subHeaders) {
+	            addSubHeaderCell(table, header, subHeaderFont, lightGray, borderColor);
+	        }
+	    }
+	}
+
+	private void addRoleSpecificPdfRow(PdfPTable table, ModeWiseAbstractValueBean report, int serialNumber,
+	        BigDecimal[] columnTotals, boolean isRole3) {
+	    Font dataFont = new Font(Font.FontFamily.HELVETICA, 8);
+	    BaseColor borderColor = new BaseColor(100, 100, 100);
+
+	    PdfPCell serialCell = new PdfPCell(new Phrase(String.valueOf(serialNumber), dataFont));
+	    serialCell.setBorderColor(borderColor);
+	    table.addCell(serialCell);
+
+	    PdfPCell circleCell = new PdfPCell(new Phrase(report.getCircleName(), dataFont));
+	    circleCell.setBorderColor(borderColor);
+	    table.addCell(circleCell);
+
+	    BigDecimal[] values;
+	    if (isRole3) {
+	        // For Role 3 - Social Media data
+	        values = new BigDecimal[] {
+	            report.getSmsTotal(),    // Revd
+	            report.getSmsComp(),     // Comp
+	            report.getSmsPending()  // Pend
+	        };
+	    } else {
+	        // For Role 7 - MI data
+	        values = new BigDecimal[] {
+	            report.getMiTotal(),    // Revd
+	            report.getMiComp(),     // Comp
+	            report.getMiPending()   // Pend
+	        };
+	    }
+
+	    for (int i = 0; i < values.length; i++) {
+	        PdfPCell cell = new PdfPCell(new Phrase(values[i].toString(), dataFont));
+	        cell.setBorderColor(borderColor);
+	        table.addCell(cell);
+	        columnTotals[i] = columnTotals[i].add(values[i]);
+	    }
+	}
+
+	private void addFullPdfRow(PdfPTable table, ModeWiseAbstractValueBean report, int serialNumber,
+	        BigDecimal[] columnTotals) {
+	    Font dataFont = new Font(Font.FontFamily.HELVETICA, 8);
+	    BaseColor borderColor = new BaseColor(100, 100, 100);
+
+	    PdfPCell serialCell = new PdfPCell(new Phrase(String.valueOf(serialNumber), dataFont));
+	    serialCell.setBorderColor(borderColor);
+	    table.addCell(serialCell);
+
+	    PdfPCell circleCell = new PdfPCell(new Phrase(report.getCircleName(), dataFont));
+	    circleCell.setBorderColor(borderColor);
+	    table.addCell(circleCell);
+
+	    BigDecimal[] receivedValues = { report.getWebTotal(), report.getMobileTotal(), report.getAdminTotal(),
+	            report.getSmsTotal(), report.getMiTotal(), report.getWebTotal().add(report.getMobileTotal())
+	                    .add(report.getAdminTotal()).add(report.getSmsTotal()).add(report.getMiTotal()) };
+	    addValueCells(table, receivedValues, dataFont, borderColor, columnTotals, 0);
+
+	    BigDecimal[] completedValues = { report.getWebComp(), report.getMobileComp(), report.getAdminComp(),
+	            report.getSmsComp(), report.getMiComp(), report.getWebComp().add(report.getMobileComp())
+	                    .add(report.getAdminComp()).add(report.getSmsComp()).add(report.getMiComp()) };
+	    addValueCells(table, completedValues, dataFont, borderColor, columnTotals, 6);
+
+	    BigDecimal[] pendingValues = { report.getWebPending(), report.getMobilePending(), report.getAdminPending(),
+	            report.getSmsPending(), report.getMiPending(), report.getWebPending().add(report.getMobilePending())
+	                    .add(report.getAdminPending()).add(report.getSmsPending()).add(report.getMiPending()) };
+	    addValueCells(table, pendingValues, dataFont, borderColor, columnTotals, 12);
+	}
+
+	private void addPdfFooter(PdfPTable table, BigDecimal[] columnTotals, int columnCount) {
+	    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+	    BaseColor lightGray = new BaseColor(230, 230, 230);
+	    BaseColor borderColor = new BaseColor(100, 100, 100);
+
+	    PdfPCell emptyCell = new PdfPCell(new Phrase(""));
+	    emptyCell.setBorderColor(borderColor);
+	    table.addCell(emptyCell);
+
+	    PdfPCell totalLabel = new PdfPCell(new Phrase("TOTAL", footerFont));
+	    totalLabel.setBackgroundColor(lightGray);
+	    totalLabel.setBorderColor(borderColor);
+	    totalLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(totalLabel);
+
+	    for (int i = 0; i < columnTotals.length; i++) {
+	        PdfPCell totalCell = new PdfPCell(new Phrase(columnTotals[i].toString(), footerFont));
+	        totalCell.setBackgroundColor(lightGray);
+	        totalCell.setBorderColor(borderColor);
+	        totalCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(totalCell);
+	    }
+	    
+	    // Fill remaining cells if any
+	    for (int i = columnTotals.length + 2; i < columnCount; i++) {
+	        PdfPCell emptyFooterCell = new PdfPCell(new Phrase(""));
+	        emptyFooterCell.setBorderColor(borderColor);
+	        table.addCell(emptyFooterCell);
+	    }
+	}
+
+
+	private void addValueCells(PdfPTable table, BigDecimal[] values, Font font, BaseColor borderColor,
+			BigDecimal[] columnTotals, int offset) {
+		for (int i = 0; i < values.length; i++) {
+			PdfPCell cell = new PdfPCell(new Phrase(values[i].toString(), font));
+			cell.setBorderColor(borderColor);
+			table.addCell(cell);
+			columnTotals[offset + i] = columnTotals[offset + i].add(values[i]);
+		}
+	}
+
+	private void addHeaderCell(PdfPTable table, String text, Font font, BaseColor bgColor, BaseColor borderColor) {
+		PdfPCell cell = new PdfPCell(new Phrase(text, font));
+		cell.setBackgroundColor(bgColor);
+		cell.setBorderColor(borderColor);
+		cell.setBorderWidth(1f);
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setPadding(5);
+		table.addCell(cell);
+	}
+
+	private void addSubHeaderCell(PdfPTable table, String text, Font font, BaseColor bgColor, BaseColor borderColor) {
+		PdfPCell cell = new PdfPCell(new Phrase(text, font));
+		cell.setBackgroundColor(bgColor);
+		cell.setBorderColor(borderColor);
+		cell.setBorderWidth(1f);
+		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		cell.setPadding(3);
+		table.addCell(cell);
+	}
+
+	private void addEmptyCell(PdfPTable table, BaseColor borderColor) {
+		PdfPCell cell = new PdfPCell(new Phrase(""));
+		cell.setBorderColor(borderColor);
+		cell.setBorderWidth(1f);
+		table.addCell(cell);
+	}
+	
+	
+	// SECTION REPORT TO PDF DOWNLOAD
+	public void exportSectionToPdfFormatTwo(List<ModeWiseAbstractValueBean> reports) throws IOException {
+	    try {
+	        // Get user session information
+	        HttpSession httpsession = (HttpSession) FacesContext.getCurrentInstance().getExternalContext().getSession(false);
+	        CallCenterUserValueBean callCenterValueBean = (CallCenterUserValueBean) httpsession.getAttribute("sessionCallCenterUserValueBean");
+	        AdminUserValueBean adminUserValueBean = (AdminUserValueBean) httpsession.getAttribute("sessionAdminValueBean");
+
+	        boolean isRole3 = false;
+	        boolean isRole7 = false;
+	        boolean isRole10=false;
+	        
+	        if (callCenterValueBean != null) {
+	            if (callCenterValueBean.getRoleId() == 3) {
+	                isRole3 = true;
+	            } else if (callCenterValueBean.getRoleId() == 7) {
+	                isRole7 = true;
+	            }
+	        }
+	        if(adminUserValueBean!=null && adminUserValueBean.getRoleId()==10) {
+	        	isRole10=true;
+	        }
+
+	        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	        Document document = new Document(isRole3 || isRole7 || isRole10 ? PageSize.A4 : PageSize.A2.rotate());
+	        PdfWriter.getInstance(document, baos);
+	        document.open();
+
+	        Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
+	        String titleText = "MODE WISE COMPLAINTS ABSTRACT REPORT - SECTION WISE - FORMAT TWO";
+	        
+	        Paragraph title = new Paragraph(titleText, titleFont);
+	        title.setAlignment(Element.ALIGN_CENTER);
+	        title.setSpacingAfter(20);
+	        document.add(title);
+
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	        String fromDateStr = dmFilter.getFromDate() != null ? dateFormat.format(dmFilter.getFromDate()) : "N/A";
+	        String toDateStr = dmFilter.getToDate() != null ? dateFormat.format(dmFilter.getToDate()) : "N/A";
+
+	        Font subTitleFont = new Font(Font.FontFamily.HELVETICA, 12, Font.NORMAL);
+	        Paragraph subTitle = new Paragraph("FROM :" + fromDateStr + " | " + "TO :" + toDateStr, subTitleFont);
+	        subTitle.setAlignment(Element.ALIGN_CENTER);
+	        subTitle.setSpacingAfter(20);
+	        document.add(subTitle);
+
+	        PdfPTable table;
+	        if (isRole3 || isRole7 ||isRole10) {
+	            table = new PdfPTable(6); // S.NO, SECTION, DIVISION, Revd, Comp, Pend
+	            float[] columnWidths = {0.5f, 2f, 2f, 1f, 1f, 1f};
+	            table.setWidths(columnWidths);
+	        } else {
+	            table = new PdfPTable(21);
+	            float[] columnWidths = {0.5f, 2f, 2f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 1f, 0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 1f,
+	                    0.8f, 0.8f, 0.8f, 0.8f, 0.8f, 1f};
+	            table.setWidths(columnWidths);
+	        }
+	        
+	        table.setWidthPercentage(100);
+	        table.setSpacingBefore(10f);
+	        table.setSpacingAfter(10f);
+
+	        // Add headers based on role
+	        if (isRole3) {
+	            addRoleSpecificSectionPdfHeader(table, "SOCIAL MEDIA");
+	        } else if (isRole7 || isRole10) {
+	            addRoleSpecificSectionPdfHeader(table, "MINNAGAM");
+	        } else {
+	            addFullSectionPdfHeader(table);
+	        }
+
+	        BigDecimal[] columnTotals;
+	        if (isRole3 || isRole7 ||isRole10) {
+	            columnTotals = new BigDecimal[3];
+	        } else {
+	            columnTotals = new BigDecimal[18];
+	        }
+	        Arrays.fill(columnTotals, BigDecimal.ZERO);
+
+	        int serialNumber = 1;
+	        for (ModeWiseAbstractValueBean report : reports) {
+	            if (isRole3 || isRole7 || isRole10) {
+	                addRoleSpecificSectionPdfRow(table, report, serialNumber++, columnTotals, isRole3);
+	            } else {
+	                addFullSectionPdfRow(table, report, serialNumber++, columnTotals);
+	            }
+	        }
+
+	        addSectionPdfFooter(table, columnTotals, isRole3 || isRole7 || isRole10 ? 6 : 21);
+
+	        document.add(table);
+	        document.close();
+
+	        String fileName = "ModeWise_Complaints_Abstract_Report_SectionWise_Format_Two.pdf";
+	        
+	        pdfFile = DefaultStreamedContent.builder().name(fileName)
+	                .contentType("application/pdf").stream(() -> new ByteArrayInputStream(baos.toByteArray())).build();
+
+	    } catch (DocumentException e) {
+	        e.printStackTrace();
+	    }
+	}
+
+	private void addRoleSpecificSectionPdfHeader(PdfPTable table, String sectionName) {
+	    Font headerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+	    BaseColor lightGray = new BaseColor(211, 211, 211);
+	    BaseColor borderColor = new BaseColor(13, 1, 1);
+
+	    addHeaderCell(table, "S.NO", headerFont, lightGray, borderColor);
+	    addHeaderCell(table, "SECTION", headerFont, lightGray, borderColor);
+	    addHeaderCell(table, "DIVISION", headerFont, lightGray, borderColor);
+	    
+	    // Add section header cell
+	    PdfPCell sectionCell = new PdfPCell(new Phrase(sectionName, headerFont));
+	    sectionCell.setBackgroundColor(lightGray);
+	    sectionCell.setBorderColor(borderColor);
+	    sectionCell.setBorderWidth(1f);
+	    sectionCell.setColspan(3);
+	    sectionCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(sectionCell);
+
+	    // Add sub headers
+	    Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+	    addEmptyCell(table, borderColor);
+	    addEmptyCell(table, borderColor);
+	    addEmptyCell(table, borderColor);
+	    
+	    String[] subHeaders = {"Revd.", "Comp", "Pend"};
+	    for (String header : subHeaders) {
+	        addSubHeaderCell(table, header, subHeaderFont, lightGray, borderColor);
+	    }
+	}
+
+	private void addFullSectionPdfHeader(PdfPTable table) {
+	    Font headerFont = new Font(Font.FontFamily.HELVETICA, 10, Font.BOLD);
+	    BaseColor lightGray = new BaseColor(211, 211, 211);
+	    BaseColor borderColor = new BaseColor(13, 1, 1);
+
+	    addHeaderCell(table, "S.NO", headerFont, lightGray, borderColor);
+	    addHeaderCell(table, "SECTION", headerFont, lightGray, borderColor);
+	    addHeaderCell(table, "DIVISION", headerFont, lightGray, borderColor);
+
+	    String[] sectionHeaders = { "RECEIVED", "COMPLETED", "PENDING" };
+	    for (String header : sectionHeaders) {
+	        PdfPCell sectionCell = new PdfPCell(new Phrase(header, headerFont));
+	        sectionCell.setBackgroundColor(lightGray);
+	        sectionCell.setBorderColor(borderColor);
+	        sectionCell.setBorderWidth(1f);
+	        sectionCell.setColspan(6);
+	        sectionCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(sectionCell);
+	    }
+
+	    String[] subHeaders = { "WEB", "MOBILE.APP", "FOC", "SM", "MI", "TOTAL" };
+	    Font subHeaderFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+
+	    addEmptyCell(table, borderColor);
+	    addEmptyCell(table, borderColor);
+	    addEmptyCell(table, borderColor);
+
+	    for (int i = 0; i < 3; i++) {
+	        for (String header : subHeaders) {
+	            addSubHeaderCell(table, header, subHeaderFont, lightGray, borderColor);
+	        }
+	    }
+	}
+
+	private void addRoleSpecificSectionPdfRow(PdfPTable table, ModeWiseAbstractValueBean report, int serialNumber,
+	        BigDecimal[] columnTotals, boolean isRole3) {
+	    Font dataFont = new Font(Font.FontFamily.HELVETICA, 8);
+	    BaseColor borderColor = new BaseColor(100, 100, 100);
+
+	    PdfPCell serialCell = new PdfPCell(new Phrase(String.valueOf(serialNumber), dataFont));
+	    serialCell.setBorderColor(borderColor);
+	    table.addCell(serialCell);
+
+	    PdfPCell sectionCell = new PdfPCell(new Phrase(report.getSectionName(), dataFont));
+	    sectionCell.setBorderColor(borderColor);
+	    table.addCell(sectionCell);
+
+	    PdfPCell divisionCell = new PdfPCell(new Phrase(report.getDivisionName(), dataFont));
+	    divisionCell.setBorderColor(borderColor);
+	    table.addCell(divisionCell);
+
+	    BigDecimal[] values;
+	    if (isRole3) {
+	        // For Role 3 - Social Media data
+	        values = new BigDecimal[] {
+	            report.getSmsTotal(),    // Revd
+	            report.getSmsComp(),     // Comp
+	            report.getSmsPending()   // Pend
+	        };
+	    } else {
+	        // For Role 7 - MI data
+	        values = new BigDecimal[] {
+	            report.getMiTotal(),    // Revd
+	            report.getMiComp(),     // Comp
+	            report.getMiPending()   // Pend
+	        };
+	    }
+
+	    for (int i = 0; i < values.length; i++) {
+	        PdfPCell cell = new PdfPCell(new Phrase(values[i].toString(), dataFont));
+	        cell.setBorderColor(borderColor);
+	        table.addCell(cell);
+	        columnTotals[i] = columnTotals[i].add(values[i]);
+	    }
+	}
+
+	private void addFullSectionPdfRow(PdfPTable table, ModeWiseAbstractValueBean report, int serialNumber,
+	        BigDecimal[] columnTotals) {
+	    Font dataFont = new Font(Font.FontFamily.HELVETICA, 8);
+	    BaseColor borderColor = new BaseColor(100, 100, 100);
+
+	    PdfPCell serialCell = new PdfPCell(new Phrase(String.valueOf(serialNumber), dataFont));
+	    serialCell.setBorderColor(borderColor);
+	    table.addCell(serialCell);
+
+	    PdfPCell sectionCell = new PdfPCell(new Phrase(report.getSectionName(), dataFont));
+	    sectionCell.setBorderColor(borderColor);
+	    table.addCell(sectionCell);
+
+	    PdfPCell divisionCell = new PdfPCell(new Phrase(report.getDivisionName(), dataFont));
+	    divisionCell.setBorderColor(borderColor);
+	    table.addCell(divisionCell);
+
+	    BigDecimal[] receivedValues = { report.getWebTotal(), report.getMobileTotal(), report.getAdminTotal(),
+	            report.getSmsTotal(), report.getMiTotal(), report.getWebTotal().add(report.getMobileTotal())
+	                    .add(report.getAdminTotal()).add(report.getSmsTotal()).add(report.getMiTotal()) };
+	    addValueCells(table, receivedValues, dataFont, borderColor, columnTotals, 0);
+
+	    BigDecimal[] completedValues = { report.getWebComp(), report.getMobileComp(), report.getAdminComp(),
+	            report.getSmsComp(), report.getMiComp(), report.getWebComp().add(report.getMobileComp())
+	                    .add(report.getAdminComp()).add(report.getSmsComp()).add(report.getMiComp()) };
+	    addValueCells(table, completedValues, dataFont, borderColor, columnTotals, 6);
+
+	    BigDecimal[] pendingValues = { report.getWebPending(), report.getMobilePending(), report.getAdminPending(),
+	            report.getSmsPending(), report.getMiPending(), report.getWebPending().add(report.getMobilePending())
+	                    .add(report.getAdminPending()).add(report.getSmsPending()).add(report.getMiPending()) };
+	    addValueCells(table, pendingValues, dataFont, borderColor, columnTotals, 12);
+	}
+
+	private void addSectionPdfFooter(PdfPTable table, BigDecimal[] columnTotals, int columnCount) {
+	    Font footerFont = new Font(Font.FontFamily.HELVETICA, 8, Font.BOLD);
+	    BaseColor lightGray = new BaseColor(230, 230, 230);
+	    BaseColor borderColor = new BaseColor(100, 100, 100);
+
+	    PdfPCell emptyCell1 = new PdfPCell(new Phrase(""));
+	    emptyCell1.setBorderColor(borderColor);
+	    table.addCell(emptyCell1);
+
+	    PdfPCell emptyCell2 = new PdfPCell(new Phrase(""));
+	    emptyCell2.setBorderColor(borderColor);
+	    table.addCell(emptyCell2);
+
+	    PdfPCell totalLabel = new PdfPCell(new Phrase("TOTAL", footerFont));
+	    totalLabel.setBackgroundColor(lightGray);
+	    totalLabel.setBorderColor(borderColor);
+	    totalLabel.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    table.addCell(totalLabel);
+
+	    for (int i = 0; i < columnTotals.length; i++) {
+	        PdfPCell totalCell = new PdfPCell(new Phrase(columnTotals[i].toString(), footerFont));
+	        totalCell.setBackgroundColor(lightGray);
+	        totalCell.setBorderColor(borderColor);
+	        totalCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        table.addCell(totalCell);
+	    }
+	    
+	    // Fill remaining cells if any
+	    for (int i = columnTotals.length + 3; i < columnCount; i++) {
+	        PdfPCell emptyFooterCell = new PdfPCell(new Phrase(""));
+	        emptyFooterCell.setBorderColor(borderColor);
+	        table.addCell(emptyFooterCell);
+	    }
+	}
+
+	@Transactional
+	public void getComplaintListForSection(String secCode, String sectionName) throws IOException {
+		try (Session session = sessionFactory.openSession()) {
+
+			Timestamp fromDate = new Timestamp(dmFilter.getFromDate().getTime());
+			Timestamp toDate = new Timestamp(dmFilter.getToDate().getTime());
+
+			Integer sectionCode = Integer.parseInt(secCode);
+
+			String hql = "SELECT a.id, " + "to_char(a.created_on, 'dd-mm-yyyy-hh24:mi') AS Complaint_Date, "
+					+ "DECODE(a.device, 'web', 'Web', 'FOC', 'FOC', 'admin', 'FOC', 'SM', 'Social Media', 'Android', 'Mobile', 'AMOB', 'Mobile', 'IMOB', 'Mobile', 'iOS', 'Mobile', 'mobile', 'Mobile', 'MI', 'Minnagam') AS Device, "
+					+ "a.SERVICE_NUMBER AS Service_Number, " + "a.SERVICE_NAME AS Service_Name, "
+					+ "a.SERVICE_ADDRESS AS Service_Address, "
+					+ "b.mobile AS Contact_Number, k.name AS Complaint_Type, d.name AS subctyp, "
+					+ "a.description AS Complaint_Description, "
+					+ "DECODE(a.status_id, 0, 'Pending', 1, 'In Progress', 2, 'Completed') AS Complaint_Status, "
+	                +"(CASE WHEN a.status_id=2 then TO_CHAR(a.updated_on, 'DD-MM-YYYY-HH24:MI') else '' end) AS Attended_Date, " 
+	               + "(CASE WHEN a.status_id=2 then c.description else '' end) AS Attended_Remarks, " 
+					+ "f.name AS Region, g.name AS Circle, h.name AS Division, i.name AS SubDivision, j.name AS Section "
+					+ "FROM COMPLAINT a " + "JOIN PUBLIC_USER b ON a.user_id = b.id "
+					+ "JOIN COMPLAINT_HISTORY c ON a.id = c.complaint_id AND a.status_id = c.status_id "
+					+ "JOIN SUB_CATEGORY d ON a.sub_category_id = d.id "
+					+ "JOIN CATEGORY k ON a.complaint_type = k.code " + "JOIN REGION f ON a.region_id = f.id "
+					+ "JOIN CIRCLE g ON a.circle_id = g.id " + "JOIN DIVISION h ON a.division_id = h.id "
+					+ "JOIN SUB_DIVISION i ON a.sub_division_id = i.id " + "JOIN SECTION j ON a.section_id = j.id "
+					+ "WHERE a.SECTION_ID = :sectionCode " + "AND a.created_on BETWEEN :fromDate AND :toDate";
+
+			Query query = session.createNativeQuery(hql);
+			query.setParameter("sectionCode", sectionCode);
+			query.setParameter("fromDate", fromDate);
+			query.setParameter("toDate", toDate);
+
+			List<Object[]> results = query.getResultList();
+
+			complaintList = new ArrayList<ViewComplaintReportValueBean>();
+			for (Object[] row : results) {
+				ViewComplaintReportValueBean dto = new ViewComplaintReportValueBean();
+				dto.setComplaintId((BigDecimal) row[0]);
+				dto.setCreatedOnFormatted((String) row[1]);
+				dto.setDevice((String) row[2]);
+				dto.setServiceNumber((String) row[3]);
+				dto.setServiceName((String) row[4]);
+				dto.setServiceAddress((String) row[5]);
+				dto.setMobile((String) row[6]);
+				dto.setComplaintType((String) row[7]);
+				dto.setSubCategoryName((String) row[8]);
+				dto.setComplaintDescription((String) row[9]);
+				dto.setComplaintStatusValue((String) row[10]);
+				dto.setAttendedDate((String) row[11]);
+				dto.setAttendedRemarks((String) row[12]);
+				dto.setRegionName((String) row[13]);
+				dto.setCircleName((String) row[14]);
+				dto.setDivisionName((String) row[15]);
+				dto.setSubDivisionName((String) row[16]);
+				dto.setSectionName((String) row[17]);
+
+				complaintList.add(dto);
+			}
+
+			selectedSectionName = sectionName;
+			redirectFrom = "section";
+
+			FacesContext.getCurrentInstance().getExternalContext().redirect("deviceWiseAbstarctComplaintList.xhtml");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	@Transactional
+	public void getComplaintListForCircle() throws IOException {
+		try (Session session = sessionFactory.openSession()) {
+
+			Timestamp fromDate = new Timestamp(dmFilter.getFromDate().getTime());
+			Timestamp toDate = new Timestamp(dmFilter.getToDate().getTime());
+
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			String status = facesContext.getExternalContext().getRequestParameterMap().get("status");
+
+			List<Integer> statusIDs = new ArrayList<>();
+
+			if (status.equalsIgnoreCase("Received")) {
+				statusIDs = Arrays.asList(CCMSConstants.PENDING, CCMSConstants.COMPLETED, CCMSConstants.IN_PROGRESS);
+			} else if (status.equalsIgnoreCase("Completed")) {
+				statusIDs = Arrays.asList(CCMSConstants.COMPLETED);
+			} else if (status.equalsIgnoreCase("Pending")) {
+				statusIDs = Arrays.asList(CCMSConstants.PENDING);
+			}
+
+			List<ViewComplaintReportBean> complaintBeanList = new ArrayList<>();
+
+			String hql = "SELECT a.id, " + "to_char(a.created_on, 'dd-mm-yyyy-hh24:mi') AS Complaint_Date, "
+					+ "DECODE(a.device, 'web', 'Web', 'FOC', 'FOC', 'admin', 'FOC', 'SM', 'Social Media', 'Android', 'Mobile', 'AMOB', 'Mobile', 'IMOB', 'Mobile', 'iOS', 'Mobile', 'mobile', 'Mobile', 'MI', 'Minnagam') AS Device, "
+					+ "a.SERVICE_NUMBER AS Service_Number, " + "a.SERVICE_NAME AS Service_Name, "
+					+ "a.SERVICE_ADDRESS AS Service_Address, "
+					+ "b.mobile AS Contact_Number, k.name AS Complaint_Type, d.name AS subctyp, "
+					+ "a.description AS Complaint_Description, "
+					+ "DECODE(a.status_id, 0, 'Pending', 1, 'In Progress', 2, 'Completed') AS Complaint_Status, "
+					+ "TO_CHAR(a.updated_on, 'DD-MM-YYYY-HH24:MI') AS Attended_Date, "
+					+ "c.description AS Attended_Remarks, "
+					+ "f.name AS Region, g.name AS Circle, h.name AS Division, i.name AS SubDivision, j.name AS Section "
+					+ "FROM COMPLAINT a " + "JOIN PUBLIC_USER b ON a.user_id = b.id "
+					+ "JOIN COMPLAINT_HISTORY c ON a.id = c.complaint_id AND a.status_id = c.status_id "
+					+ "JOIN SUB_CATEGORY d ON a.sub_category_id = d.id "
+					+ "JOIN CATEGORY k ON a.complaint_type = k.code " + "JOIN REGION f ON a.region_id = f.id "
+					+ "JOIN CIRCLE g ON a.circle_id = g.id " + "JOIN DIVISION h ON a.division_id = h.id "
+					+ "JOIN SUB_DIVISION i ON a.sub_division_id = i.id " + "JOIN SECTION j ON a.section_id = j.id "
+					+ "WHERE a.STATUS_ID IN :statusIDs " + "AND a.created_on BETWEEN :fromDate AND :toDate";
+
+			Query query = session.createNativeQuery(hql);
+			query.setParameter("statusIDs", statusIDs);
+			query.setParameter("fromDate", fromDate);
+			query.setParameter("toDate", toDate);
+
+			List<Object[]> results = query.getResultList();
+
+			complaintList = new ArrayList<ViewComplaintReportValueBean>();
+			for (Object[] row : results) {
+				ViewComplaintReportValueBean dto = new ViewComplaintReportValueBean();
+				dto.setComplaintId((BigDecimal) row[0]);
+				dto.setCreatedOnFormatted((String) row[1]);
+				dto.setDevice((String) row[2]);
+				dto.setServiceNumber((String) row[3]);
+				dto.setServiceName((String) row[4]);
+				dto.setServiceAddress((String) row[5]);
+				dto.setMobile((String) row[6]);
+				dto.setComplaintType((String) row[7]);
+				dto.setSubCategoryName((String) row[8]);
+				dto.setComplaintDescription((String) row[9]);
+				dto.setComplaintStatusValue((String) row[10]);
+				dto.setAttendedDate((String) row[11]);
+				dto.setAttendedRemarks((String) row[12]);
+				dto.setRegionName((String) row[13]);
+				dto.setCircleName((String) row[14]);
+				dto.setDivisionName((String) row[15]);
+				dto.setSubDivisionName((String) row[16]);
+				dto.setSectionName((String) row[17]);
+
+				complaintList.add(dto);
+			}
+
+			redirectFrom = "circle";
+			selectedSectionName = null;
+
+			FacesContext.getCurrentInstance().getExternalContext().redirect("categoryWiseComplaintList.xhtml");
+
+		} catch (Exception e) {
+			System.out.println("ERROR..........." + e);
+			e.printStackTrace();
+		}
+
+	}
+
+	// COMPLAINT'S DETAILED VIEW
+	public void getComplaintDetailForAbstractReport() {
+		
+		try (Session session = sessionFactory.openSession()) {
+		String complaintIdParam = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("complaintID");
+		System.out.println("THE COMPLAINT IS IS CALLED =============="+complaintIdParam);
+
+		
+		String hql = "SELECT a.id, "+
+        		"to_char(a.created_on, 'dd-mm-yyyy-hh24:mi') AS Complaint_Date, " +
+                "DECODE(a.device, 'web', 'Web', 'FOC', 'FOC', 'admin', 'FOC', 'SM', 'Social Media', 'Android', 'Mobile', 'AMOB', 'Mobile', 'IMOB', 'Mobile', 'iOS', 'Mobile', 'mobile', 'Mobile', 'MI', 'Minnagam') AS Device, "+
+                "a.SERVICE_NUMBER AS Service_Number, " +
+                "a.SERVICE_NAME AS Service_Name, "+
+                "a.SERVICE_ADDRESS AS Service_Address, " +
+                "b.mobile AS Contact_Number, k.name AS Complaint_Type, d.name AS subctyp, " +
+                "a.description AS Complaint_Description, " +
+                "DECODE(a.status_id, 0, 'Pending', 1, 'In Progress', 2, 'Completed') AS Complaint_Status, " +
+                "(CASE WHEN a.status_id=2 then TO_CHAR(a.updated_on, 'DD-MM-YYYY-HH24:MI') else '' end) AS Attended_Date, " +
+                "(CASE WHEN a.status_id=2 then c.description else '' end) AS Attended_Remarks, " +
+                "f.name AS Region, g.name AS Circle, h.name AS Division, i.name AS SubDivision, j.name AS Section, "+
+                "b.FIRST_NAME AS UserName, "+
+                "a.ALTERNATE_MOBILE_NO as RegisteredMobileNumber, "+
+                "to_char(fb.ENTRYDT, 'dd-mm-yyyy-hh24:mi') AS feedBackEntryDate, "+
+                "fb.REMARKS AS feedbackRemarks, "+
+                "fb.RATING AS feedbackRating "+
+//                "to_char(ct.TRF_ON, 'dd-mm-yyyy-hh24:mi') AS transferedOn, "+
+//                "ct.TRF_USER AS transferedUser, "+
+//                "ct.REMARKS AS transferedRemarks, "+
+//                "to_char(qc.QC_ON, 'dd-mm-yyyy-hh24:mi') AS qcDate, "+
+//                "qc.QC_STATUS AS qcStatus, "+
+//                "qc.REMARKS AS qcRemarks "+
+                "FROM COMPLAINT a " +
+                "JOIN PUBLIC_USER b ON a.user_id = b.id " +
+                "JOIN COMPLAINT_HISTORY c ON a.id = c.complaint_id AND a.status_id = c.status_id " +
+                "LEFT JOIN COMP_FEEDBACK fb ON a.id = fb.COMP_ID "+
+                "LEFT JOIN COMP_TRANSFER ct ON a.id = ct.COMP_ID "+
+                "LEFT JOIN COMP_QC_DETAILS qc ON a.id = qc.COMP_ID "+
+                "JOIN SUB_CATEGORY d ON a.sub_category_id = d.id " +
+                "JOIN CATEGORY k ON a.complaint_type = k.code " +
+                "JOIN REGION f ON a.region_id = f.id " +
+                "JOIN CIRCLE g ON a.circle_id = g.id " +
+                "JOIN DIVISION h ON a.division_id = h.id " +
+                "JOIN SUB_DIVISION i ON a.sub_division_id = i.id " +
+                "JOIN SECTION j ON a.section_id = j.id " +
+                "WHERE a.id = :complaintIdParam " ;
+		
+		Query query = session.createNativeQuery(hql);
+		query.setParameter("complaintIdParam", complaintIdParam);
+		
+		List<Object[]> results = query.getResultList();
+
+		selectedComplaintId = new ViewComplaintReportValueBean();
+        for (Object[] row : results) {
+        	ViewComplaintReportValueBean dto = new ViewComplaintReportValueBean();
+        	dto.setComplaintId((BigDecimal)row[0]); // COMPLAINT ID
+        	dto.setCreatedOnFormatted((String) row[1]);
+        	dto.setDevice((String)row[2]);  // Compl.Received through
+        	dto.setServiceNumber((String)row[3]);
+        	dto.setServiceName((String)row[4]);
+        	dto.setServiceAddress((String) row[5]); // COMPLAINANT ADDRESS
+        	dto.setMobile((String) row[6]);        // COMPLAINANT MOBILE NUM
+        	dto.setComplaintType((String) row[7]);  //Complaint Category
+        	dto.setSubCategoryName((String) row[8]);  //Sub Category
+        	dto.setComplaintDescription((String) row[9]);  // Description
+        	dto.setComplaintStatusValue((String) row[10]);
+        	dto.setAttendedDate((String) row[11]);   // CLOSURE DATE
+        	dto.setAttendedRemarks((String) row[12]); // CLOSURE REMARK
+        	dto.setRegionName((String) row[13]);  
+        	dto.setCircleName((String) row[14]);
+        	dto.setDivisionName((String) row[15]);
+        	dto.setSubDivisionName((String) row[16]);
+        	dto.setSectionName((String) row[17]);
+        	dto.setUserName((String) row[18]); // COMPLAINANT NAME
+        	dto.setRegisteredMobileNumber((String) row[19]);
+        	dto.setFeedBackEntryDate((String) row[20]);
+        	dto.setFeedback((String) row[21]);
+        	dto.setFeedbackRating(row[22] != null ? ((BigDecimal) row[22]).intValue() : null);
+//        	dto.setComplaintTransferedOn((String) row[23]);
+//        	dto.setComplaintTransferedBy((String) row[24]);
+//            dto.setComplaintTransferedRemarks((String) row[25]);
+//            dto.setQcDate((String) row[26]);
+//            dto.setQcStatus((String) row[27]);
+//            dto.setQcRemarks((String) row[28]);        	
+        	
+        	selectedComplaintId=dto;
+        }	
+        
+        String transferHql = "SELECT to_char(TRF_ON, 'dd-mm-yyyy-hh24:mi'), TRF_USER, REMARKS " +
+                "FROM COMP_TRANSFER WHERE COMP_ID = :complaintId " +
+                "ORDER BY TRF_ON";
+        
+        Query transferQuery = session.createNativeQuery(transferHql);
+        transferQuery.setParameter("complaintId", complaintIdParam);
+        List<Object[]> transferResults = transferQuery.getResultList();
+        List<ViewComplaintReportValueBean.TransferDetail> transfers = new ArrayList<>();
+
+        for (Object[] transfer : transferResults) {
+            ViewComplaintReportValueBean.TransferDetail td = new ViewComplaintReportValueBean.TransferDetail();
+            td.setTransferDate((String) transfer[0]);
+            td.setTransferredBy((String) transfer[1]);
+            td.setTransferRemarks((String) transfer[2]);
+            transfers.add(td);
+        }
+        selectedComplaintId.setTransferDetails(transfers);
+        
+        
+        String qcHql = "SELECT to_char(QC_ON, 'dd-mm-yyyy-hh24:mi'), QC_STATUS, REMARKS " +
+                "FROM COMP_QC_DETAILS WHERE COMP_ID = :complaintId " +
+                "ORDER BY QC_ON";
+		  Query qcQuery = session.createNativeQuery(qcHql);
+		  qcQuery.setParameter("complaintId", complaintIdParam);
+		  List<Object[]> qcResults = qcQuery.getResultList();
+		  
+		  List<ViewComplaintReportValueBean.QualityCheckDetail> qcs = new ArrayList<>();
+		  for (Object[] qc : qcResults) {
+		      ViewComplaintReportValueBean.QualityCheckDetail qcd = new ViewComplaintReportValueBean.QualityCheckDetail();
+		      qcd.setQcDate((String) qc[0]);
+		      qcd.setQcStatus((String) qc[1]);
+		      qcd.setQcRemarks((String) qc[2]);
+		      qcs.add(qcd);
+		  }
+		  selectedComplaintId.setQualityCheckDetails(qcs);
+        
+        System.out.println("THE SELECED COMPLAINT ID"+ selectedComplaintId.getComplaintId());
+        System.out.println("THE SELECED COMPLAINT ID"+ selectedComplaintId.getDescription());
+
+		
+		}catch(Exception e) {
+			e.printStackTrace();
+			
+		}
+
+		
+	}
+
+	public ViewComplaintReportValueBean getSelectedComplaintId() {
+		return selectedComplaintId;
+	}
+
+	public void setSelectedComplaintId(ViewComplaintReportValueBean selectedComplaintId) {
+		this.selectedComplaintId = selectedComplaintId;
+	}
+
+	private void setCellValue(Row row, int column, BigDecimal value) {
+		if (value != null) {
+			row.createCell(column).setCellValue(value.doubleValue());
+		} else {
+			row.createCell(column).setCellValue(0);
+		}
+	}
+
+	public void exportComplaintListToExcel(List<ViewComplaintReportValueBean> complaintList) throws IOException {
+		HSSFWorkbook workbook = new HSSFWorkbook();
+		Sheet sheet = workbook.createSheet("Mode_Wise_Complaint_List_Report");
+
+		CellStyle headerStyle = workbook.createCellStyle();
+		HSSFFont headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerStyle.setFont(headerFont);
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		headerStyle.setBorderBottom(BorderStyle.THIN);
+		headerStyle.setBorderTop(BorderStyle.THIN);
+		headerStyle.setBorderLeft(BorderStyle.THIN);
+		headerStyle.setBorderRight(BorderStyle.THIN);
+
+		Row headerRow = sheet.createRow(0);
+
+		String[] headers = { "Complaint ID", "Complaint Date", "Complaint Mode", "Consumer Number", "Consumer Details",
+				"Contact Number", "Complaint Type", "Complaint Description", "Complaint Status", "Attended Date",
+				"Attended Remarks", "Region", "Circle", "Division", "Sub Division", "Section" };
+
+		for (int i = 0; i < headers.length; i++) {
+			Cell cell = headerRow.createCell(i);
+			cell.setCellValue(headers[i]);
+			cell.setCellStyle(headerStyle);
+		}
+
+		int rowNum = 1;
+		for (ViewComplaintReportValueBean complaint : complaintList) {
+			Row row = sheet.createRow(rowNum++);
+			row.createCell(0).setCellValue(complaint.getComplaintId().doubleValue());
+			row.createCell(1).setCellValue(complaint.getCreatedOnFormatted());
+			row.createCell(2).setCellValue(complaint.getDevice());
+			row.createCell(3).setCellValue(complaint.getServiceNumber());
+			row.createCell(4).setCellValue(complaint.getServiceAddress());
+			row.createCell(5).setCellValue(complaint.getMobile());
+			row.createCell(6).setCellValue(complaint.getComplaintType());
+			row.createCell(7).setCellValue(complaint.getComplaintDescription());
+			row.createCell(8).setCellValue(complaint.getComplaintStatusValue());
+			row.createCell(9).setCellValue(complaint.getAttendedDate());
+			row.createCell(10).setCellValue(complaint.getAttendedRemarks());
+			row.createCell(11).setCellValue(complaint.getRegionName());
+			row.createCell(12).setCellValue(complaint.getCircleName());
+			row.createCell(13).setCellValue(complaint.getDivisionName());
+			row.createCell(14).setCellValue(complaint.getSubDivisionName());
+			row.createCell(15).setCellValue(complaint.getSectionName());
+
+		}
+		for (int i = 0; i < headers.length; i++) {
+			sheet.autoSizeColumn(i);
+		}
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		workbook.write(outputStream);
+		workbook.close();
+
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+		try {
+			excelFile = DefaultStreamedContent.builder().name("Mode_Wise_Complaint_List_Report.xls")
+					.contentType("application/vnd.ms-excel").stream(() -> inputStream).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void exportComplaintListToPdf(List<ViewComplaintReportValueBean> complaintList) {
+		Document document = new Document(PageSize.A2.rotate());
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+		try {
+			PdfWriter.getInstance(document, outputStream);
+			document.open();
+
+			Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Font.BOLD, BaseColor.BLACK);
+			Paragraph title = new Paragraph("MODE WISE COMPLAINT LIST", titleFont);
+			title.setAlignment(Element.ALIGN_CENTER);
+			title.setSpacingAfter(10);
+			document.add(title);
+
+			Font subtitleFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD, BaseColor.DARK_GRAY);
+			Paragraph subTitle = new Paragraph("Circle: " + selectedCircleName + "  |  Section: " + selectedSectionName,
+					subtitleFont);
+			subTitle.setAlignment(Element.ALIGN_CENTER);
+			subTitle.setSpacingAfter(10);
+			document.add(subTitle);
+
+			PdfPTable table = new PdfPTable(16);
+			table.setWidthPercentage(100);
+			table.setSpacingBefore(10);
+			table.setSpacingAfter(10);
+
+			float[] columnWidths = { 2f, 2f, 2f, 3f, 4f, 3f, 3f, 4f, 3f, 3f, 3f, 2f, 2f, 2f, 3f, 2f };
+			table.setWidths(columnWidths);
+
+			String[] headers = { "Complaint ID", "Complaint Date", "Complaint Mode", "Consumer Number",
+					"Consumer Details", "Contact Number", "Complaint Type", "Complaint Description", "Complaint Status",
+					"Attended Date", "Attended Remarks", "Region", "Circle", "Division", "Sub Division", "Section" };
+
+			for (String header : headers) {
+				PdfPCell cell = new PdfPCell(
+						new Phrase(header, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Font.BOLD)));
+				cell.setPadding(5);
+				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+				table.addCell(cell);
+			}
+
+			if (complaintList != null && !complaintList.isEmpty()) {
+				for (ViewComplaintReportValueBean complaint : complaintList) {
+					addCell(table, complaint.getComplaintId() != null ? complaint.getComplaintId().toString() : "");
+					addCell(table, complaint.getCreatedOnFormatted());
+					addCell(table, complaint.getDevice());
+					addCell(table, complaint.getServiceNumber());
+					addCell(table, complaint.getServiceAddress());
+					addCell(table, complaint.getMobile());
+					addCell(table, complaint.getComplaintType());
+					addCell(table, complaint.getComplaintDescription());
+					addCell(table, complaint.getComplaintStatusValue());
+					addCell(table, complaint.getAttendedDate());
+					addCell(table, complaint.getAttendedRemarks());
+					addCell(table, complaint.getRegionName());
+					addCell(table, complaint.getCircleName());
+					addCell(table, complaint.getDivisionName());
+					addCell(table, complaint.getSubDivisionName());
+					addCell(table, complaint.getSectionName());
+				}
+			} else {
+				PdfPCell noDataCell = new PdfPCell(new Phrase("No complaints available",
+						FontFactory.getFont(FontFactory.HELVETICA, 10, Font.ITALIC, BaseColor.RED)));
+				noDataCell.setColspan(16);
+				noDataCell.setPadding(10);
+				noDataCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+				table.addCell(noDataCell);
+			}
+
+			document.add(table);
+
+			document.close();
+
+			pdfFile = DefaultStreamedContent.builder().contentType("application/pdf")
+					.name("Mode_Wise_ComplaintList_Report.pdf")
+					.stream(() -> new ByteArrayInputStream(outputStream.toByteArray())).build();
+
+		} catch (DocumentException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void addCell(PdfPTable table, String content) {
+		PdfPCell cell = new PdfPCell(
+				new Phrase(content != null ? content : "", FontFactory.getFont(FontFactory.HELVETICA, 9)));
+		cell.setPadding(5);
+		cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+		cell.setBorderWidth(0.5f);
+		table.addCell(cell);
+	}
+
+	public SessionFactory getSessionFactory() {
+		return sessionFactory;
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	public DataModel getDmFilter() {
+		return dmFilter;
+	}
+
+	public void setDmFilter(DataModel dmFilter) {
+		this.dmFilter = dmFilter;
+	}
+
+	public List<ModeWiseAbstractValueBean> getCircleListFormatTwo() {
+		return circleListFormatTwo;
+	}
+
+	public void setCircleListFormatTwo(List<ModeWiseAbstractValueBean> circleListFormatTwo) {
+		this.circleListFormatTwo = circleListFormatTwo;
+	}
+
+	public List<ModeWiseAbstractValueBean> getSectionListFormatTwo() {
+		return sectionListFormatTwo;
+	}
+
+	public void setSectionListFormatTwo(List<ModeWiseAbstractValueBean> sectionListFormatTwo) {
+		this.sectionListFormatTwo = sectionListFormatTwo;
+	}
+
+	public StreamedContent getExcelFile() {
+		return excelFile;
+	}
+
+	public void setExcelFile(StreamedContent excelFile) {
+		this.excelFile = excelFile;
+	}
+
+	public StreamedContent getPdfFile() {
+		return pdfFile;
+	}
+
+	public void setPdfFile(StreamedContent pdfFile) {
+		this.pdfFile = pdfFile;
+	}
+
+	public List<ViewComplaintReportValueBean> getComplaintList() {
+		return complaintList;
+	}
+
+	public void setComplaintList(List<ViewComplaintReportValueBean> complaintList) {
+		this.complaintList = complaintList;
+	}
+
+	public String getSelectedCircleName() {
+		return selectedCircleName;
+	}
+
+	public void setSelectedCircleName(String selectedCircleName) {
+		this.selectedCircleName = selectedCircleName;
+	}
+
+	public String getSelectedSectionName() {
+		return selectedSectionName;
+	}
+
+	public void setSelectedSectionName(String selectedSectionName) {
+		this.selectedSectionName = selectedSectionName;
+	}
+
+	public String getRedirectFrom() {
+		return redirectFrom;
+	}
+
+	public void setRedirectFrom(String redirectFrom) {
+		this.redirectFrom = redirectFrom;
+	}
+
+	public Date getCurrentDate() {
+		return currentDate;
+	}
+
+	public void setCurrentDate(Date currentDate) {
+		this.currentDate = currentDate;
+	}
+
+	public String getCurrentYear() {
+		return currentYear;
+	}
+
+	public void setCurrentYear(String currentYear) {
+		this.currentYear = currentYear;
+	}
+
+	public BigDecimal getTotalMobileTotal() {
+		return totalMobileTotal;
+	}
+
+	public void setTotalMobileTotal(BigDecimal totalMobileTotal) {
+		this.totalMobileTotal = totalMobileTotal;
+	}
+
+	public BigDecimal getTotalAdminTotal() {
+		return totalAdminTotal;
+	}
+
+	public void setTotalAdminTotal(BigDecimal totalAdminTotal) {
+		this.totalAdminTotal = totalAdminTotal;
+	}
+
+	public BigDecimal getTotalSmsTotal() {
+		return totalSmsTotal;
+	}
+
+	public void setTotalSmsTotal(BigDecimal totalSmsTotal) {
+		this.totalSmsTotal = totalSmsTotal;
+	}
+
+	public BigDecimal getTotalMiTotal() {
+		return totalMiTotal;
+	}
+
+	public void setTotalMiTotal(BigDecimal totalMiTotal) {
+		this.totalMiTotal = totalMiTotal;
+	}
+
+	public BigDecimal getTotalWebTotal() {
+		return totalWebTotal;
+	}
+
+	public void setTotalWebTotal(BigDecimal totalWebTotal) {
+		this.totalWebTotal = totalWebTotal;
+	}
+
+	public BigDecimal getTotalWebComp() {
+		return totalWebComp;
+	}
+
+	public void setTotalWebComp(BigDecimal totalWebComp) {
+		this.totalWebComp = totalWebComp;
+	}
+
+	public BigDecimal getTotalMobileComp() {
+		return totalMobileComp;
+	}
+
+	public void setTotalMobileComp(BigDecimal totalMobileComp) {
+		this.totalMobileComp = totalMobileComp;
+	}
+
+	public BigDecimal getTotalAdminComp() {
+		return totalAdminComp;
+	}
+
+	public void setTotalAdminComp(BigDecimal totalAdminComp) {
+		this.totalAdminComp = totalAdminComp;
+	}
+
+	public BigDecimal getTotalSmsComp() {
+		return totalSmsComp;
+	}
+
+	public void setTotalSmsComp(BigDecimal totalSmsComp) {
+		this.totalSmsComp = totalSmsComp;
+	}
+
+	public BigDecimal getTotalMiComp() {
+		return totalMiComp;
+	}
+
+	public void setTotalMiComp(BigDecimal totalMiComp) {
+		this.totalMiComp = totalMiComp;
+	}
+
+	public BigDecimal getTotalWebPending() {
+		return totalWebPending;
+	}
+
+	public void setTotalWebPending(BigDecimal totalWebPending) {
+		this.totalWebPending = totalWebPending;
+	}
+
+	public BigDecimal getTotalMobilePending() {
+		return totalMobilePending;
+	}
+
+	public void setTotalMobilePending(BigDecimal totalMobilePending) {
+		this.totalMobilePending = totalMobilePending;
+	}
+
+	public BigDecimal getTotalAdminPending() {
+		return totalAdminPending;
+	}
+
+	public void setTotalAdminPending(BigDecimal totalAdminPending) {
+		this.totalAdminPending = totalAdminPending;
+	}
+
+	public BigDecimal getTotalSmsPending() {
+		return totalSmsPending;
+	}
+
+	public void setTotalSmsPending(BigDecimal totalSmsPending) {
+		this.totalSmsPending = totalSmsPending;
+	}
+
+	public BigDecimal getTotalMiPending() {
+		return totalMiPending;
+	}
+
+	public void setTotalMiPending(BigDecimal totalMiPending) {
+		this.totalMiPending = totalMiPending;
+	}
+
+	public BigDecimal getTotalMobileTotalSection() {
+		return totalMobileTotalSection;
+	}
+
+	public void setTotalMobileTotalSection(BigDecimal totalMobileTotalSection) {
+		this.totalMobileTotalSection = totalMobileTotalSection;
+	}
+
+	public BigDecimal getTotalAdminTotalSection() {
+		return totalAdminTotalSection;
+	}
+
+	public void setTotalAdminTotalSection(BigDecimal totalAdminTotalSection) {
+		this.totalAdminTotalSection = totalAdminTotalSection;
+	}
+
+	public BigDecimal getTotalSmsTotalSection() {
+		return totalSmsTotalSection;
+	}
+
+	public void setTotalSmsTotalSection(BigDecimal totalSmsTotalSection) {
+		this.totalSmsTotalSection = totalSmsTotalSection;
+	}
+
+	public BigDecimal getTotalMiTotalSection() {
+		return totalMiTotalSection;
+	}
+
+	public void setTotalMiTotalSection(BigDecimal totalMiTotalSection) {
+		this.totalMiTotalSection = totalMiTotalSection;
+	}
+
+	public BigDecimal getTotalWebTotalSection() {
+		return totalWebTotalSection;
+	}
+
+	public void setTotalWebTotalSection(BigDecimal totalWebTotalSection) {
+		this.totalWebTotalSection = totalWebTotalSection;
+	}
+
+	public BigDecimal getTotalWebCompSection() {
+		return totalWebCompSection;
+	}
+
+	public void setTotalWebCompSection(BigDecimal totalWebCompSection) {
+		this.totalWebCompSection = totalWebCompSection;
+	}
+
+	public BigDecimal getTotalMobileCompSection() {
+		return totalMobileCompSection;
+	}
+
+	public void setTotalMobileCompSection(BigDecimal totalMobileCompSection) {
+		this.totalMobileCompSection = totalMobileCompSection;
+	}
+
+	public BigDecimal getTotalAdminCompSection() {
+		return totalAdminCompSection;
+	}
+
+	public void setTotalAdminCompSection(BigDecimal totalAdminCompSection) {
+		this.totalAdminCompSection = totalAdminCompSection;
+	}
+
+	public BigDecimal getTotalSmsCompSection() {
+		return totalSmsCompSection;
+	}
+
+	public void setTotalSmsCompSection(BigDecimal totalSmsCompSection) {
+		this.totalSmsCompSection = totalSmsCompSection;
+	}
+
+	public BigDecimal getTotalMiCompSection() {
+		return totalMiCompSection;
+	}
+
+	public void setTotalMiCompSection(BigDecimal totalMiCompSection) {
+		this.totalMiCompSection = totalMiCompSection;
+	}
+
+	public BigDecimal getTotalWebPendingSection() {
+		return totalWebPendingSection;
+	}
+
+	public void setTotalWebPendingSection(BigDecimal totalWebPendingSection) {
+		this.totalWebPendingSection = totalWebPendingSection;
+	}
+
+	public BigDecimal getTotalMobilePendingSection() {
+		return totalMobilePendingSection;
+	}
+
+	public void setTotalMobilePendingSection(BigDecimal totalMobilePendingSection) {
+		this.totalMobilePendingSection = totalMobilePendingSection;
+	}
+
+	public BigDecimal getTotalAdminPendingSection() {
+		return totalAdminPendingSection;
+	}
+
+	public void setTotalAdminPendingSection(BigDecimal totalAdminPendingSection) {
+		this.totalAdminPendingSection = totalAdminPendingSection;
+	}
+
+	public BigDecimal getTotalSmsPendingSection() {
+		return totalSmsPendingSection;
+	}
+
+	public void setTotalSmsPendingSection(BigDecimal totalSmsPendingSection) {
+		this.totalSmsPendingSection = totalSmsPendingSection;
+	}
+
+	public BigDecimal getTotalMiPendingSection() {
+		return totalMiPendingSection;
+	}
+
+	public void setTotalMiPendingSection(BigDecimal totalMiPendingSection) {
+		this.totalMiPendingSection = totalMiPendingSection;
+	}
+
+	public AdminUserValueBean getAdminUserValueBean() {
+		return adminUserValueBean;
+	}
+
+	public void setAdminUserValueBean(AdminUserValueBean adminUserValueBean) {
+		this.adminUserValueBean = adminUserValueBean;
+	}
+
+	public BigDecimal getGrandTotalRevd() {
+		return grandTotalRevd;
+	}
+
+	public void setGrandTotalRevd(BigDecimal grandTotalRevd) {
+		this.grandTotalRevd = grandTotalRevd;
+	}
+
+	public BigDecimal getGrandTotalComp() {
+		return grandTotalComp;
+	}
+
+	public void setGrandTotalComp(BigDecimal grandTotalComp) {
+		this.grandTotalComp = grandTotalComp;
+	}
+
+	public BigDecimal getGrandTotalPend() {
+		return grandTotalPend;
+	}
+
+	public void setGrandTotalPend(BigDecimal grandTotalPend) {
+		this.grandTotalPend = grandTotalPend;
+	}
+
+	public BigDecimal getGrandTotalRevdSection() {
+		return grandTotalRevdSection;
+	}
+
+	public void setGrandTotalRevdSection(BigDecimal grandTotalRevdSection) {
+		this.grandTotalRevdSection = grandTotalRevdSection;
+	}
+
+	public BigDecimal getGrandTotalCompSection() {
+		return grandTotalCompSection;
+	}
+
+	public void setGrandTotalCompSection(BigDecimal grandTotalCompSection) {
+		this.grandTotalCompSection = grandTotalCompSection;
+	}
+
+	public BigDecimal getGrandTotalPendSection() {
+		return grandTotalPendSection;
+	}
+
+	public void setGrandTotalPendSection(BigDecimal grandTotalPendSection) {
+		this.grandTotalPendSection = grandTotalPendSection;
+	}
+	
+
+}

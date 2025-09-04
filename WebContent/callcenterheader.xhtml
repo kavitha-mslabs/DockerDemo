@@ -1,0 +1,684 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+	<meta http-equiv="Refresh" content="1740"/>
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation
+		Limited (TANGEDCO)</title>
+
+	<!-- All Stylesheets -->
+	<link href="#{request.contextPath}/resources/css/all-stylesheets.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link href="#{request.contextPath}/resources/css/site.css" rel="stylesheet" />
+	<link href="#{request.contextPath}/resources/css/layout.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" type="text/css"
+		href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css'
+		type='text/css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'
+		type='text/css' />
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico"
+		type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+	
+	
+	<script>
+	 document.addEventListener('DOMContentLoaded', function() {
+	    document.getElementById('loadingOverlay').style.display = 'none';
+	    
+	    const reportLinks = document.querySelectorAll('.dropdown-item[href*="faces/callcenter/"]');
+	    
+	    reportLinks.forEach(link => {
+	        link.addEventListener('click', function(e) {
+	            document.getElementById('loadingOverlay').style.display = 'flex';
+	            
+	            const targetUrl = this.href;
+	            
+	            const iframe = document.createElement('iframe');
+	            iframe.style.display = 'none';
+	            iframe.src = targetUrl;
+	            
+	            iframe.onload = function() {
+	                try {
+	                    if (iframe.contentWindow.document.readyState === 'complete') {
+	                        setTimeout(() => {
+	                            document.getElementById('loadingOverlay').style.display = 'none';
+	                            window.location.href = targetUrl;
+	                            document.body.removeChild(iframe);
+	                        }, 500);
+	                    }
+	                } catch (e) {
+	                    setTimeout(() => {
+	                        document.getElementById('loadingOverlay').style.display = 'none';
+	                        window.location.href = targetUrl;
+	                        document.body.removeChild(iframe);
+	                    }, 2000);
+	                }
+	            };
+	            
+	            document.body.appendChild(iframe);
+	            
+	            e.preventDefault();
+	        });
+	    });
+	    
+	    window.addEventListener('load', function() {
+	        document.getElementById('loadingOverlay').style.display = 'none';
+	    });
+	});
+</script>
+	
+	<style>
+	#loadingOverlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.7);
+		display: none;
+		justify-content: center;
+		align-items: center;
+		z-index: 9999;
+	}
+	.ul.dropdown-menu bg-light show{
+    margin-left :-150px !important;
+    }
+	.dropdown-menu {
+		max-height: 400px;
+		overflow-y: auto;
+		background: #f8f9fa;
+		border: 1px solid #dee2e6;
+		width: 500px;
+	}
+	
+	.dropdown-item {
+		padding: 8px 15px !important;
+		font-size: 14px !important;
+		color: #212529;
+		border-bottom: 1px solid #eee;
+		display: block;
+	}
+	
+	.dropdown-item:hover {
+		background: #e9ecef;
+		color: #000;
+	}
+	
+/* Replace your existing .report-number style with this */
+.reports-list {
+    counter-reset: report-counter; /* Initialize counter */
+}
+
+.reports-list li a .report-number:before {
+    counter-increment: report-counter; /* Increment counter */
+    content: counter(report-counter) "."; /* Display counter */
+    display: inline-block;
+    width: 25px;
+    color: #666;
+    font-weight: 500;
+}
+	
+	/* Original loader style */
+	#loadingOverlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.7);
+		display: none;
+		justify-content: center;
+		align-items: center;
+		z-index: 9999;
+	}
+	
+	.loading-content {
+		background: white;
+		padding: 20px;
+		border-radius: 5px;
+		text-align: center;
+	}
+	
+	.loading-spinner {
+		border: 5px solid #f3f3f3;
+		border-top: 5px solid #3498db;
+		border-radius: 50%;
+		width: 50px;
+		height: 50px;
+		animation: spin 1s linear infinite;
+		margin: 0 auto 15px;
+	}
+	
+	@keyframes spin { 
+	0% { transform: rotate(0deg); }
+	
+	100%{transform:rotate(360deg);}
+	}
+	.dropdown-menu {
+		background-color: #f8f9fa; /* Light background */
+		border: 1px solid #ccc; /* Border around the menu */
+		border-radius: 4px; /* Rounded corners */
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+		/* Subtle shadow for depth */
+		padding: 0; /* Remove default padding */
+	}
+	
+	.dropdown-item {
+		color: #333; /* Dark text */
+		padding: 10px 5px !important; /* Adequate padding for readability */
+		font-size: 15px !important; /* Adjust font size if needed */
+		transition: background-color 0.3s ease, color 0.3s ease;
+	}
+	
+	.dropdown-item:hover, .dropdown-item:focus {
+		background-color: #007bff; /* Blue background on hover */
+		color: #fff; /* White text on hover */
+		text-decoration: none; /* Remove any underline */
+	}
+	
+	.nav-link.dropdown-toggle {
+		color: #333; /* Default text color */
+		font-size: 7px; /* Increase font size if desired */
+	}
+	
+	.dropdown-item i {
+		color: #007bff;
+		margin-right: 8px;
+	}
+	
+	
+	
+	.navigation-02.navbar-inverse .navbar-nav>.active>a, 
+	.navigation-02.navbar-inverse .navbar-nav>.active>a:focus,
+	 .navigation-02.navbar-inverse .navbar-nav>.active>a:hover{
+	     color: #FFF !important;
+	     
+    background-color: #ff7504 !important;
+    border-bottom: none !important; 
+}
+
+.navigation-02.navbar-inverse .navbar-nav>li>a:hover{
+color: #FFF !important;
+}
+	 
+	
+</style>
+
+</h:head>
+
+<h:body class="home-01">
+	<h:form id="header">
+		<nav
+			class="navigation-02 yamm navbar navbar-expand-md navbar-inverse transparent normal">
+			<img
+				src="#{request.contextPath}/resources/images/LOGOG.png" height="62" alt="" /> <span
+				class="text-white h3">Admin Panel</span>
+			<button class="navbar-toggler" type="button" data-toggle="collapse"
+				data-target="#navbarsExample01" aria-controls="navbarsExample01"
+				aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarsExample01 navbar-02">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item"><a class="nav-link" href="#{request.contextPath}/faces/callcenter/dashboard.xhtml"><i class="fa fa-home mr-2"></i> Home </a></li>
+
+					<p:tab
+						rendered="#{sessionCallCenterUserValueBean.roleId == 1 }">
+						<li
+							class="nav-item #{facesContext.viewRoot.viewId.endsWith('/closeComplaintCircle.xhtml') or facesContext.viewRoot.viewId.endsWith('/getComplaintDetailForAbstractReportClose.xhtml') ? 'active' : ''}"><a
+							class="nav-link"
+							href="#{request.contextPath}/faces/callcenter/closeComplaintCircle.xhtml"><i
+								class="fa fa fa-comments mr-2"></i> Closure of Complaints</a></li>
+					</p:tab>
+					
+					<p:tab rendered="#{sessionCallCenterUserValueBean.roleId == 1 or sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 5 or sessionCallCenterUserValueBean.roleId == 7 }">					
+<li class="nav-item">
+	<a
+		class="nav-link dropdown-toggle" href="#" id="reportDropdown"
+		role="button" data-bs-toggle="dropdown" aria-expanded="false">
+			<i class="fa fa-file-text-o mr-2"></i> ABSTRACT REPORTS
+	 </a>
+	 <ul class="dropdown-menu bg-light reports-list" 
+			aria-labelledby="reportDropdown" style="margin : 0 0 0 -160px !important;">
+			
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/categoryAndDeviceCircle.xhtml">
+						  <span class="report-number"></span> Categorywise Complaints Abstract Report - For Date Range And Source
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/modeWiseCircleAbstractDateAndCategory.xhtml">
+						  <span class="report-number"></span> Modewise Complaints Abstract - For a date range and category
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/singleComplaintView.xhtml">
+						  <span class="report-number"></span> Single Complaint View
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/consumerBasedComplaint.xhtml">
+						  <span class="report-number"></span> Consumer Based Complaint History
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/contactNumberBasedHistory.xhtml">
+						  <span class="report-number"></span> Contact Number Based History
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/yearWiseMonthlyCircleAbstract.xhtml">
+						  <span class="report-number"></span> Monthly Splitup abstract for a Given year
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/monthWiseComparisonCircleReport.xhtml">
+						 <span class="report-number"></span> Month And Year Wise Comparison Abstract
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/yearWiseComparisonCircleReport.xhtml">
+						  <span class="report-number"></span> Year wise Comparison Abstract
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/monthWiseCircleAbstract.xhtml">
+						  <span class="report-number"></span> Monthly Consolidated Abstract
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/yearWiseCircleAbstract.xhtml">
+					 <span class="report-number"></span> Yearly Consolidated Abstract
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/splitUpCircleAbstract.xhtml">
+						  <span class="report-number"></span> PeriodWise Pending SplitUp Abstract
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/dateWiseCircleAbstract.xhtml">
+					 <span class="report-number"></span> Date Wise SplitUp Abstract For a Month
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/hourWiseCircleAbstract.xhtml">
+					 <span class="report-number"></span> Hourly SplitUp Abstract for a Date
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/outagesReport.xhtml">
+					 <span class="report-number"></span>Outages Entered Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/complaintResentReport.xhtml">
+					  <span class="report-number"></span> Complaints Resent Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/complaintTransferredReport.xhtml">
+					 <span class="report-number"></span> Complaints Transferred Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/complaintQualityCheckedReport.xhtml">
+					  <span class="report-number"></span> Complaints Quality Checked Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/pendingComplaintsReport.xhtml">
+					 <span class="report-number"></span> Pending Complaints As On Date
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId ==1}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/categoryWiseCircleAbstarctReport.xhtml">
+					 <span class="report-number"></span> Categorywise Complaints Abstract Report - As on Date
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/deviceWiseCircleAbstract.xhtml">
+					 <span class="report-number"></span> Modewise Complaints Abstract Report - As on Date
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId ==1}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+				   style="background-color: #f8f9fa;"
+				   href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/categoryWiseCircleAbstractReportFormat2.xhtml">
+				   <span class="report-number"></span> Categorywise Complaints Abstract Report - As on Date - Format 2
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/deviceWiseCircleAbstarctReportFormatTwo.xhtml">
+						  <span class="report-number"></span> Modewise Complaints Abstract Report - As on Date - Format 2
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7 and sessionCallCenterUserValueBean.roleId != 1}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/topOfficesCircleAbstract.xhtml">
+					 <span class="report-number"></span> Pending - Top  Circles
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/currentDateComplaintFilter.xhtml">
+					  <span class="report-number"></span>  Minnagam - Current Date - Received Calls within given Hours Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/repeatedCallsReport.xhtml">
+					  <span class="report-number"></span>  Minnagam - Repeated Calls Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/agentDetailReport.xhtml">
+					  <span class="report-number"></span>  Minnagam - Agent Details Report
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 6 or sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/userDetailsReport.xhtml">
+					  <span class="report-number"></span> Minnagam - Log Details for a given Date for All Agents
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 6 or sessionCallCenterUserValueBean.roleId == 7 or (sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 6 and sessionCallCenterUserValueBean.roleId != 7)}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/userDetailForAgentReport.xhtml">
+					  <span class="report-number"></span> Minnagam - Log Details for an Agent and Date Range
+				</a>
+			</li>
+		</ui:fragment>
+
+		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId == 6 and sessionCallCenterUserValueBean.roleId != 1}">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/callCenterAbstractReports/agentWiseComplaintsReport.xhtml">
+					  <span class="report-number"></span>  Minnagam - AgentWise Complaints for a Given Date
+				</a>
+			</li>
+		</ui:fragment>
+
+ 		<ui:fragment rendered="#{sessionCallCenterUserValueBean.roleId ==1 }">
+			<li>
+				<a class="dropdown-item text-dark fw-bold"
+					style="background-color: #f8f9fa;"
+					href="#{request.contextPath}/faces/callcenter/detailreport.xhtml">
+					  <span class="report-number"></span> Detailed Abstract Report -2 
+				</a>
+			</li>
+		</ui:fragment> 
+
+	</ul>
+</li>
+</p:tab>
+
+
+					<p:tab rendered="#{sessionCallCenterUserValueBean.roleId == 1}">
+<!-- 						<li class="nav-item"><a class="nav-link" href="#{request.contextPath}/faces/callcenter/manage/report.xhtml"><i class="fa fa fa-comments mr-2"></i> Report</a></li>
+ -->						<li class="nav-item"><a class="nav-link" href="#{request.contextPath}/faces/callcenter/manage/fieldworker.xhtml"><i class="fa fa-users mr-2"></i> Worker</a></li>
+						<li class="nav-item"><a class="nav-link" href="#{request.contextPath}/faces/callcenter/manage/addfieldworker.xhtml"><i class="fa fa-users mr-2"></i> Add Worker</a></li>
+					</p:tab>
+					<p:tab rendered="#{sessionCallCenterUserValueBean.roleId == 3}">
+						<!-- <li class="nav-item"><a class="nav-link" href="#{request.contextPath}/faces/callcenter/reportSm.xhtml"><i class="fa fa fa-comments mr-2"></i> Report</a></li> -->
+						<li class="nav-item dropdown">
+							<p:commandLink id="dynaButtonR" type="button" styleClass="dropdown-toggle nav-link"><i class="fa fa-user mr-2"></i> 
+								<h:outputText styleClass="text-white"
+									value="Reports" />
+							</p:commandLink> <p:menu overlay="true" trigger="dynaButtonR" my="left top"
+								at="left bottom">
+								<p:menuitem value="Circle level Abstract-1" icon="fa fa fa-user fa-1-5x pr-1 mr-2" action="#{admin.selectedMenuReport('R')}" />
+								<p:menuitem value="Circle level Abstract-2" icon="fa fa fa-user fa-1-5x pr-1 mr-2" action="#{admin.selectedMenuReport('D')}" />
+								<p:menuitem value="Detailed Report" icon="fa fa fa-user fa-1-5x pr-1 mr-2" action="#{admin.selectedMenuReport('L')}" />
+								
+							</p:menu>
+						</li>
+					</p:tab>
+						<li class="nav-item"><a class="nav-link" href="#{request.contextPath}/faces/callcenter/createcomplaint.xhtml"><i class="fa fa fa-comments mr-2"></i> Create Complaints</a></li>
+						<li class="nav-item dropdown">
+						<p:commandLink id="dynaButton" type="button" styleClass="dropdown-toggle nav-link"><i class="fa fa-user mr-2"></i> 
+							<h:outputText styleClass="text-white"
+								value="Welcome, #{admin.auth.officer.callCenterUserName}" />
+						</p:commandLink> <p:menu overlay="true" trigger="dynaButton" my="left top"
+							at="left bottom">
+							<p:menuitem value="Profile" icon="fa fa fa-user fa-1-5x pr-1 mr-2" action="#{admin.selectedMenu('P')}" />
+							<p:menuitem value="Change Password" icon="fa fa fa-user fa-1-5x pr-1 mr-2" action="#{admin.selectedMenuPasswordForCallCenter('CC')}" />
+							<p:menuitem value="Logout" action="#{admin.selectedMenu('CL')}" icon="fa fa-sign-out fa-1-5x pr-1 mr-2" />
+							
+						</p:menu>
+					</li>
+				</ul>
+			</div>
+		</nav>
+
+
+		<p:dialog header="Change Password" widgetVar="dlgChange" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="250">
+			<p:outputPanel id="pnlChnagePassword">
+				<div class="form-group mb-1">
+
+					<div class="input-field">
+						<h:outputLabel for="old_password" value="Old Password" />
+						<p:password id="old_password"
+							value="#{admin.callCenterUser.oldPassword}" required="required"
+							styleClass="form-control">
+
+							<p:ajax event="keyup"
+								listener="#{admin.callCenterUser.validateOldPassword}"
+								update="new_password confirm_password"></p:ajax>
+
+						</p:password>
+
+					</div>
+
+				</div>
+
+				<div class="form-group mb-1">
+					<div class="input-field">
+						<h:outputLabel for="new_password" value="New Password" />
+						<p:password id="new_password" styleClass="form-control"
+							disabled="#{admin.callCenterUser.oldPasswordCorrect}"
+							value="#{admin.callCenterUser.newPassword}">
+						</p:password>
+					</div>
+				</div>
+				<div class="form-group mb-1">
+					<div class="input-field">
+						<h:outputLabel for="confirm_password" value="Confirm Password" />
+						<p:password id="confirm_password" styleClass="form-control"
+							disabled="#{admin.callCenterUser.oldPasswordCorrect}"
+							value="#{admin.callCenterUser.confirmPassword}">
+						</p:password>
+					</div>
+				</div>
+
+			</p:outputPanel>
+			<f:facet name="footer" class="modal-footer">
+
+				<p:commandButton value="Submit" ajax="true"
+					onclick="return submitLoad();"
+					action="#{admin.checkOldPasswordForCallCenter()}"
+					update="resetSuccessDialog" styleClass="btn btn-danger">
+
+				</p:commandButton>
+
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgChange').hide();" />
+			</f:facet>
+
+		</p:dialog>
+
+<!-- 		<p:dialog id="confirmationDialog" header="Password Changed"
+			widgetVar="confirmationDialog" modal="true" showEffect="fade"
+			hideEffect="fade">
+			<div class="form-group mb-1">
+				<h:outputText value="Login with your new password." />
+				<p:commandButton value="OK" styleClass="btn btn-danger"
+					action="#{admin.auth.logOut()}" />
+			</div>
+		</p:dialog> -->
+
+<p:dialog id="resetSuccessDialog" widgetVar="resetSuccessDialog" 
+          modal="true" draggable="false" resizable="false" closable="false"
+          header="Success" styleClass="success-dialog"
+          style="text-align: center;">
+
+    <h:panelGroup layout="block" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 25px;">
+        <i class="pi pi-check-circle" style="font-size: 2.5rem; color: #4CAF50; margin-bottom: 15px;"></i>
+        <h:outputText value="Password Changed Successfully" 
+                      style="font-size: 1.5rem; font-weight: 500; color: #333;"/>
+    </h:panelGroup>
+</p:dialog>
+
+
+	</h:form>
+	
+	<div id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h4>Generating Report... Please Wait.</h4>
+    </div>
+</div>
+</h:body>
+</html>

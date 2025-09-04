@@ -1,0 +1,227 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf" >
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<script src="#{request.contextPath}/resources/js/md5.js"></script>
+	<script src="#{request.contextPath}/resources/js/leaflet.js"></script>
+	<style>
+	.ui-button-text.ui-c {
+			padding: inherit;
+		}
+	</style>
+	<style type="text/css">
+    .ui-filter-column .ui-column-customfilter .custom-filter {
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+
+	<script>
+	function clearErrorMessage(tagid){
+	    $('[id="span' + tagid + '"]').remove();
+	}
+	
+	function validateUpdateFieldUser() {
+		
+		var mobile = document.getElementById("updateFieldUserForm:mobile");
+		var name = document.getElementById("updateFieldUserForm:name");
+		var district = document.getElementById("updateFieldUserForm:district_filter");
+		var section = document.getElementById("updateFieldUserForm:secion_filter");
+		
+		
+		showErrorMessage(mobile.id, mobile.value, "Mobile Number");
+		showErrorMessage(name.id, name.value, $(name).prev().text());
+		showSelectErrorMessage(district.id, district.value, $(district).prev().text());
+		showSelectErrorMessage(section.id, section.value, $(section).prev().text());
+		
+		if(mobile.value !="" ){
+			if(mobile.value.length!=10){
+				$('[id="' + mobile.id + '"]').after("&lt;span style='color:red;' id='span"+mobile.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+				return false;
+			}
+		}
+		
+		if( checkFieldEmpty(mobile.value) || checkFieldEmpty(name.value) || checkFieldEmpty(district.value) || checkFieldEmpty(section.value) ) {
+			return false;
+		} else {
+			return true;
+		}	
+		
+	}
+	
+	function checkFieldEmpty(fieldValue){
+		if(fieldValue == "" || fieldValue == null){
+	       	return true;
+	    } else {
+			return false;
+		}	
+	}
+	
+	
+	function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Select "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+	function showErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+	
+	
+	//Function to remove the error message on the click off the input field.
+	$(document).ready(function () {
+		$("input[type=text]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+		$("input[type=password]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+	});
+	</script>
+	
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="/callcenterheader.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="updateFieldUserForm">
+		<div class="container-fluid">
+			<div class="row px-4">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+				<div class="col-md-12">
+					<p:panel id="panelFieldUserListView">
+						<div class="col-md-12">
+						<div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <h:outputLabel for="name" value="User Name" />
+								<p:inputText id="name" maxlength="100" value="#{fieldWorker.fieldWorkerValueBean.name}" styleClass="form-control"/>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <h:outputLabel for="mobile" value="Mobile Number" />
+			                        <h:inputHidden id="id" value="#{fieldWorker.fieldWorkerValueBean.id}"></h:inputHidden>
+								<p:inputText id="mobile" maxlength="10"
+									value="#{fieldWorker.fieldWorkerValueBean.mobile}" styleClass="form-control">
+									<p:keyFilter for="mobile" mask="pint" />
+								</p:inputText>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <h:outputLabel for="district_filter" value="District" />
+			                        <h:selectOneMenu  class="dropdown-select browser-default form-control" 
+										id="district_filter" label="District"	value="#{fieldWorker.dmFilter.districtDropDown}" disabled="true"
+										onclick="clearErrorMessage('updateFieldUserForm:district_filter')" >
+										<f:selectItem itemLabel="Select District..." />
+										<f:selectItems var="des" value="#{fieldWorker.dmFilter.listDistrict}"
+											itemLabel="#{des.name}" itemValue="#{des.name}"/>
+										<p:ajax event="change" update="secion_filter"
+											listener="#{fieldWorker.loadDistrictSections()}"/>
+									</h:selectOneMenu>
+			                    </div>
+			                </div>
+			            </div>
+						<div class="clearfix"></div>
+						<div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="secion_filter" class="text-bold">Section</label>
+									<h:selectOneMenu  class="dropdown-select browser-default form-control" disabled="true"
+									id="secion_filter" label="Area"	value="#{fieldWorker.dmFilter.sectionDropDown}"
+									onclick="clearErrorMessage('updateFieldUserForm:secion_filter')" >
+										<f:selectItem itemLabel="Select Area..." />
+										<f:selectItems var="des" value="#{fieldWorker.dmFilter.listDistrictSection}"
+											itemLabel="#{des.sectionName}" itemValue="#{des.id}"/>
+									</h:selectOneMenu>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <h:outputLabel for="staffCode" value="Staff Code" />
+									<p:inputText id="staffCode" maxlength="10" disabled="true"
+										value="#{fieldWorker.fieldWorkerValueBean.staffCode}" styleClass="form-control">
+									</p:inputText>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <h:outputLabel for="staffRole" value="Staff Role" />
+									<h:selectOneMenu  class="dropdown-select browser-default form-control"  disabled="true"
+											id="staffRole" label="Staff Role"	value="#{fieldWorker.fieldWorkerValueBean.staffRole}">
+										<f:selectItem itemLabel="Select Staff Role..." />
+										<f:selectItem itemLabel="SplFM" itemValue="SplFM" />
+										<f:selectItem itemLabel="AE" itemValue="AE" />
+										<f:selectItem itemLabel="MZR" itemValue="MZR" />
+										<f:selectItem itemLabel="CA" itemValue="CA" />
+										<f:selectItem itemLabel="OL" itemValue="OL" />
+										<f:selectItem itemLabel="FA" itemValue="FA" />
+										<f:selectItem itemLabel="FM" itemValue="FM" />
+										<f:selectItem itemLabel="HLP" itemValue="HLP" />
+										<f:selectItem itemLabel="SNLI" itemValue="SNLI" />
+										<f:selectItem itemLabel="MR" itemValue="MR" />
+										<f:selectItem itemLabel="WM" itemValue="WM" />
+										<f:selectItem itemLabel="LI" itemValue="LI" />
+										<f:selectItem itemLabel="AEE" itemValue="AEE" />
+										<f:selectItem itemLabel="GM" itemValue="GM" />
+										<f:selectItem itemLabel="CI" itemValue="CI" />
+										<f:selectItem itemLabel="SGFM" itemValue="SGFM" />
+										<f:selectItem itemLabel="JE" itemValue="JE" />
+										<f:selectItem itemLabel="MZDR" itemValue="MZDR" />
+									</h:selectOneMenu>
+			                    </div>
+			                </div>
+			                </div>
+			            </div>
+			            <div class="row">
+						<div class="col-md-12">
+							<div class="col-md-2">
+									<p:commandButton value="Update Field User"
+										styleClass="btn btn-primary btn-block text-center"
+										action="#{fieldWorker.updateFieldUser(fieldWorker.fieldWorkerValueBean)}"
+										onclick="return validateUpdateFieldUser();" update="messages panelFieldUserListView" />
+							</div>
+						</div>
+					</div>
+					</p:panel>
+				</div>
+			</div>
+		</div>
+		
+	</h:form>
+</h:body>
+</html>

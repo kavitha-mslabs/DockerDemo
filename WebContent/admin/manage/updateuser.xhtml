@@ -1,0 +1,306 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf" >
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<script src="#{request.contextPath}/resources/js/md5.js"></script>
+	<script src="#{request.contextPath}/resources/js/leaflet.js"></script>
+	<style>
+	.ui-button-text.ui-c {
+			padding: inherit;
+		}
+	</style>
+	<style type="text/css">
+    .ui-filter-column .ui-column-customfilter .custom-filter {
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+
+	<script>
+	function clearErrorMessage(tagid){
+	    $('[id="span' + tagid + '"]').remove();
+	}
+	
+	function validateUpdateUser() {
+		
+		var mobile = document.getElementById("updateUserForm:mobile");
+		var userName = document.getElementById("updateUserForm:userName");
+		var role = document.getElementById("updateUserForm:roleId");
+		
+		
+		showErrorMessage(mobile.id, mobile.value, $(mobile).prev().text());
+		showErrorMessage(userName.id, userName.value, $(userName).prev().text());
+		showSelectErrorMessage(role.id, role.value, $(role).prev().text());
+		
+		if(mobile.value !="" ){
+			if(mobile.value.length!=10){
+				$('[id="' + mobile.id + '"]').after("&lt;span style='color:red;' id='span"+mobile.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+				return false;
+			}
+		}
+	
+		if(checkFieldEmpty(mobile.value) || checkFieldEmpty(userName.value) || 	checkFieldEmpty(role.value) ) {
+			return false;
+		} else {
+			return true;
+		}	
+		
+	}
+	
+	function validateUpdateUserPassword() {
+		
+		var password = document.getElementById("updateUserForm:password");
+		
+		showErrorMessage(password.id, password.value, $(password).prev().text());
+		
+		if(password.value !="" ){
+			if(password.value.length &lt; 5){
+				$('[id="' + password.id + '"]').after("&lt;span style='color:red;' id='span"+password.id+"'&gt; Please enter atleast 5 digits in password! &lt;/span&gt;");
+				return false;
+			}
+		}
+		
+		if(checkFieldEmpty(password.value)) {
+			return false;
+		} else {
+			document.getElementById('updateUserForm:password').value=hex_md5(document.getElementById('updateUserForm:password').value);
+			return true;
+		}	
+		
+	}
+	
+	function checkFieldEmpty(fieldValue){
+		if(fieldValue == "" || fieldValue == null){
+	       	return true;
+	    } else {
+			return false;
+		}	
+	}
+	
+	
+	function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Select "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+	function showErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+	
+	
+	//Function to remove the error message on the click off the input field.
+	$(document).ready(function () {
+		$("input[type=text]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+		$("input[type=password]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+	});
+	</script>
+	
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="/header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="updateUserForm">
+		<div class="container-fluid">
+			<div class="row px-4">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+				<div class="col-md-12">
+					<p:panel id="panelUserListView">
+						<div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <h:outputLabel for="userName" value="User Name" />
+								<p:inputText id="userName" maxlength="50"
+									value="#{userController.adminUserValueBean.userName}"
+									styleClass="form-control">
+								</p:inputText>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <h:outputLabel for="mobile" value="Mobile Number" />
+			                        <h:inputHidden id="id" value="#{userController.adminUserValueBean.id}"></h:inputHidden>
+								<p:inputText id="mobile" maxlength="10"
+									value="#{userController.adminUserValueBean.mobile}" styleClass="form-control">
+									<p:keyFilter for="mobile" mask="pint" />
+								</p:inputText>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="roleId" class="text-bold">Role</label>
+								<h:selectOneMenu class="dropdown-select browser-default form-control" 
+									id="roleId" label="roleId" value="#{userController.adminUserValueBean.roleId}" >
+									<f:selectItem itemLabel="Select Role..." />
+									<f:selectItems var="roleValueBean" value="#{userController.roleList}"
+										itemLabel="#{roleValueBean.name}" itemValue="#{roleValueBean.id}" />
+								</h:selectOneMenu>
+			                    </div>
+			                </div>
+			            </div>
+			        <div class="clearfix"></div>
+						<div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="regionName" class="text-bold" >Region</label> - 
+									<h:outputLabel value="#{userController.adminUserValueBean.regionName}"/>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                         <label for="circleName" class="text-bold" >Circle</label> - 
+									 <h:outputLabel value="#{userController.adminUserValueBean.circleName}"/>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="divisionName" class="text-bold">Division</label> - 
+									 <h:outputLabel value="#{userController.adminUserValueBean.divisionName}"/>
+			                    </div>
+			                </div>
+			            </div>
+			        <div class="clearfix"></div>
+			        <div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <label for="subDivisionName" class="text-bold">Sub Division</label> - 
+									 <h:outputLabel value="#{userController.adminUserValueBean.subDivisionName}"/>
+			                    </div>
+			                </div>
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                        <label for="sectionName" class="text-bold">Section</label> - 
+									 <h:outputLabel value="#{userController.adminUserValueBean.sectionName}"/>
+			                    </div>
+			                </div>
+			                
+			            </div>
+			             <div class="clearfix"></div>
+			            <div class="row">
+			                <div class="col-md-2">
+			                	<div class="form-group">
+			                       <p:commandButton value="Update User" styleClass="btn btn-primary btn-block text-center"
+							action="#{userController.updateUser(userController.adminUserValueBean)}"  onclick="return validateUpdateUser();" update="messages"/>
+			                    </div>
+			                </div>
+			                </div>
+			                
+			             <div class="clearfix"></div>
+					        <div class="">
+					        	
+					        </div>
+					        
+					        <div class="row">
+			                <div class="col-sm-4">
+			                    <div class="form-group">
+			                       <h:outputLabel for="password" value="Password" />
+								<p:password id="password" maxlength="20"
+									value="#{userController.adminUserValueBean.password}"
+									styleClass="form-control popover__title">
+								</p:password>
+			                    </div>
+			                </div>
+			                
+			            </div>
+			            
+			             <div class="clearfix"></div>
+					        <div class="row">
+					        <div class="col-md-2">
+					        	<div class="form-group">
+			                       <p:commandButton value="Update Password" styleClass="btn btn-primary btn-block text-center"
+							action="#{userController.updateUserPassword(userController.adminUserValueBean)}"  onclick="return validateUpdateUserPassword();" update="messages panelUserListView"/>
+			                    </div>
+					        </div>
+					        </div>
+			            
+					</p:panel>
+				</div>
+			</div>
+		</div>
+		
+		<!--	T H I S   M O D A L   I S   F O R   V I E W I N G   M A P -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="350">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+			<!-- <div class="form-group mb-1">
+					<div class="input-field">
+						<h:outputLabel for="profile_Email" value="Email" />
+						<p:inputText id="profile_Email"
+							value="#{admin.auth.officer.email}"  styleClass="form-control">
+						</p:inputText>
+					</div>
+				</div>
+				
+				<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Mobile" value="Mobile" />
+					<p:inputText id="profile_Mobile"
+						value="#{admin.auth.officer.mobile}"  styleClass="form-control">
+					</p:inputText>
+
+				</div>
+			</div>   -->
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+	</h:form>
+</h:body>
+</html>

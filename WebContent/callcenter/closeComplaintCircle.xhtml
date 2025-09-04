@@ -1,0 +1,351 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TNPDCL)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+		
+	body .ui-datatable .ui-datatable-data>tr>td {
+    padding: 0.6rem 1rem !important;
+}
+	.table>tbody>tr>td {
+    word-break: break-word;
+    font-family: 'Noto Sans' !important;
+  
+}
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+    margin: 0;
+    padding: 10px !important;
+    color: #fff !important;
+    }
+    .btn-lg {
+    padding: 10px 30px !important;
+}
+
+	#dooctiIframe {
+		    border: 2px solid #ccc; /* Optional: adds a border around the iframe */
+		    border-radius: 20px; /* Rounded corners */
+		    max-width: 375px;
+		    margin: 0 auto;
+		    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+		    background-color: #fff;
+		    overflow: hidden;
+		    position: absolute;
+		    top: 0;
+		    right: 0;
+		    z-index: 999;
+		}
+		
+		.custom-thead thead tr th {
+    background-color: #2d3694 !important;
+    color: white !important;
+}
+
+    .custom-thead thead tr th span {
+    font-size: large !important;
+}
+
+.custom-pagination .ui-paginator-page.ui-state-active {
+    background-color: #2d3694 !important;
+    color: white !important;
+}
+.card-reponsive {
+    max-height: 100% !important;
+    overflow-y: auto;
+}
+	.contact-table tbody tr td:first-child {
+    width: 35% !important;
+}
+	
+	
+.ui-dialog.success-dialog .ui-dialog-titlebar {
+    display: none;
+}
+
+.ui-dialog.success-dialog .ui-dialog-content {
+    background-color: #e8f5e9; /* light green */
+    border-radius: 8px;
+    text-align: center;
+}
+/* Make the dialog wider */
+.ui-confirmdialog.custom-confirm-dialog {
+    width: 400px !important;   /* increase width */
+    min-height: 150px !important;
+    text-align: center;        /* center content */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Style the message text */
+.custom-confirm-dialog .confirm-message {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 30px 0 20px 0;
+    display: block;
+}
+
+/* Buttons spacing */
+.custom-confirm-dialog .ui-confirmdialog-content > .ui-button {
+    margin: 0 10px;
+}
+.ui-confirmdialog.custom-confirm-dialog .ui-dialog-titlebar {
+    text-align: center;
+    font-weight: 700;
+    font-size: 20px;
+}
+	</style>
+	
+	
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../callcenterheader.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	
+	<h:form id="complaintForm"  style="margin-top: -68px;">
+		 
+<f:metadata>
+    <f:event type="preRenderView" listener="#{singleComplaintReport.reloadPendingComplaints()}" />
+</f:metadata>
+	
+	 <br/>
+       	 <p:growl id="messages" styleClass="ng-deep" showDetail="true" />
+	<div class="col-md-12 card-body container">
+	<br/>
+	
+	
+	
+
+			         
+			       	<div class="card-reponsive col-md-12 p-2 border-1 rounded-lg" style="position: relative;">
+					    <div class="row" style="position: relative;">
+							
+							
+					          <p:dataTable id="userRequestsTable"
+                 var="userRequest"
+                 value="#{singleComplaintReport.minnagamComplaintListPendingClose}"
+                 widgetVar="customersTable3"
+                 paginator="true"
+                 paginatorPosition="bottom"
+                 rows="10"
+                 rowIndexVar="rowIndex"
+                 emptyMessage="No complaint found with given criteria."
+                 tableStyleClass="table table-sm table-bordered table-striped custom-thead"
+                 styleClass="custom-pagination">
+
+        <p:column headerText="S.No" width="50">
+            <h:outputText value="#{rowIndex + 1}" />
+        </p:column>
+
+        <p:column headerText="Complaint Id" width="100"
+                  filterBy="#{userRequest.id}"
+                  filterMatchMode="contains"
+                  filterPlaceholder="Search by ID">
+            <p:commandLink value="#{userRequest.id}" actionListener="#{singleComplaintReport.getComplaintDetailForAbstractReportClose}">
+                <f:param name="complaintId" value="#{userRequest.id}" />
+            </p:commandLink>
+        </p:column>
+
+        <p:column headerText="Contact No" width="100">
+            <h:outputText value="#{userRequest.comp_Mobile}" />
+        </p:column>
+
+        <p:column headerText="Complaint Date" width="120">
+            <h:outputText value="#{userRequest.createdOn}">
+                <f:convertDateTime pattern="dd-MM-yyyy" />
+            </h:outputText>
+        </p:column>
+        
+         <p:column headerText="Source" width="130">
+            <h:outputText value="#{userRequest.device}" />
+        </p:column>
+
+        <p:column headerText="Name" width="130">
+            <h:outputText value="#{userRequest.serviceName}" />
+        </p:column>
+
+        <p:column headerText="Complaint Description" width="150">
+            <h:outputText value="#{userRequest.description}" />
+        </p:column>
+
+        <p:column headerText="Consumer No" width="150">
+            <h:outputText value="#{userRequest.serviceNumber}" />
+        </p:column>
+
+        <p:column headerText="Section" width="100">
+            <h:outputText value="#{userRequest.sectionName}" />
+        </p:column>
+
+        <p:column headerText="Interim Closure Date" width="230">
+<h:panelGroup rendered="#{userRequest.statusId == 1}">
+        <h:outputText value="#{userRequest.updatedOn}">
+            <f:convertDateTime pattern="dd-MM-yyyy" />
+        </h:outputText>
+    </h:panelGroup>
+        </p:column>
+       <!-- <p:column headerText="Status ID" width="100">
+    <h:outputText value="#{userRequest.statusId}" />
+</p:column>-->
+        
+
+    </p:dataTable>
+				           </div>
+				            <div id="iframeContainer" style="display: none; width: 100%; margin-top: 500px;">
+						                <iframe id="dooctiIframe" src="https://app.doocti.com/"
+						                        width="100%" height="600" frameborder="0"
+						                        sandbox="allow-same-origin allow-scripts"
+						                        allow="microphone; camera"
+						                        style="border: none; border-radius: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); max-width: 375px; margin: 0 auto; display: block; background-color: #fff;">
+						                </iframe>
+						     </div>
+				    </div>  
+		
+	     </div>
+	     	
+			<!--	T H I S   M O D A L   I S   F O R   V I E W I N G  P R O F I L E -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="350">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Name" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+		
+		
+			
+		<p:dialog id="confirmationDialog" header="Password Changed" widgetVar="confirmationDialog" modal="true"
+			    showEffect="fade" hideEffect="fade" >
+			    <div class="form-group mb-1">
+			    <h:outputText value="Login with your new password." />
+			    <p:commandButton value="OK" styleClass="btn btn-danger" action="#{admin.auth.callCenterLogOut()}"/>
+			    </div>
+			</p:dialog>
+	            
+	    <p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+		          showEffect="fade" hideEffect="fade" closable="false"
+		          width="400" height="50">
+		    <h:outputText id="dialogMessage" value="The Consumer is not satisfied. The complaint is resent to the concerned Section officer." style="font-size: 20px; text-align: center; display: block;"/>
+		    
+		</p:dialog>
+		
+		<p:dialog id="messageDialogClose" widgetVar="messageDialogClose" modal="true"
+		          showEffect="fade" hideEffect="fade" closable="false"
+		          width="400" height="50">
+		    <h:outputText id="dialogMessageClose" value="Complaint closed successfully." style="font-size: 20px; text-align: center; display: block;"/>
+		    
+		</p:dialog>
+		
+		<p:dialog id="messageDialogSuccess" widgetVar="messageDialogSuccess" modal="true"
+	          showEffect="fade" hideEffect="fade" closable="false"
+	          width="420" height="140" styleClass="success-dialog">
+	
+	    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+	        <i class="pi pi-check-circle" style="font-size: 2.5em; color: green;"></i>
+	        <h:outputText id="dialogMessageSuccess" value="Complaint saved to QC." 
+	                      style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+	    </div>
+	</p:dialog>
+	<p:dialog id="messageDialogError" widgetVar="messageDialogError" modal="true"
+	          showEffect="fade" hideEffect="fade" closable="false"
+	          width="420" height="140" styleClass="success-dialog">
+	
+	    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+	        <i class="pi pi-check-circle" style="font-size: 2.5em; color: red;"></i>
+	        <h:outputText id="dialogMessageError" value="Unable to close your complaint." 
+	                      style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+	    </div>
+	</p:dialog>
+	<!-- resend dialog -->
+	<p:dialog id="messageDialogComplaintResend" widgetVar="messageDialogComplaintResend" modal="true"
+	          showEffect="fade" hideEffect="fade" closable="false"
+	          width="420" height="140" styleClass="success-dialog">
+	
+	    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+	        <i class="pi pi-check-circle" style="font-size: 2.5em; color: green;"></i>
+	        <h:outputText id="dialogMessageComplaintResend" value="The Consumer is not satisfied. The complaint is resent to the concerned Section officer" 
+	                      style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+	    </div>
+	</p:dialog>
+	<p:dialog id="messageDialogComplaintResendError" widgetVar="messageDialogComplaintResendError" modal="true"
+	          showEffect="fade" hideEffect="fade" closable="false"
+	          width="420" height="140" styleClass="success-dialog">
+	
+	    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+	        <i class="pi pi-check-circle" style="font-size: 2.5em; color: red;"></i>
+	        <h:outputText id="dialogMessageComplaintResendError" value="Unable to close your complaint." 
+	                      style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+	    </div>
+	</p:dialog>
+	<p:dialog id="messageDialogalreadyexists" widgetVar="messageDialogalreadyexists" modal="true"
+          showEffect="fade" hideEffect="fade" closable="false"
+          width="420" height="160" styleClass="success-dialog">
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+        <i class="pi pi-times-circle" style="font-size: 2.5em; color: green;"></i>
+        <h:outputText id="dialogMessageErroralreadyexists" value="The complaint rectification work is under process" 
+                      style="font-size: 24px; color: green; font-weight: 800; text-align: center;" />
+    </div>
+</p:dialog>
+<p:dialog id="messageDialogalreadyexists1" widgetVar="messageDialogalreadyexists1" modal="true"
+          showEffect="fade" hideEffect="fade" closable="false"
+          width="420" height="160" styleClass="success-dialog">
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+        <i class="pi pi-times-circle" style="font-size: 2.5em; color: green;"></i>
+        <h:outputText id="dialogMessageErroralreadyexists1" value="Complaint Closed Successfully" 
+                      style="font-size: 24px; color: green; font-weight: 800; text-align: center;" />
+    </div>
+</p:dialog>
+
+	</h:form>
+	
+	</h:body>
+	</html>

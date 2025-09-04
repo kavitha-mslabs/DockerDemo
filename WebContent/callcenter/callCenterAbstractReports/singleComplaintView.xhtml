@@ -1,0 +1,262 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO) </title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/effect.css" />
+    
+    <script>
+	
+    
+    document.querySelector('button[value="GENERATE"]').addEventListener('click', function() {
+        document.getElementById('reportLoader').style.display = 'flex';
+    });
+
+    document.querySelectorAll('.fixed-column-circle a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('reportLoader').style.display = 'flex';
+        });
+    });
+</script>
+
+    <style>
+
+   		
+		/* CENTERED ERROR MESSAGE POSITIONED NEAR TOP */
+.ui-growl {
+    left: 35% !important;
+    top: 380px !important;  /* Changed to fixed pixel value for consistent positioning */
+    transform: translateX(-50%) !important;  /* Removed Y-axis translation */
+    width: 35% !important;
+    min-width: 300px !important;
+    max-width: 500px !important;
+    margin: 0 auto !important;
+    border: none !important;
+    z-index: 10000 !important;  /* Ensure it appears above other elements */
+}
+
+/* ERROR MESSAGE BOX STYLE - DARKER BACKGROUND */
+.ui-growl-item-container {
+    min-width: 300px !important;
+    padding: 25px 30px !important;
+    background: #f0c4c7 !important;  /* Darker shade of red */
+    background-color: rgba(240, 196, 199, 0.95) !important;  /* Semi-opaque */
+    border: 2px solid #e8a5a9 !important;  /* Slightly darker border */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;  /* Stronger shadow */
+}
+
+/* ERROR MESSAGE TITLE STYLE */
+.ui-growl-title {
+    font-size: 28px !important;
+    font-weight: 800 !important;
+    color: #5a1a1c !important;  /* Darker text color for better contrast */
+    margin: 0 0 0px -50px !important;
+    width: 100%;
+    text-align: center;
+    font-family: Arial, sans-serif !important;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.3) !important;
+}
+
+/* ERROR MESSAGE DETAIL STYLE */
+.ui-growl-detail {
+    display: block !important;
+    font-size: 20px !important;  /* Slightly reduced from 25px for better proportions */
+    font-weight: 700 !important;
+    color: #5a1a1c !important;
+    margin: 15px 0 !important;
+    width: 100% !important;
+    text-align: center !important;  /* Changed to center alignment */
+    line-height: 1.3 !important;  /* Better line spacing */
+    font-family: Arial, sans-serif !important;
+}
+
+/* PARAGRAPH TEXT STYLE */
+.ui-growl-message p {
+    font-size: 22px !important;
+    font-weight: 500 !important;
+    color: #5a1a1c !important;
+    margin: 0px 0 0 -120px !important;
+    line-height: 1.8;
+}
+
+/* Remove all unnecessary elements */
+.ui-growl-icon-close,
+.ui-growl-image {
+    display: none !important;
+}
+   
+    
+    #reportLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loader-content {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    
+    .loader-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    #circleReportForm{
+margin-top:-40px !important;
+}
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    
+.scrollable-container {
+	width: 100%;
+	height: calc(100vh - 100px);
+	overflow: auto;
+	border: 1px solid #ddd;
+	margin-bottom: 20px;
+}
+
+.inner-scrollable {
+	width: 100%;
+	min-width: fit-content;
+}
+
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f6f9;
+}
+
+.filter-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	padding: 20px;
+	background: white;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	border-radius: 8px;
+	width: 50%;
+	margin: 40px auto;
+}
+
+.filter-grid {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 15px;
+	width: 100%;
+}
+
+.filter-grid h:outputText {
+	font-size: 16px;
+	font-weight: bold;
+}
+
+.filter-grid p:inputText {
+	width: 80%;
+	height: 40px;
+	font-size: 14px;
+	border-radius: 6px;
+	border: 1px solid #ced4da;
+	padding: 8px;
+}
+
+.button-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
+	gap :50px !important;	
+}
+
+.ui-button-info {
+	background: #007bff !important;
+	color: white !important;
+	font-size: 16px !important;
+	padding: 10px 20px !important;
+	border-radius: 6px !important;
+	font-weight: bold !important;
+}
+</style>
+</h:head>
+
+<h:body>
+    <ui:insert name="header">
+		<ui:include src="/callcenterheader.xhtml" />
+    </ui:insert>
+
+    <!-- Loading Dialog -->
+    <p:ajaxStatus onstart="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()" />
+    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage name="images/ajax-loader.gif" />
+    </p:dialog>
+
+    <h:form id="singleComplaintForm">
+<p:growl id="singCompMessage" 
+         widgetVar="growlWidget" 
+         life="3000" 
+         sticky="false"
+         showDetail="true"
+         autoUpdate="true"
+         escape="false"
+         position="center"
+         styleClass="centered-error-growl" style="width:100px !important;"/>
+    <div class="scrollable-container">
+            <div class="inner-scrollable">
+        <!-- Filter Section -->
+        <div class="filter-container"  style="margin-bottom:50px !important;">
+               <h:outputText value="SINGLE COMPLAINT VIEW" style="font-size: 15px;margin-top :20px!important" />
+            <div class="filter-grid">
+                <h:outputText value="Enter Complaint ID:" style="font-size: 15px;margin-top :20px!important" />
+                <p:inputText value="#{singleComplaintView.dmFilter.complaintID}" 
+                            autocomplete="off"/>
+            </div>
+
+            <div class="button-container">
+                <p:commandButton value="GENERATE"
+                                 action="#{singleComplaintView.getComplaintById()}"
+                                 update="singCompMessage"
+                                 process="@form"
+                                 ajax="false"
+                                 styleClass="ui-button-info"
+                                 onstart="document.getElementById('reportLoader').style.display='flex';" 
+                                 oncomplete="document.getElementById('reportLoader').style.display='none';" >
+                </p:commandButton>
+                               
+            </div>
+        </div>
+        </div>
+        </div>
+    </h:form>
+	<div id="reportLoader">
+		<div class="loader-content">
+			<div class="loader-spinner"></div>
+			<h4>Generating Report... Please Wait.</h4>
+		</div>
+	</div>
+
+</h:body>
+</html>

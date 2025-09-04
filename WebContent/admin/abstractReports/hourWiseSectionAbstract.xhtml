@@ -1,0 +1,971 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+
+	<title>Tamil Nadu Generation and Distribution Corporation
+		Limited (TANGEDCO)</title>
+
+	<!-- CSS Files -->
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/site.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/layout.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/effect.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/flashy.min.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/count.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/ticker.css" />
+
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/leaflet.css" />
+
+	<link rel="shortcut icon"
+		href="#{request.contextPath}/resources/images/favicon.ico"
+		type="image/x-icon" />
+		
+		
+		
+		<script>
+    document.querySelector('button[value="GENERATE"]').addEventListener('click', function() {
+        document.getElementById('reportLoader').style.display = 'flex';
+    });
+
+    document.querySelectorAll('.fixed-column-circle a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('reportLoader').style.display = 'flex';
+        });
+    });
+</script>
+
+		
+
+	<style>
+	
+	#reportLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loader-content {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    
+    .loader-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+	.report-header span {
+		font-size: 15px;
+		font-weight: bold;
+	}
+	
+	.compact-table .ui-datatable-tablewrapper table {
+		border-collapse: collapse;
+	}
+	
+	.compact-table .ui-datatable-tablewrapper td, .compact-table .ui-datatable-tablewrapper th
+		{
+		border: 0.5px solid black !important; /* Make grid lines bold */
+	}
+	
+	.disabled-filter {
+		background-color: #e9ecef !important;
+		color: #6c757d !important;
+		cursor: not-allowed !important;
+		opacity: 1 !important;
+		pointer-events: none !important;
+	}
+	#circleReportForm{
+margin-top:-40px !important;
+}
+	.disabled-filter .ui-state-default {
+		background-color: #e9ecef !important;
+		color: #6c757d !important;
+		border-color: #dee2e6 !important;
+	}
+	
+	.disabled-filter .ui-icon {
+		opacity: 0.5 !important;
+	}
+	
+	.export-buttons {
+		margin-left: auto;
+		display: flex;
+		gap: 10px;
+	}
+	
+	.report-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+	
+	.export-buttons {
+		margin-left: auto;
+		display: flex;
+		gap: 10px;
+	}
+	
+	.total-column {
+		background-color: #f2f2f2 !important;
+	}
+	
+	.total-footer .ui-column-footer {
+		text-align: center !important;
+		font-weight: bold;
+	}
+	
+	.form-container {
+		display: flex;
+		gap: 0.5rem;
+		align-items: flex-end;
+		margin-bottom: 3rem;
+		flex-wrap: wrap !important;
+		
+	}
+	
+	
+	.search-button-container {
+		margin-right: auto;
+		/* font-size: 16px;
+					margin-top: 25px; */
+	}
+	
+	.search-button-container .custom-button {
+		background-color: #007bff;
+		color: white;
+		border: 1px solid #007bff;
+		padding: 0.1rem 1rem;
+		font-size: 1rem;
+		border-radius: 4px;
+		cursor: pointer;
+		height: 50px;
+	}
+	
+	.search-button-container .custom-button:hover {
+		background-color: #0056b3;
+		border-color: #0056b3;
+	}
+	
+	.sticky-header {
+		position: sticky;
+		top: 0;
+		background: white !important;
+		z-index: 100;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		background-color: white;
+	}
+	
+	.fixed-column-region, .fixed-column-circle {
+		text-align: left !important;
+        width:120px !important;
+	}
+	
+	.compact-table .ui-datatable-header, .compact-table th {
+		font-size: 0.95em;
+		background: #f8f9fa !important;
+		border: 3px solid #ddd;
+		text-align: left;
+	}
+	
+	.custom-table th, .custom-table td {
+		border-right: 1px solid #ccc;
+		text-align: left;
+	}
+	
+	.compact-table td {
+		font-size: 0.85em;
+		padding: 5px !important;
+		white-space: nowrap;
+		border: 1px solid #ddd;
+		text-align: center !important;
+	}
+	
+	.category-header {
+		background-color: #e9ecef !important;
+		font-weight: bold;
+		border: 1px solid #ddd;
+		width: 6% !important;
+	}
+	
+	.compact-datepicker .ui-inputfield {
+		width: 200px !important;
+		padding: 0.5rem 1rem !important;
+		font-size: 0.9em !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 4px !important;
+	}
+	
+	.compact-datepicker .ui-datepicker-trigger {
+		margin-left: 0.5rem !important;
+		color: #6c757d !important;
+	}
+	
+	.hours {
+		width: 100px !important;
+		padding: 0.5rem 1rem !important;
+		font-size: 0.9em !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 4px !important;
+	}
+	
+	.ui-datatable.ui-datatable-gridlines thead>tr>th {
+		border-width: 1px;
+		padding: 24px;
+	}
+	
+	.scrollable-container {
+		width: 100%;
+		height: calc(100vh - 100px);
+		overflow: auto;
+		border: 1px solid #ddd;
+		margin-bottom: 20px;
+	}
+	
+	.inner-scrollable {
+		width: 100%;
+		min-width: fit-content;
+	}
+</style>
+
+</h:head>
+
+
+
+<h:body class="home-01">
+
+	<!-- Include Header -->
+
+	<ui:insert name="header">
+        <ui:include src="/header.xhtml" />
+	</ui:insert>
+
+	<!-- Loading Dialog -->
+
+	<p:ajaxStatus onstart="PF('statusDialog').show()"
+		oncomplete="PF('statusDialog').hide()" />
+
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false"
+		closable="false" resizable="false" showHeader="false">
+
+		<p:graphicImage name="images/ajax-loader.gif" />
+
+	</p:dialog>
+
+
+
+	<h:form id="circleReportForm">
+	
+<f:metadata>
+    <f:event type="preRenderView" listener="#{hourWiseAbstract.resetSectionIfNeeded()}" />
+</f:metadata>
+
+
+	<div class="scrollable-container">
+    <div class="inner-scrollable">
+        <p:panel id="reportPanel" styleClass="mb-3">
+    <f:facet name="header">
+        <div class="report-header">
+            <span>SECTION WISE HOURLY SPLITUP ABSTRACT FOR A DATE FOR CIRCLE: #{hourWiseAbstract.selectedCircleName}</span>
+            <div class="export-buttons">
+			<p:commandButton value="Export as Excel"
+                 actionListener="#{hourWiseAbstract.exportSectionsToExcel(hourWiseAbstract.sectionList)}"
+                 ajax="false"
+                 styleClass="ui-button-success"
+                 style="margin-right: 20px;">
+			    <p:fileDownload value="#{hourWiseAbstract.excelFile}" />
+			    </p:commandButton>
+   
+				<p:commandButton value="Export as PDF"
+					actionListener="#{hourWiseAbstract.exportSectionsToPdf(hourWiseAbstract.sectionList)}" ajax="false"
+					styleClass="ui-button-danger">
+					<p:fileDownload value="#{hourWiseAbstract.pdfFile}" />
+				</p:commandButton>
+            </div>
+        </div>
+    </f:facet>
+
+		<div class="form-container" style="width:790px !important;">
+
+				<div class="date-group">
+
+					<h:outputLabel for="complaint_type" value="Complaint Type" styleClass="form-label" />
+
+					<p:selectOneMenu id="complaint_type" value="#{hourWiseAbstract.dmFilter.complaintType}" label="Complaint Type" styleClass="form-control"
+					disabled="#{not (sessionAdminValueBean.roleId gt 0 and sessionAdminValueBean.roleId lt 4)}" >
+					
+                        <f:selectItem itemLabel="ALL" itemValue="AL"  />
+						
+						<f:selectItems 
+				            value="#{hourWiseAbstract.categories}" 
+				            var="category"
+				            itemLabel="#{category.name}" 
+				            itemValue="#{category.code}" />
+
+					</p:selectOneMenu>
+
+				</div>
+
+
+
+				<div class="date-group">
+
+					<h:outputLabel for="device" value="Devices" styleClass="form-label" />
+
+					<p:selectOneMenu id="device" value="#{hourWiseAbstract.dmFilter.device}" label="Devices" styleClass="form-control"
+					disabled="#{not (sessionAdminValueBean.roleId gt 0 and sessionAdminValueBean.roleId lt 4)}" >
+						
+						<f:selectItems 
+				            value="#{hourWiseAbstract.devices}" 
+				           var="device"
+				            itemLabel="#{device.deviceName}" 
+				            itemValue="#{device.deviceCode}" />
+
+					</p:selectOneMenu>
+				</div>
+
+				
+				<div class="date-group">
+                <label for="fromDate">DATE :</label>
+					<p:datePicker id="fromDate"
+						value="#{hourWiseAbstract.dmFilter.fromDate}" pattern="dd-MM-yyyy"
+						mindate="01-01-2020" maxdate="#{hourWiseAbstract.currentDate}"
+						placeholder="Select date" styleClass="compact-datepicker"
+						panelStyle="width: 400px;"
+						monthNavigator="true" yearNavigator="true" yearRange="2015:#{hourWiseAbstract.currentYear}"
+						numberOfMonths="1"  autocomplete="off"
+						disabled="#{not (sessionAdminValueBean.roleId gt 0 and sessionAdminValueBean.roleId lt 4)}" />
+				</div>
+
+
+				<div class="search-button-container">
+				
+				<p:commandButton value="GENERATE" 
+	                 class="btn btn-md btn-info"
+	                 actionListener="#{hourWiseAbstract.fetchReportForSectionUsers()}"
+	                 update="reportPanel reportTable " 
+	                 process="@form"
+	                 onstart="document.getElementById('reportLoader').style.display='flex';" 
+                     oncomplete="document.getElementById('reportLoader').style.display='none';"
+                     rendered="#{ (sessionAdminValueBean.roleId gt 0 and sessionAdminValueBean.roleId lt 4)}" />
+				</div>
+						<ui:fragment rendered="#{hourWiseAbstract.cameViaCircleReport}">
+							<div class="search-button-container">
+
+								<p:commandButton value="BACK" class="btn btn-md btn-danger"
+									actionListener="#{hourWiseAbstract.redirectToCircleReport()}"
+									update="reportPanel reportTable" process="@form"
+									onstart="PF('statusDialog').show();"
+									oncomplete="PF('statusDialog').hide();"
+									rendered="#{not (sessionAdminValueBean.roleId gt 0 and sessionAdminValueBean.roleId lt 4)}" />
+
+							</div>
+						</ui:fragment>
+
+						<ui:fragment
+							rendered="#{(hourWiseAbstract.cameFromDateWiseAbstractReport) and (!hourWiseAbstract.cameViaCircleReport) }">
+							<div class="search-button-container">
+
+								<p:commandButton value="BACK"
+									class="btn btn-md btn-danger"
+									actionListener="#{hourWiseAbstract.goToDateWiseSectionAbstract}"
+									action="#{dateWiseAbstract.redirectFromHourlySectionAbstract}"
+									update="reportPanel reportTable" process="@form"
+									onstart="PF('statusDialog').show();"
+									oncomplete="PF('statusDialog').hide();" />
+
+							</div>
+						</ui:fragment>
+
+					</div>
+			
+	
+
+
+			<!-- Report Table -->
+
+			<p:dataTable id="reportTable" var="report"
+			   rendered="#{not empty hourWiseAbstract.sectionList}"
+				value="#{hourWiseAbstract.sectionList}" styleClass="compact-table"
+				liveResize="false" resizableColumns="false" columnVisibility="true" showGridlines="true" rowIndexVar="rowIndex">
+
+
+
+				<p:columnGroup type="header" class="sticky-header">
+
+					<p:row>
+                        <p:column headerText="S.No" rowspan="2" style="text-align: center; background: #e5e7eb !important; color: #000;width:20px !important;"/>
+
+						<p:column headerText="SECTION" rowspan="2" style="background: #e5e7eb !important;color:#000; " styleClass="fixed-column-circle" />
+						<p:column headerText="DIVISION" rowspan="2" style="background: #e5e7eb !important;color:#000; " styleClass="fixed-column-circle" />
+						
+						<ui:repeat value="#{hourWiseAbstract.getHourHeaders()}" var="hour">
+				            <p:column headerText="#{hour}" colspan="3" styleClass="category-header text-center" style="background:#1a237e !important; color:#fff !important;width:150px !important;" />
+				        </ui:repeat>			            
+			            <p:column headerText="Total" colspan="3" styleClass="category-header text-center" style="background:#1a237e !important;color:#fff !important;width:200px !important;"/> 
+						 </p:row>  
+
+					<p:row >
+
+			                <ui:repeat value="#{hourWiseAbstract.getHourHeaders()}" var="hour">
+					            <p:column headerText="Revd." style=" background: #dbeafe !important;color: #000;text-align :left !important;padding:10px !important;" />
+					            <p:column headerText="Comp." style=" background: #fff9c4 !important;color: #000;text-align :left !important;padding:10px !important;" />
+					            <p:column headerText="Pend." style=" background: #ffe0b2 !important;color: #000;text-align :left !important;padding:10px !important;" />
+					        </ui:repeat>  
+					               			   
+				  <p:column headerText="Revd." styleClass="total-column"  style="background: #dbeafe !important;color: #000;text-align :left !important;padding-left :10px !important" 
+						sortBy="#{report.tot1 + report.tot2 + report.tot3 + report.tot4 + report.tot5 + report.tot6 + report.tot7 + report.tot8 + report.tot9 + report.tot10 + report.tot11 + report.tot12 +report.tot13 +report.tot14 + report.tot15+ report.tot16+ report.tot17+ report.tot18+ report.tot19+ report.tot20+ report.tot21+ report.tot22+ report.tot23 +report.tot24}"
+						sortable="true"/>
+				  <p:column headerText="Comp." styleClass="total-column"  style="background: #fff9c4 !important;color: #000;text-align :left !important;padding-left :10px !important"
+						sortBy="#{report.cpl1 + report.cpl2 + report.cpl3 + report.cpl4 + report.cpl5 + 
+			                               report.cpl6 + report.cpl7 + report.cpl8 + report.cpl9 + report.cpl10 +
+			                               report.cpl11 + report.cpl12 + report.cpl13 + report.cpl14 + report.cpl15 +
+			                               report.cpl16 + report.cpl17 + report.cpl18 + report.cpl19 + report.cpl20 +
+			                               report.cpl21 + report.cpl22 + report.cpl23 + report.cpl24}"
+			            sortable="true" />
+			 	<p:column headerText="Pend." styleClass="total-column"  style="background: #ffe0b2 !important;color: #000;text-align :left !important;padding-left :10px !important"
+						sortBy="#{report.pend1 + report.pend2 + report.pend3 + report.pend4 + report.pend5 +
+			                               report.pend6 + report.pend7 + report.pend8 + report.pend9 + report.pend10 +
+			                               report.pend11 + report.pend12 + report.pend13 + report.pend14 + report.pend15 +
+			                               report.pend16 + report.pend17 + report.pend18 + report.pend19 + report.pend20 +
+			                               report.pend21 + report.pend22 + report.pend23 + report.pend24 }"
+			            sortable="true"/>
+			       </p:row>
+				
+
+				</p:columnGroup>
+
+               <p:column >
+					<h:outputText value="#{rowIndex + 1}" />
+				</p:column>
+
+                <p:column styleClass="fixed-column-circle" style="text-align: left !important;">
+				     <h:outputText value="#{report.sectionName}" style="white-space: normal; word-wrap: break-word; max-width: 250px;"/>
+				</p:column>
+				
+				
+				<p:column styleClass="fixed-column-circle" style="text-align: left !important;">
+				     <h:outputText value="#{report.divisionName}" style="white-space: normal; word-wrap: break-word; max-width: 250px;"/>
+				</p:column>
+				
+				
+
+
+				 <p:column>
+					<h:outputText value="#{report.tot1}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl1}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend1}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot2}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl2}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend2}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot3}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl3}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend3}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot4}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl4}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend4}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot5}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl5}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend5}" />
+				</p:column>
+				
+				
+				 <p:column>
+					<h:outputText value="#{report.tot6}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl6}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend6}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot7}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl7}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend7}" />
+				</p:column>
+				
+				
+				 <p:column>
+					<h:outputText value="#{report.tot8}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl8}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend8}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot9}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl9}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend9}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot10}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl10}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend10}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot11}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl11}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend11}" />
+				</p:column>
+				
+				 <p:column>
+					<h:outputText value="#{report.tot12}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl12}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend12}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot13}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl13}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend13}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot14}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl14}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend14}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot15}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl15}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend15}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot16}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl16}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend16}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot17}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl17}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend17}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot18}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl18}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend18}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot19}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl19}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend19}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot20}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl20}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend20}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot21}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl21}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend21}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot22}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl22}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend22}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot23}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl23}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend23}" />
+				</p:column>
+				
+				<p:column>
+					<h:outputText value="#{report.tot24}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.cpl24}" />
+				</p:column>
+				<p:column>
+					<h:outputText value="#{report.pend24}" />
+				</p:column>
+				
+				
+				
+				<p:column styleClass="total-column">
+			        <h:outputText value="#{report.tot1 + report.tot2 + report.tot3 + report.tot4 + report.tot5 + report.tot6 + report.tot7 + report.tot8 + report.tot9 + report.tot10 + report.tot11 + report.tot12 +report.tot13 +report.tot14 + report.tot15+ report.tot16+ report.tot17+ report.tot18+ report.tot19+ report.tot20+ report.tot21+ report.tot22+ report.tot23 +report.tot24}"/>
+			    </p:column>
+
+			    <p:column styleClass="total-column">
+			        <h:outputText value="#{report.cpl1 + report.cpl2 + report.cpl3 + report.cpl4 + report.cpl5 + 
+			                               report.cpl6 + report.cpl7 + report.cpl8 + report.cpl9 + report.cpl10 +
+			                               report.cpl11 + report.cpl12 + report.cpl13 + report.cpl14 + report.cpl15 +
+			                               report.cpl16 + report.cpl17 + report.cpl18 + report.cpl19 + report.cpl20 +
+			                               report.cpl21 + report.cpl22 + report.cpl23 + report.cpl24 }"/>
+			    </p:column>
+			    <p:column styleClass="total-column">
+			        <h:outputText value="#{report.pend1 + report.pend2 + report.pend3 + report.pend4 + report.pend5 +
+			                               report.pend6 + report.pend7 + report.pend8 + report.pend9 + report.pend10 +
+			                               report.pend11 + report.pend12 + report.pend13 + report.pend14 + report.pend15 +
+			                               report.pend16 + report.pend17 + report.pend18 + report.pend19 + report.pend20 +
+			                               report.pend21 + report.pend22 + report.pend23 + report.pend24 }"/>
+			    </p:column>
+			    
+			    <p:columnGroup type="footer" styleClass="total-footer">
+					<p:row >
+						<p:column colspan="3" footerText="TOTAL" style="text-align:right !important;padding:10px !important;"
+							styleClass="category-header" />
+						<!-- April -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot1).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl1).sum()}" />
+                        <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend1).sum()}" />
+						<!-- May -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot2).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl2).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend2).sum()}" />
+
+						<!-- PF -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot3).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl3).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend3).sum()}" />
+
+						<!-- Voltage -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot4).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl4).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend4).sum()}" />
+
+						<!-- Fire -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot5).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl5).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend5).sum()}" />
+
+						<!-- Danger -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot6).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl6).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend6).sum()}" />
+
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot7).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl7).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend7).sum()}" />
+
+						<!-- Conductor Snapping -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot8).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl8).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend8).sum()}" />
+
+						<!-- Others -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot9).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl9).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend9).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot10).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl10).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend10).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot11).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl11).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend11).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot12).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl12).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend12).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot13).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl13).sum()}" />
+                        <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend13).sum()}" />
+						<!-- May -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot14).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl14).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend14).sum()}" />
+
+						<!-- PF -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot15).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl15).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend15).sum()}" />
+
+						<!-- Voltage -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot16).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl16).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend16).sum()}" />
+
+						<!-- Fire -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot17).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl17).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend17).sum()}" />
+
+						<!-- Danger -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot18).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl18).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend18).sum()}" />
+
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot19).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl19).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend19).sum()}" />
+
+						<!-- Conductor Snapping -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot20).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl20).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend20).sum()}" />
+
+						<!-- Others -->
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot21).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl21).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend21).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot22).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl22).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend22).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot23).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl23).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend23).sum()}" />
+							
+							<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot24).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl24).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend24).sum()}" />
+
+
+						 <!-- TOTAL Columns (Sum all categories per report) -->
+
+						 <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.tot1 + r.tot2 + r.tot3 + r.tot4 + r.tot5 + r.tot6 + r.tot7 + r.tot8 + r.tot9 +r.tot10 +r.tot11 +r.tot12 +r.tot13 +r.tot14 + r.tot15 +r.tot16 +r.tot17 +r.tot18 +r.tot19 +r.tot20 +r.tot21 +r.tot22 +r.tot23 +r.tot24 ).sum()}" />
+						<p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.cpl1 + r.cpl2 + r.cpl3 + r.cpl4 + r.cpl5 + r.cpl6 + r.cpl7 + r.cpl8 + r.cpl9 +r.cpl10 +r.cpl11 +r.cpl12 +r.cpl13 +r.cpl14 +r.cpl15 +r.cpl16 +r.cpl17 +r.cpl18 +r.cpl19 +r.cpl20 +r.cpl21 +r.cpl22 +r.cpl23 +r.cpl24 ).sum()}" />
+					    <p:column
+							footerText="#{hourWiseAbstract.sectionList.stream().map(r -> r.pend1 + r.pend2 + r.pend3 + r.pend4 + r.pend5 + r.pend6 + r.pend7 + r.pend8 + r.pend9 +r.pend10 +r.pend11 +r.pend12 +r.pend13 +r.pend14 +r.pend15 +r.pend16 +r.pend17 +r.pend18 +r.pend19 +r.pend20 +r.pend21 +r.pend22 +r.pend23 +r.pend24 ).sum()}" />
+ 					</p:row>
+				</p:columnGroup>
+
+			</p:dataTable>
+
+
+		</p:panel>
+		</div>
+		</div>
+	</h:form>
+
+   <div id="reportLoader">
+    <div class="loader-content">
+        <div class="loader-spinner"></div>
+        <h4>Generating Report... Please Wait.</h4>
+    </div>
+</div>
+</h:body>
+
+</html>

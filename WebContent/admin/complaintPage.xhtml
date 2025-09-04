@@ -1,0 +1,329 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+		    margin: 0;
+		    padding: 10px !important;
+		    color: #fff !important;
+		    }
+		    .btn-lg {
+		    padding: 10px 30px !important;
+		}
+
+	.details-grid {
+		width: 100%;
+		border-spacing: 0; /* Remove spacing between cells */
+		margin-bottom: 10px; /* Reduced margin */
+		display: flex;
+	}
+	
+	.details-grid td {
+		padding: 4px 8px; /* Reduced padding */
+		vertical-align: top; /* Align text to the top */
+	}
+	
+	.label-bold {
+		font-weight: bold;
+		white-space: nowrap; /* Prevent label wrapping */
+		width: 160px; /* Fixed width for labels */
+		padding-right: 10px; /* Space between label and value */
+	}
+	
+	.section-title {
+		font-weight: bold;
+		margin-bottom: 10px;
+		display: block;
+		font-size: 16px;
+		color: #333; /* Darker text for better readability */
+	}
+	
+	hr {
+		margin: 10px 0; /* Reduced margin for horizontal lines */
+		border: 0;
+		border-top: 1px solid #ddd; /* Light gray line */
+	}
+	
+	.ui-widget-header {
+		background-color: #f5f5f5; /* Light gray background for headers */
+		padding: 8px;
+		border-bottom: 1px solid #ddd; /* Matching border for consistency */
+	}
+	
+	.table-header {
+	    background-color: #dbeff7; /* Blue background */
+	    color: #000000;
+	    font-weight: bold; /* Bold text */
+	    padding: 10px; /* Add padding */
+	    text-align: center; /* Center-align the header text */
+	}
+
+	.table-header:hover {
+	    background-color: #2980b9; /* Darker blue on hover */
+	}
+	
+	.custom-thead thead tr th {
+    background-color: #2d3694 !important;
+    color: white !important;
+}
+
+    .custom-thead thead tr th span {
+    font-size: large !important;
+}
+
+.custom-pagination .ui-paginator-page.ui-state-active {
+    background-color: #2d3694 !important;
+    color: white !important;
+}.card-reponsive {
+    max-height: 100% !important;
+    overflow-y: auto;
+}
+	
+	
+	
+	</style>
+	
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="reportForm">
+		
+			<!-- Search End here -->
+			<div class="row px-4">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+				
+				<div class="col-md-12 card-body container">
+					<div class="card-reponsive col-md-12 p-2 border-1 rounded-lg">
+							<div class="row">
+							
+							<p:panel id="ex">
+							
+							<p:dataTable id="complaintTable" var="compList" value="#{minnagamUser.minnagamComplaint}" widgetVar="customersTable3"
+						             emptyMessage="No complaint found with given criteria." paginator="true" paginatorPosition="bottom" rows="50"
+						             globalFilterFunction="#{dtFilterView.globalFilterFunction}" rowIndexVar="rowIndex"
+						              tableStyleClass="table table-sm table-bordered table-striped custom-thead" 
+					                      styleClass="custom-pagination">
+    
+								    <f:facet name="header">
+								        <h:outputText value="Complaints List" styleClass="table-header" />
+								    </f:facet>
+								
+								    <p:column headerText="S.No" width="20" styleClass="table-header"  >
+								        <h:outputText  value="#{rowIndex + 1}"/>
+								    </p:column>
+								    
+								    <p:column headerText="Complaint ID" sortBy="#{compList.id}" filterBy="#{compList.id}" width="40" styleClass="table-header">
+								        <p:commandLink value="#{compList.id}" 
+								                       styleClass="link-class"
+								                       oncomplete="PF('complaintDialog').show();"
+								                       update=":reportForm:pnlcomp"
+								                       actionListener="#{dashAdmin.fetchComplaintsDetails}">
+								            <f:param name="complaintId" value="#{compList.id}" />
+								        </p:commandLink>
+								    </p:column>
+								    <p:column headerText="Date" sortBy="#{compList.createdOn}" width="30" styleClass="table-header">
+								        <h:outputText value="#{compList.createdOn}" >
+								         <f:convertDateTime pattern="dd-MM-yyyy " />
+								         </h:outputText>
+								    </p:column>
+								    
+								    <p:column headerText="Type" sortBy="#{compList.complaintCodeValue}" filterBy="#{compList.complaintCodeValue}" width="80" styleClass="table-header">
+								        <h:outputText value="#{compList.complaintCodeValue}"/>
+								    </p:column>
+								    
+								    <p:column headerText="Status" sortBy="#{compList.complaintStatusValue}" filterBy="#{compList.complaintStatusValue}" width="50" styleClass="table-header">
+								        <h:outputText value="#{compList.complaintStatusValue}"/>
+								    </p:column>
+								    
+								    <p:column headerText="Service Number" sortBy="#{compList.serviceNumber}" filterBy="#{compList.serviceNumber}" width="40" styleClass="table-header">
+								        <h:outputText value="#{compList.serviceNumber}"/>
+								    </p:column>
+								    
+								    <p:column headerText="Device" sortBy="#{compList.device}" filterBy="#{compList.device}" width="40" styleClass="table-header">
+								        <h:outputText value="#{compList.device}"/>
+								    </p:column>
+								</p:dataTable>
+			       			 
+					       	<p:commandButton value="Export as Excel" ajax="false" styleClass="fa fa-download btn-sm btn-danger" >
+								<p:dataExporter type="xls" target="complaintTable"   
+									fileName="ComplaintList" />
+							</p:commandButton>
+							
+							<p:commandButton value="Export as Pdf" ajax="false" styleClass="fa fa-download btn-sm btn-danger" >
+								<p:dataExporter type="pdf" target="complaintTable"   
+									fileName="ComplaintList" />
+							</p:commandButton>
+							</p:panel>
+							</div>
+					</div>
+				</div>
+				
+				<!--	T H I S   M O D A L   I S   F O R   V I E W I N G   P R O F I L E -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="250">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+		
+		<!--	T H I S   M O D A L   I S   F O R  C O M P L A I N T S   D E T A I L S    C O M P A L I N T S -->
+		
+					<p:dialog header="Complaint Details" 
+					          widgetVar="complaintDialog" 
+					          showEffect="drop" 
+					          hideEffect="drop"
+					          draggable="true"
+					          modal="true"
+					          
+					          width="850" height="650"
+					         
+					          >
+					          
+					    <p:outputPanel id="pnlcomp">
+					
+					
+					        <!-- COMPLAINT DETAILS Section -->
+					        
+					        <h:panelGrid columns="2" styleClass="details-grid"  style="background:#e7ddef;padding: 10px;">
+					        
+					        	<h:outputText value="Name:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.serviceName}" />
+													        
+					            <h:outputText value="Complaint Id:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.id}" />
+					            
+					            <h:outputText value="Complaint Type:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.complaintType}" />
+					            
+					            <h:outputText value="Complaint Service:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.serviceNumber}" />
+					            
+					            <h:outputText value="Created Date:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.createdOnFormatted}" />
+		
+					            <h:outputText value="Description:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.description}" />
+					        </h:panelGrid>
+					
+					        <hr />
+					
+					        <!-- USER DETAILS Section -->
+					        <h:outputText value="USER DETAILS" styleClass="ui-widget-header section-title" />
+					        <h:panelGrid columns="2" styleClass="details-grid" style="background: aliceblue;padding:10px">
+					            
+					            <h:outputText value="Mobile Number:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintMobileNumber.contactNo}" />
+					
+								<h:outputText value="Address:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.serviceAddress}" />
+					            
+					            <h:outputText value="Landmark:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.landmark}" />
+					           
+					        </h:panelGrid>
+					
+					       <hr /> 
+					
+					        <!-- OFFICE DETAILS Section  -->
+					        <h:outputText value="OFFICE DETAILS" styleClass="ui-widget-header section-title" />
+					        <h:panelGrid columns="2" styleClass="details-grid"  style="background: cornsilk;padding: 10px;"> 
+					            <h:outputText value="Region:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.regionName}" />
+					
+					            <h:outputText value="Circle:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.circleName}" />
+					
+					            <h:outputText value="Division:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.divisionName}" />
+					
+					            <h:outputText value="Sub Division:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.subDivisionName}" />
+					
+					            <h:outputText value="Section:" styleClass="label-bold" />
+					            <h:outputText value="#{dashAdmin.selectedComplaintId.sectionName}" />
+					        </h:panelGrid>
+					
+					        <!-- <hr /> -->
+					
+					        <!-- CLOSURE DETAILS Section 
+					        <h:outputText value="CLOSURE DETAILS" styleClass="ui-widget-header section-title" />
+					        <h:panelGrid columns="2" styleClass="details-grid">
+					            <h:outputText value="Closed Date:" styleClass="label-bold" />
+					            <h:outputText value="#{callCenterReport.selectedComplaintId.completedRemarks}" />
+					
+					            <h:outputText value="Closed Remarks:" styleClass="label-bold" />
+					            <h:outputText value="#{callCenterReport.selectedComplaintId.completedRemarks}" />
+					        </h:panelGrid> -->
+					
+					        <!-- <hr /> -->
+					
+					        <!-- FEEDBACK DETAILS Section 
+					        <h:outputText value="FEEDBACK DETAILS" styleClass="ui-widget-header section-title" />
+					        <h:panelGrid columns="2" styleClass="details-grid">
+					            <h:outputText value="Feedback Rating:" styleClass="label-bold" />
+					            <h:outputText value="#{callCenterReport.selectedComplaintId.feedbackRating}" />
+					
+					            <h:outputText value="Feedback Remarks:" styleClass="label-bold" />
+					            <h:outputText value="#{callCenterReport.selectedComplaintId.feedbackRating}" />
+					        </h:panelGrid> -->
+					    </p:outputPanel>
+					</p:dialog>
+				
+			</div>
+	</h:form>
+</h:body>
+</html>

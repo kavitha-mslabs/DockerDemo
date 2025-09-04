@@ -1,0 +1,801 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+    margin: 0;
+    padding: 10px !important;
+    color: #fff !important;
+    }
+    .btn-lg {
+    padding: 10px 30px !important;
+}
+	</style>
+	
+	 <script type="text/javascript">
+	
+ 	function validateConsumerSearch() {    
+		var mobileNumber = document.getElementById("complaintForm:mobileNumber");
+		var consumerNumber = document.getElementById("complaintForm:consumerNumber");
+	    
+	    showErrorMessage(mobileNumber.id, mobileNumber.value, "Consumer Mobile Number");
+	    showErrorMessage(consumerNumber.id, consumerNumber.value, "Consumer Number");
+	    
+	    if ( ! validateMobileNumber(mobileNumber) ) {
+	    	return false;
+	    }
+	    
+		if(mobileNumber.value !="" ){
+		    mobileNo=document.getElementById("complaintForm:mobileNumber").value;
+				if(mobileNo.length!=10){
+					$('[id="' + mobileNumber.id + '"]').after("&lt;span style='color:red;' id='span"+mobileNumber.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+					return false;
+				}
+		}
+		
+		clearErrorMessage("complaintForm:txtdescription");
+		clearErrorMessage("complaintForm:serviceName");
+		clearErrorMessage("complaintForm:complaint_type");
+		clearErrorMessage("complaintForm:secion_filter");
+		
+	  	if (mobileNumber.value == "" || consumerNumber.value == "" ) {
+	        return false;
+	    } else {
+	    	return true;
+	    }
+	}
+ 	
+ 	function updateComplaintDescription() {
+ 		var subCategory = document.getElementById("complaintForm:sub_category");
+ 		document.getElementById("complaintForm:txtdescription").value = subCategory.options[subCategory.selectedIndex].text;
+ 	}
+ 	
+ 	function change() {
+ 		var complaintType = document.getElementById("complaintForm:complaint_type");
+ 		divC = document.getElementById("complaintForm:applicationInfo");
+ 		if (complaintType.value == '7') {
+ 			 divC.style.display="block";
+ 		}else{
+ 			divC.style.display="none";
+ 		}
+ 	} 
+ 	
+ 	function createComplaint() {   
+ 		
+ 		clearErrorMessage("complaintForm:consumerNumber");
+ 		clearErrorMessage("complaintForm:secion_filter");
+ 		
+		var mobileNumber = document.getElementById("complaintForm:mobileNumber");
+		var textDescription = document.getElementById("complaintForm:txtdescription");
+		var serviceName = document.getElementById("complaintForm:serviceName");
+		var complaintType = document.getElementById("complaintForm:complaint_type");
+		var applicationNo = document.getElementById("complaintForm:applicationNo");
+		var subCategory = document.getElementById("complaintForm:sub_category");
+		var section = document.getElementById("complaintForm:secion_filter");
+		var serviceAddr = document.getElementById("complaintForm:serviceAddr");
+		var alternateMobile = document.getElementById("complaintForm:alternateMobileNo");
+		
+	    showErrorMessage(mobileNumber.id, mobileNumber.value, "Consumer Mobile Number");
+	    showErrorMessage(textDescription.id, textDescription.value, "Complaint Details");
+	  	showErrorMessage(alternateMobile.id, alternateMobile.value, "Contact Mobile Number");
+	   
+	    showSelectErrorMessage(complaintType.id, complaintType.value, "Complaint Type");
+	    showSelectErrorMessage(subCategory.id, subCategory.value, "Sub Category");
+
+	    if(serviceName.value == ""){
+	    	showSelectErrorMessage(section.id, section.value, "Area");
+	    	showErrorMessage(serviceAddr.id, serviceAddr.value, "Address");
+	    }
+	    if (complaintType.value == '7') {
+	    	showErrorMessage(applicationNo.id, applicationNo.value, "Application Number");
+	    }
+	    
+	    if( ! validateMobileNumber(mobileNumber)) {
+	    	return false;
+	    }
+	    
+	    if ( ! validateMobileNumber(alternateMobile)) {
+	    	return false;
+	    }
+	    
+	    //TODO: below mobile validation code block is redundant now
+		if(mobileNumber.value !="" ){
+		    mobileNo=document.getElementById("complaintForm:mobileNumber").value;
+				if(mobileNo.length!=10){
+					$('[id="' + mobileNumber.id + '"]').after("&lt;span style='color:red;' id='span"+mobileNumber.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+					return false;
+				}
+		}
+		
+		if(complaintType.value != "" &amp;&amp; complaintType.value >= 4){
+			showSelectErrorMessage(section.id, section.value, "Area");
+			showErrorMessage(serviceAddr.id, serviceAddr.value, "Address");
+			if (section.value == "" || serviceAddr.value == "") {
+				return false;
+			}
+		}
+		
+	  	if (mobileNumber.value == "" || textDescription.value == "" || subCategory.value == "" || (section.value == "" &amp;&amp; serviceName.value == "") || alternateMobile.value == "") {
+	        return false;
+	    } else {
+	    	return true;
+	    }
+	}
+
+ 	function createComplaint_SocialMedia() {   
+ 		
+ 		clearErrorMessage("complaintForm:consumerNumber");
+ 		clearErrorMessage("complaintForm:secion_filter");
+ 		
+		var mobileNumber = document.getElementById("complaintForm:mobileNumber");
+		var textDescription = document.getElementById("complaintForm:txtdescription");
+		var serviceName = document.getElementById("complaintForm:serviceName");
+		var complaintType = document.getElementById("complaintForm:complaint_type");
+		var applicationNo = document.getElementById("complaintForm:applicationNo");
+		var subCategory = document.getElementById("complaintForm:sub_category");
+		var section = document.getElementById("complaintForm:secion_filter");
+		var serviceAddr = document.getElementById("complaintForm:serviceAddr");
+		var alternateMobile = document.getElementById("complaintForm:alternateMobileNo");
+		
+	  //  showErrorMessage(mobileNumber.id, mobileNumber.value, "Consumer Mobile Number");
+	    showErrorMessage(textDescription.id, textDescription.value, "Complaint Details");
+	  	showErrorMessage(alternateMobile.id, alternateMobile.value, "Contact Mobile Number");
+	   
+	    showSelectErrorMessage(complaintType.id, complaintType.value, "Complaint Type");
+	    showSelectErrorMessage(subCategory.id, subCategory.value, "Sub Category");
+
+	    if(serviceName.value == ""){
+	    	showSelectErrorMessage(section.id, section.value, "Area");
+	    	showErrorMessage(serviceAddr.id, serviceAddr.value, "Address");
+	    }
+	    if (complaintType.value == '7') {
+	    	showErrorMessage(applicationNo.id, applicationNo.value, "Application Number");
+	    }
+	    
+	    if( ! validateMobileNumber(mobileNumber)) {
+	    	return false;
+	    }
+	    
+	    if ( ! validateMobileNumber(alternateMobile)) {
+	    	return false;
+	    }
+	    
+	    //TODO: below mobile validation code block is redundant now
+		if(mobileNumber.value !="" ){
+		    mobileNo=document.getElementById("complaintForm:mobileNumber").value;
+				if(mobileNo.length!=10){
+					$('[id="' + mobileNumber.id + '"]').after("&lt;span style='color:red;' id='span"+mobileNumber.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+					return false;
+				}
+		}
+		
+		if(complaintType.value != "" &amp;&amp; complaintType.value >= 4){
+			showSelectErrorMessage(section.id, section.value, "Area");
+			showErrorMessage(serviceAddr.id, serviceAddr.value, "Address");
+			if (section.value == "" || serviceAddr.value == "") {
+				return false;
+			}
+		}
+		
+	  	//if (mobileNumber.value == "" || textDescription.value == "" || subCategory.value == "" || (section.value == "" &amp;&amp; serviceName.value == "") || alternateMobile.value == "") {
+  		if (textDescription.value == "" || subCategory.value == "" || (section.value == "" &amp;&amp; serviceName.value == "") || alternateMobile.value == "") {
+	        return false;
+	    } else {
+	    	return true;
+	    }
+	}
+
+	function validateMobileNumber(mobileNumber) {
+		
+		var mobileId = mobileNumber.id;
+		var mobileNo = mobileNumber.value;
+		var errMsg = "Mobile number should be 10 Digits in length";
+		
+		if (mobileNo.length > 0) {
+		
+			if (mobileNo.length != 10) {
+		
+				$('[id="' + mobileId + '"]').after("&lt;span style='color:red;' id='span" + mobileId + "'&gt; " + errMsg + " &lt;/span&gt;");
+				return false;
+			
+			} else if (! /^[0-9]*$/.test(mobileNo)) {
+
+				$('[id="' + mobileId + '"]').after("&lt;span style='color:red;' id='span" + mobileId + "'&gt; " + errMsg + " &lt;/span&gt;");
+				return false;					
+			}
+		}
+		return true;
+	}
+
+ 	function showErrorMessage(fieldId, fieldValue, fieldLabel){
+		if(fieldValue == "" || fieldValue == null){
+		 $('[id="span' + fieldId + '"]').remove();
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+       } else if(fieldValue != "" || fieldValue != null){
+			 $('[id="span' + fieldId + '"]').remove();
+       }
+	}
+ 	
+ 	function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+		if(fieldValue == "" || fieldValue == null){
+		 $('[id="span' + fieldId + '"]').remove();
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Select "+fieldLabel+"&lt;/span&gt;");
+       } else if(fieldValue != "" || fieldValue != null){
+			 $('[id="span' + fieldId + '"]').remove();
+       }
+	}
+ 	
+ 	function clearErrorMessage(tagid){
+	    $('[id="span' + tagid + '"]').remove();
+	}
+ 	
+ 	//Function to remove the error message on the click off the input field.
+	$(document).ready(function () {
+		$("input[type=text]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+	});
+ 	
+	 function checkConsumerNumber() {
+		 var consumerNumber = document.getElementById("complaintForm:consumerNumber");
+	        // If consumer number is present, do not trigger AJAX
+	        if (consumerNumber.value == "") {
+	            return true; // allow AJAX call
+	        }else{
+	        	return false; // prevent AJAX call
+	        }
+	     }
+	 
+ 	
+ 	</script>
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../callcenterheader.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="complaintForm">
+				      
+		<!-- T H I S   M O D A L   I S   F O R  D I S P L A Y   C O M P A L I N T S -->	
+					  
+		<p:dialog header="Open Complaints" modal="true"  widgetVar="dlgComp" showEffect="explode" hideEffect="drop" width="450" height="400">
+			<p:outputPanel id="compUser">
+		    	<div class="modal fade mt-5" id="exampleModal" tabindex="-1" role="dialog" 
+		    		aria-labelledby="exampleModalLabel" aria-hidden="true">
+				</div>
+				<div class="modal-body">
+			        <h5 class="text-primary">Previous Complaint for #{callDashBoard.consumerServiceValueBean.mobile}</h5>
+			        	<ui:repeat var="comp" value="#{callDashBoard.viewConsumerComplaintList}" varStatus="status">
+			        		<div class="form-group">
+								<div class="row">
+									#{comp.complaintCodeValue}  
+									<small class="pull-right text-muted text-right p-1"> 
+										<h:outputText id="dateInput" value="#{comp.createdOn}" label="Date">
+											<f:convertDateTime pattern="dd-MMM-yyyy" />
+										</h:outputText>
+									</small>
+								</div>
+								<ui:fragment rendered="#{comp.serviceNumber != null}">
+										<div class="row">
+											<span class="text-danger"> #{comp.serviceNumber} </span>
+										</div>
+									</ui:fragment>
+								<div class="row">
+									<span class="badge badge-info pull-left">#{comp.complaintStatusValue}</span>&#160;
+									<span class="badge badge-danger pull-right">Complaint no #{comp.id}</span>
+								</div>
+							</div>
+						</ui:repeat>
+			      </div>
+							
+			 <p:commandButton value="Cancel" ajax="false" styleClass="btn btn-danger"  onclick="PF('dlgComp').hide();" /> 
+			</p:outputPanel>
+		</p:dialog>
+		
+		<div class="container-fluid">
+				<br/>
+				
+				<div class="col-md-6 offset-md-3">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+
+				<ui:fragment rendered="#{admin.auth.officer.roleId eq 3}">
+					<h5 class="text-center pb-3 title-box">Create Social Media Complaint</h5>
+				</ui:fragment>
+				<ui:fragment rendered="#{admin.auth.officer.roleId ne 3}">
+					<h5 class="text-center pb-3 title-box">Create Complaint</h5>
+				</ui:fragment>
+			
+				<div class="card shadow mb-1 p-5 pt-2 ml-0">
+				
+				
+				<div class="card-body p-1">
+				
+					<p:outputPanel id="complaintPanel">
+
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="consumerNumber" value="Consumer Number" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="consumerNumber" styleClass="form-control" value="#{callDashBoard.consumerServiceValueBean.consumerNumber}" maxlength="15"
+								 required="required" onkeydown="return (event.keyCode!=13);">
+									<p:keyFilter mask="num" preventPaste="false"/>
+	      						 </p:inputText>
+							</div>
+						</div>
+					</div>
+										
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="mobileNumber" value="Consumer Mobile Number" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="mobileNumber"  styleClass="form-control" value="#{callDashBoard.consumerServiceValueBean.mobile}" maxlength="10" 
+								required="required" onkeydown="return (event.keyCode!=13);">
+									<p:keyFilter mask="num" preventPaste="false"/>
+									<p:ajax event="change" update="pnlConsumerAddress pnlFieldWorker compUser"
+										listener="#{callDashBoard.loadConsumerAddress()}"/>
+	      						 </p:inputText>
+							</div>
+						</div>
+					</div>
+					
+					<ui:fragment rendered="#{admin.auth.officer.roleId ne 3}">
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-12 text-center mt-3">
+									<p:commandButton value="Search" ajax="true" update="pnlConsumerInfo pnlConsumerAddress pnlFieldWorker messages" onclick="return validateConsumerSearch();"
+									 action="#{callDashBoard.searchConsumer()}" styleClass="btn btn-primary btn-lg" />
+								</div>
+							</div>
+						</div>
+					</ui:fragment>
+					<ui:fragment rendered="#{admin.auth.officer.roleId eq 3}">
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-12 text-center mt-3">
+									<p:commandButton value="Search" ajax="true" update="pnlConsumerInfo pnlConsumerAddress districtSection messages" 
+									 action="#{callDashBoard.searchConsumer_SocialMedia()}" styleClass="btn btn-primary btn-lg" />
+								</div>
+							</div>
+						</div>
+					</ui:fragment>
+					
+					<p:outputPanel id="pnlConsumerInfo">
+
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="serviceName" value="Consumer Name" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="serviceName" styleClass="form-control" value="#{callDashBoard.consumerServiceValueBean.serviceName}" disabled="#{admin.auth.officer.roleId ne 3}"/>
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="serviceAddress" value="Consumer Address" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="serviceAddress" styleClass="form-control" value="#{callDashBoard.consumerServiceValueBean.serviceAddress}" disabled="#{admin.auth.officer.roleId ne 3}"/>
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="serviceTariff" value="Consumer Tariff" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="serviceTariff" styleClass="form-control" value="#{callDashBoard.consumerServiceValueBean.serviceTariff}" disabled="#{admin.auth.officer.roleId ne 3}"/>
+							</div>
+						</div>
+					</div>			
+					
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="alternateMobileNo" value="Contact Mobile Number" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="alternateMobileNo" styleClass="form-control" value="#{callDashBoard.dmFilter.alternateMobileNo}" onclick="clearErrorMessage('complaintForm:alternateMobileNo')" maxlength="10"/>
+							</div>
+						</div>
+					</div>
+
+					</p:outputPanel>
+					
+					<div class="form-group">
+					<div class="row">
+						<div class="col-md-4">
+							<h:outputLabel for="complaint_type" value="Complaint Type" />
+						</div>
+						<div class="col-md-8">
+							<h:selectOneMenu  class="dropdown-select browser-default form-control" onclick="clearErrorMessage('complaintForm:complaint_type');change()"
+									id="complaint_type" label="Complaint Type"	value="#{callDashBoard.dmFilter.complaintType}" >
+								<f:selectItem itemLabel="Select Complaint Type..." />
+								<f:selectItem itemLabel="Power Failure" itemValue="0" />
+								<f:selectItem itemLabel="Voltage Fluctuation" itemValue="1" />
+								<f:selectItem itemLabel="Meter Complaint" itemValue="2" />
+								<f:selectItem itemLabel="Payment or Billing Complaint" itemValue="3" />
+								<f:selectItem itemLabel="Fire" itemValue="4" />
+								<f:selectItem itemLabel="Dangerous Poles" itemValue="5" />
+								<f:selectItem itemLabel="Theft" itemValue="6" />
+								<!--  As Tamil sir requested application related complaint is hidden temporarily  -->
+								<!-- <f:selectItem itemLabel="Application Related Complaint" itemValue="7" /> -->
+								<f:selectItem itemLabel="Conductor Snapping" itemValue="8" />
+								<p:ajax event="change" update="sub_category" listener="#{callDashBoard.loadSubCategory()}"/>
+							</h:selectOneMenu>
+						</div>
+					</div>
+				</div>
+				<p:outputPanel id="applicationInfo" style="display: none;">
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-4">
+							<p:outputLabel for="applicationNo">Application Number</p:outputLabel>
+						</div>
+						<div class="col-md-8">
+							<p:inputText id="applicationNo" value="#{callDashBoard.serviceApplicationNo}" styleClass="form-control" maxlength="10"
+	      		  			 onclick="clearErrorMessage('callDashBoard:applicationNo')" autocomplete="off" 
+	      		  			  autoResize="false" size="28" >
+	      		  			 <p:keyFilter mask="num" preventPaste="false"/> </p:inputText>
+						</div>
+					</div>
+				</div>
+				</p:outputPanel>
+				<div class="form-group">
+					<div class="row">
+						<div class="col-md-4">
+							<h:outputLabel for="sub_category" value="Sub Category" />
+						</div>
+						<div class="col-md-8">
+							<h:selectOneMenu  class="dropdown-select browser-default form-control" onclick="clearErrorMessage('complaintForm:sub_category')"
+									id="sub_category" label="Sub Category"	value="#{callDashBoard.dmFilter.subCategory}" onchange="updateComplaintDescription()">
+								<f:selectItem itemLabel="Select Sub Category..." />
+								<f:selectItems var="des" value="#{callDashBoard.dmFilter.listSubCategory}"	itemLabel="#{des.name}" itemValue="#{des.id}"/>
+							</h:selectOneMenu>
+						</div>
+					</div>
+				</div>
+				
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<label>Complaint Details</label>
+							</div>
+							<div class="col-md-8">
+								<p:inputTextarea id="txtdescription"
+									requiredMessage="Description of complaint is required"
+									styleClass="form-control" value="#{callDashBoard.dmFilter.complaintDescription}"
+									rows="5" cols="35" counter="compDesc" maxlength="250"
+									counterTemplate="{0} characters remaining." autoResize="false" onclick="clearErrorMessage('complaintForm:txtdescription')"	/>
+								<br />
+								<h:outputText id="compDesc" />
+							</div>
+						</div>
+					</div>
+				
+					<ui:fragment rendered="#{admin.auth.officer.roleId eq 3}">
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-4">
+									<h:outputLabel for="receivedFrom" value="Received From" />
+								</div>
+								<div class="col-md-8">
+									<h:selectOneMenu  class="dropdown-select browser-default form-control" 
+											id="receivedFrom" label="Received From" value="#{callDashBoard.dmFilter.receivedFrom}">
+										<f:selectItem itemLabel="Select Social Media..." />
+										<f:selectItem itemLabel="Facebook" itemValue="Facebook" />
+										<f:selectItem itemLabel="Twitter" itemValue="Twitter" />
+										<f:selectItem itemLabel="Instagram" itemValue="Instagram" />
+									</h:selectOneMenu>
+								</div>
+							</div>
+						</div>
+						 	
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-4">
+									<h:outputLabel for="tag" value="Tag"/>
+								</div>
+								<div class="col-md-8">
+									<h:selectOneMenu  class="dropdown-select browser-default form-control" 
+											id="tag" label="Tag" value="#{callDashBoard.dmFilter.tag}" >
+										<f:selectItem itemLabel="Select Who is tagged..." />
+										<f:selectItem itemLabel="TN CM (Chief Minister)" itemValue="TN CM (Chief Minister)" />
+										<f:selectItem itemLabel="TN EB Minister" itemValue="TN EB Minister" />
+										<f:selectItem itemLabel="CMD" itemValue="CMD" />
+										<f:selectItem itemLabel="JMD" itemValue="JMD" />	
+									</h:selectOneMenu>
+								</div>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-4">
+									<h:outputLabel for="socialMediaLink" value="Social Media Link" />
+								</div>
+								<div class="col-md-8">
+									<p:inputText id="socialMediaLink"  styleClass="form-control" 
+									required="required" onkeydown="return (event.keyCode!=13);">
+		      						 </p:inputText>
+								</div>
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-4">
+									<h:outputLabel for="socialMediaId" value="Social Media ID" />
+								</div>
+								<div class="col-md-8">
+									<p:inputText id="socialMediaId"  styleClass="form-control" 
+									required="required" onkeydown="return (event.keyCode!=13);">
+		      						 </p:inputText>
+								</div>
+							</div>
+						</div>
+
+					</ui:fragment>
+
+				 <ui:fragment rendered="#{admin.auth.officer.roleId ne 3}"> 
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="district_filter" value="District" />
+							</div>
+							<div class="col-md-8">
+								<h:selectOneMenu  class="dropdown-select browser-default form-control" 
+									id="district_filter" label="District"	value="#{callDashBoard.dmFilter.districtDropDown}">
+									<f:selectItem itemLabel="Select District..." />
+									<f:selectItems var="des" value="#{callDashBoard.dmFilter.listDistrict}"
+										itemLabel="#{des.name}" itemValue="#{des.name}"/>
+									<p:ajax event="change" update="secion_filter"
+										listener="#{callDashBoard.loadDistrictSections()}"/>
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="secion_filter" value="Area" />
+							</div>
+							<div class="col-md-8">
+								<h:selectOneMenu  class="dropdown-select browser-default form-control" onclick="clearErrorMessage('complaintForm:secion_filter')"
+									id="secion_filter" label="Area"	value="#{callDashBoard.dmFilter.sectionDropDown}">
+									<f:selectItem itemLabel="Select Area..." />
+									<f:selectItems var="des" value="#{callDashBoard.dmFilter.listDistrictSection}"
+										itemLabel="#{des.sectionName}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="field_worker"
+										listener="#{callDashBoard.loadFieldWorker()}"/>
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</div>
+					
+					<p:outputPanel id="pnlFieldWorker">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="field_worker" value="Field Worker" />
+							</div>
+							<div class="col-md-8">
+								<h:selectOneMenu  class="dropdown-select browser-default form-control"
+									id="field_worker" label="Field Worker"	value="#{callDashBoard.dmFilter.fieldWorkerDropDown}">
+									<f:selectItem itemLabel="Select..." />
+									<f:selectItems var="des" value="#{callDashBoard.dmFilter.listFieldWorker}"
+										itemLabel="#{des.name} - #{des.mobile}" itemValue="#{des.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</div>
+					</p:outputPanel>
+				
+				 </ui:fragment> 
+				
+				 <ui:fragment rendered="#{admin.auth.officer.roleId eq 3}">
+				 
+				 <p:outputPanel id="districtSection">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="district_filter_s" value="District" />
+							</div>
+							<div class="col-md-8">
+								 <h:selectOneMenu  class="dropdown-select browser-default form-control" 
+									id="district_filter_s" label="District"	value="#{callDashBoard.dmFilter.smDistrictDropdown}">
+									<f:selectItem itemLabel="All District..." itemValue=""/>
+									<f:selectItems var="des" value="#{callDashBoard.dmFilter.smListDistrict}"
+										itemLabel="#{des.name}" itemValue="#{des.name}"/>
+									 <p:ajax event="change" update="secion_filter_s"
+										listener="#{callDashBoard.loadSmDistrictSections}" 
+										 onstart="return checkConsumerNumber()" /> 
+								</h:selectOneMenu> 
+								
+								<!-- <p:inputText id="district_filter_s" styleClass="form-control" value="#{callDashBoard.dmFilter.smDistrictDropdown}" />
+							 -->
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="secion_filter_s" value="Section" />
+							</div>
+							<div class="col-md-8">
+								 <h:selectOneMenu  class="dropdown-select browser-default form-control" onclick="clearErrorMessage('complaintForm:secion_filter')"
+									id="secion_filter_s" label="Area"	value="#{callDashBoard.dmFilter.smSectionDropdown}">
+									<f:selectItem itemLabel="Select Area..." itemValue=""/>
+									<f:selectItems var="des" value="#{callDashBoard.dmFilter.lstSections}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<!-- <p:ajax event="change" update="field_worker_s"
+										listener="#{callDashBoard.loadFieldWorkerSm()}"
+										onstart="return checkConsumerNumber()"/> -->
+								</h:selectOneMenu> 
+								
+								
+								<!-- <p:inputText id="secion_filter_s" styleClass="form-control" value="#{callDashBoard.dmFilter.smSectionDropdown}" >
+								 	
+								</p:inputText>-->
+								
+								
+							</div>
+						</div>
+					</div>
+					
+					
+					
+					
+					<!-- <div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="field_worker_s" value="Field Worker" />
+							</div>
+							<div class="col-md-8">
+								<h:selectOneMenu  class="dropdown-select browser-default form-control"
+									id="field_worker_s" label="Field Worker"	value="#{callDashBoard.dmFilter.fieldWorkerDropDown}">
+									<f:selectItem itemLabel="Select..." />
+									<f:selectItems var="des" value="#{callDashBoard.dmFilter.listFieldWorker}"
+										itemLabel="#{des.name} - #{des.mobile}" itemValue="#{des.id}"/>
+								</h:selectOneMenu>
+							</div>
+						</div>
+					</div> -->
+					
+				</p:outputPanel>
+				</ui:fragment> 
+				
+					
+					
+					
+					<p:outputPanel id="pnlConsumerAddress">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<label>Address</label>
+							</div>
+							<div class="col-md-8">
+								<p:inputTextarea id="serviceAddr"
+									requiredMessage="Address" onclick="clearErrorMessage('complaintForm:serviceAddr')"
+									styleClass="form-control" value="#{callDashBoard.dmFilter.address}"
+									rows="2" cols="35" counter="serviceAddrCounter" maxlength="250"
+									counterTemplate="{0} characters remaining." autoResize="false" 	/>
+								<br />
+								<h:outputText id="serviceAddrCounter" />
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<label>Landmark</label>
+							</div>
+							<div class="col-md-8">
+								<p:inputTextarea id="txtdescriptionId"
+									requiredMessage="Landmark"
+									styleClass="form-control" value="#{callDashBoard.dmFilter.landMark}"
+									rows="2" cols="35" counter="compLandMark" maxlength="50"
+									counterTemplate="{0} characters remaining." autoResize="false" 	/>
+								<br />
+								<h:outputText id="compLandMark" />
+							</div>
+						</div>
+					</div>
+					</p:outputPanel>
+					<div class="row">
+						<!-- Social Media Login -->
+						<ui:fragment rendered="#{admin.auth.officer.roleId eq 3}">
+							<div class="col-md-12 text-center mt-3">
+								<p:commandButton value="Submit" ajax="true" styleClass="btn btn-primary btn-lg" update="messages complaintPanel"
+								action="#{callDashBoard.createComplaint_SocialMedia()}"  onclick="return createComplaint_SocialMedia();"/>
+							</div>
+						</ui:fragment>
+						<!-- Call Center or Admin Login -->
+						<ui:fragment rendered="#{admin.auth.officer.roleId ne 3}">
+							<div class="col-md-12 text-center mt-3">
+								<p:commandButton value="Submit" ajax="true" styleClass="btn btn-primary btn-lg" update="messages complaintPanel"
+								action="#{callDashBoard.createComplaint()}"  onclick="return createComplaint();"/>
+							</div>
+						</ui:fragment>
+					</div>
+						
+					</p:outputPanel>
+					
+				</div>
+				</div></div></div>
+				
+					<!--	T H I S   M O D A L   I S   F O R   V I E W I N G  P R O F I L E -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="350">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+				
+				
+	</h:form>
+</h:body>
+</html>

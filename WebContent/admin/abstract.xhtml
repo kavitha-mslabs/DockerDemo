@@ -1,0 +1,387 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+    margin: 0;
+    padding: 10px !important;
+    color: #fff !important;
+    }
+    .btn-lg {
+    padding: 10px 30px !important;
+}
+
+	.ui-helper-clearfix {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px;
+    }
+    
+    .ui-column-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .p-datatable .ui-helper-clearfix {
+        flex-wrap: wrap;
+    }
+    
+    .p-column {
+        text-align: center;
+    }
+	
+	
+	</style>
+	#{dashAdmin.setFilterForReport()}
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="reportForm">
+		<div class="container-fluid">
+				
+				<br/>
+				<div class="col-md-6 offset-md-3">
+				
+				<h5 class="text-center pb-3 title-box">Complaint Search</h5>
+				<div class="card shadow mb-1 p-5 pt-2 ml-0">
+				<div class="card-body p-1">
+				<ui:fragment rendered="#{admin.auth.officer.roleId > 5}">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="region_filter" value="Region" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="region_filter"
+									value="#{dashAdmin.dmFilter.regionFilter}" label="Region"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12">
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstRegions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="circle_filter division_filter sub_division_filter secion_filter"
+										listener="#{dashAdmin.loadCircles()}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+				
+				
+				<ui:fragment rendered="#{admin.auth.officer.roleId >= 0}">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="circle_filter" value="Circle" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="circle_filter"
+									value="#{dashAdmin.dmFilter.circleFilter}" label="Circle"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12">
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstCircles}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="division_filter sub_division_filter secion_filter"
+										listener="#{dashAdmin.loadDivisions()}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+				
+				
+				<ui:fragment rendered="#{admin.auth.officer.roleId >= 1}">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="division_filter" value="Division" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="division_filter"
+									value="#{dashAdmin.dmFilter.divisionFilter}" label="Division"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12">
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstDivisions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="sub_division_filter secion_filter"
+										listener="#{dashAdmin.loadSubDivisions()}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+				
+				
+				
+				<ui:fragment rendered="#{admin.auth.officer.roleId >= 1}">
+					<div class="form-group">
+			 			<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="sub_division_filter" value="Sub Division" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="sub_division_filter"
+									value="#{dashAdmin.dmFilter.subDivisionFilter}" label="Sub Division"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12">
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstSubDivisions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="secion_filter"
+										listener="#{dashAdmin.loadSections()}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+				
+				
+				<ui:fragment rendered="#{admin.auth.officer.roleId >= 1}">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="secion_filter" value="Section" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="secion_filter"
+									value="#{dashAdmin.dmFilter.sectionFilter}" label="Section"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12">
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstSections}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+				</ui:fragment>
+				
+				
+				
+					
+					
+					
+					
+						
+						
+						<div class="row">
+							<div class="col-md-12 text-center mt-3">
+								<p:commandButton value="Search" ajax="true" update="messages complaintTable"
+									styleClass="btn btn-primary btn-lg" action="#{dashAdmin.searchComplaintForReport()}" />
+							</div>
+						</div>
+					</div>
+				</div>
+				</div></div>
+			<!-- Search End here -->
+			<div class="row px-4">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+				
+				<div class="col-md-12 card-body container">
+					<div class="card-reponsive col-md-12 p-2 border-1 rounded-lg">
+							<div class="row">
+	
+					            <p:dataTable id="complaintTable" var="compList" value="#{dashAdmin.complaintValueBean}" 
+					                         widgetVar="customersTable3" emptyMessage="No data found."
+					                         paginator="true" paginatorPosition="bottom" rows="50" scrollable="true">
+					                
+					                <f:facet name="header">
+					                    <h:outputText value="CCMS - SECTIONWISE  - CATEGORYWISE - ABSTRACT" />
+					                </f:facet>
+					
+					                <p:columnGroup type="header">
+					                  
+					                    <p:row>
+					                        <p:column headerText="Sl.No" rowspan="3" width="50"/>
+					                        <p:column headerText="CIRNAME" rowspan="3" width="70"/>
+					                        <p:column headerText="SECNAME" rowspan="3" width="100"/>
+					                        
+					                        <!-- Top-level headers for complaint categories with sub-columns -->
+					                        <p:column headerText="Billing Issue" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Metering Issue" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Power Failure" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Voltage Fluctuation" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Fire" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Pole Damage" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Theft" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="Conductor Snapping" colspan="3" width="300" style="text-align: center;"/>
+					                        <p:column headerText="SECTION TOTAL" colspan="3" width="300" style="text-align: center;"/>
+					                    </p:row>
+					                    
+					                    <p:row>
+					                        <!-- Repeat these for each complaint category -->
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					                        
+					                        <p:column colspan="1" headerText="RECEIVED"/>
+					                        <p:column colspan="1" headerText="COMPLETED"/>
+					                        <p:column colspan="1" headerText="PENDING"/>
+					                    </p:row>
+					                    
+					                    <p:row>
+					                        
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                        <p:column colspan="3"/>
+					                    </p:row>
+					                </p:columnGroup>
+					
+					                <p:column>
+					                    <h:outputText value="#{compList.slNo}" />
+					                </p:column>
+					                <p:column>
+					                    <h:outputText value="#{compList.cirName}" />
+					                </p:column>
+					                <p:column>
+					                    <h:outputText value="#{compList.secName}" />
+					                </p:column>
+					
+					                <p:column><h:outputText value="#{compList.billingIssueRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.billingIssueComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.billingIssuePend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.meteringIssueRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.meteringIssueComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.meteringIssuePend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.powerFailureRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.powerFailureComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.powerFailurePend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.voltageFluctuationRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.voltageFluctuationComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.voltageFluctuationPend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.fireRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.fireComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.firePend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.poleDamageRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.poleDamageComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.poleDamagePend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.theftRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.theftComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.theftPend}" /></p:column>
+					
+					                <p:column><h:outputText value="#{compList.conductorSnappingRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.conductorSnappingComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.conductorSnappingPend}" /></p:column>
+					
+					                 <p:column><h:outputText value="#{compList.totalRecd}" /></p:column>
+					                <p:column><h:outputText value="#{compList.totalComp}" /></p:column>
+					                <p:column><h:outputText value="#{compList.totalPend}" /></p:column>
+					                
+					            </p:dataTable>
+					       	<p:commandButton value="Export as Excel" ajax="false" styleClass="fa fa-download btn-sm btn-danger" >
+								<p:dataExporter type="xls" target="complaintTable"   
+									fileName="ComplaintList" />
+							</p:commandButton>
+							
+							<p:commandButton value="Export as Pdf" ajax="false" styleClass="fa fa-download btn-sm btn-danger" >
+								<p:dataExporter type="pdf" target="complaintTable"   
+									fileName="ComplaintList" />
+							</p:commandButton>
+							</div>
+					</div>
+				</div>
+				
+				<!--	T H I S   M O D A L   I S   F O R   V I E W I N G   P R O F I L E -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="250">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+				
+			</div>
+	</h:form>
+</h:body>
+</html>

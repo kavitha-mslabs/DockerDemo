@@ -1,0 +1,1270 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+    margin: 0;
+    padding: 10px !important;
+    color: #fff !important;
+    }
+    .btn-lg {
+    	padding: 10px 30px !important;
+	}
+	
+	.ui-datatable .ui-datatable-data td {
+    word-break: break-all !important; /* Breaks the word if it exceeds width */
+    overflow-wrap: break-word !important; /* Ensure proper word wrapping */
+    white-space: normal !important; /* Allow the text to wrap */
+}
+
+/* Optional: Ensure content doesn't overflow the container */
+.ui-datatable .ui-datatable-data td {
+    max-width: 200px; /* Adjust the width if needed, based on your column layout */
+    word-wrap: break-word !important;
+}
+
+	</style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+	
+	<script>
+	function showExcelPreview() {
+	    var xhr = new XMLHttpRequest();
+	    xhr.open("GET", "detailreport.xhtml?excelPreview=true", true);
+	    xhr.responseType = "arraybuffer"; // Expecting binary data (Excel file)
+
+	    xhr.onload = function () {
+	        if (xhr.status === 200) {
+	            var data = new Uint8Array(xhr.response); // Convert to Uint8Array
+	            if (data.length > 0) {
+	                // Parse the binary Excel data with SheetJS
+	                var workbook = XLSX.read(data, { type: "array" });
+
+	                // Convert the first sheet into HTML format
+	                var html = XLSX.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
+
+	                // Set the HTML content inside the dialog
+	                document.getElementById("excelPreviewContent").innerHTML = html;
+
+	                // Show the dialog
+	                PF('excelPreviewDialog').show();
+	            } else {
+	                console.log("No data received");
+	            }
+	        } else {
+	            console.error("Failed to fetch Excel data. Status: " + xhr.status);
+	        }
+	    };
+
+	    xhr.onerror = function () {
+	        console.error("An error occurred during the request.");
+	    };
+
+	    xhr.send();
+	}
+	
+	function refresh(){
+		  location.reload();
+	  }
+</script>
+	#{dashAdmin.setFilterForReport()}
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<!-- <p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" /> -->
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	<h:form id="reportForm">
+		<div class="container-fluid">
+				
+				<br/>
+				<div class="row-md-12">
+				
+				<div class="d-flex align-items-center justify-content-between pb-3 title-box">
+				    <h5 class="text-center w-100 mb-0">Complaint Search</h5>
+				    <!-- <p:commandButton value="Search All" 
+				                     ajax="true" 
+				                     update="messages complaintTable pnlDashService pnlDashGeneral"
+				                     styleClass="btn btn-danger btn-lg" 
+				                     style="width: 80px;" 
+				                     action="#{dashAdmin.searchComplaintAll}" /> -->
+				                     
+				                     <p:commandButton id="refresh" value="Refresh" icon="pi pi-refresh" iconPos="right" onclick="refresh()"
+							            
+							            styleClass="btn btn-danger btn-lg" style="margin-left: 1rem; width : 90px;">
+							            
+							        </p:commandButton>
+				</div>
+				
+				<div class="card shadow mb-1 p-5 pt-2 ml-0">
+				<div class="card-body p-1 col-12">
+				
+					
+					<div class="form-group row">
+					
+					
+						<ui:fragment rendered="#{sessionAdminValueBean.roleId > 5}">
+						<div class="col-md-2">
+						
+							
+								<h:outputLabel for="region_filter" value="Region" />
+							
+							
+								<p:selectOneMenu id="region_filter" widgetVar="regionFilterWidget"
+									value="#{dashAdmin.dmFilter.regionOneFilter}" label="Region"
+									
+									 styleClass="col-md-12">
+									
+									 <f:selectItem itemLabel="ALL" itemValue="ALL"/>
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstRegions}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="circle_filter division_filter sub_division_filter secion_filter"
+										listener="#{dashAdmin.loadCirclesCMD()}"
+										/>
+										
+										 <!-- <f:facet name="footer">
+									            <div style="text-align: right; padding-top: 5px;">
+									                <p:commandButton value="OK" 
+									                                 oncomplete="PF('regionFilterWidget').hide(); callSearchComplaint()" 
+									                                 process="@none" 
+									                                 styleClass="btn btn-primary btn-sm" />
+									            </div>
+									        </f:facet> -->
+										 
+								</p:selectOneMenu>
+								 <!-- <p:remoteCommand name="callSearchComplaint" 
+				                     action="#{dashAdmin.searchComplaintCMD}" 
+				                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+					             
+						
+							</div>
+							</ui:fragment>
+				
+				
+							<ui:fragment rendered="#{sessionAdminValueBean.roleId > 4}">
+							<div class="col-md-2">
+						
+							
+								<h:outputLabel for="circle_filter" value="Circle" />
+							
+							
+								<p:selectOneMenu id="circle_filter" widgetVar="circleFilterWidget"
+									value="#{dashAdmin.dmFilter.circleOneFilter}" label="Circle"
+									
+									 styleClass="col-md-12">
+									 
+									 <f:selectItem itemLabel="ALL" itemValue="ALL"/>
+									<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstCircles}"
+										itemLabel="#{des.name}" itemValue="#{des.id}"/>
+									<p:ajax event="change" update="division_filter sub_division_filter secion_filter"
+										listener="#{dashAdmin.loadDivisionsCMD()}"/>
+									
+								
+								
+										<!--  <f:facet name="footer">
+									            <div style="text-align: right; padding-top: 5px;">
+									                <p:commandButton value="OK" 
+									                                 oncomplete="PF('circleFilterWidget').hide(); callSearchComplaint()" 
+									                                 process="@none" 
+									                                 styleClass="btn btn-primary btn-sm" />
+									            </div>
+									        </f:facet> -->
+								</p:selectOneMenu>
+								
+								<!-- <p:remoteCommand name="callSearchComplaint" 
+				                     action="#{dashAdmin.searchComplaintCMD}" 
+				                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+							
+						
+							</div>
+							</ui:fragment>
+				
+				
+							<ui:fragment rendered="#{sessionAdminValueBean.roleId > 3}">
+							<div class="col-md-2">
+								
+									
+										<h:outputLabel for="division_filter" value="Division" />
+									
+									
+										<p:selectOneMenu id="division_filter" widgetVar="divisionFilterWidget"
+											value="#{dashAdmin.dmFilter.divisionOneFilter}" label="Division"
+											
+											 styleClass="col-md-12">
+											
+									 		<f:selectItem itemLabel="ALL" itemValue="ALL"/>
+											<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstDivisions}"
+												itemLabel="#{des.name}" itemValue="#{des.id}"/>
+											<p:ajax event="change" update="sub_division_filter secion_filter"
+												listener="#{dashAdmin.loadSubDivisionsCMD()}"/>
+												<!-- <f:facet name="footer">
+									            <div style="text-align: right; padding-top: 5px;">
+									                <p:commandButton value="OK" 
+									                                 oncomplete="PF('divisionFilterWidget').hide(); callSearchComplaint()" 
+									                                 process="@none" 
+									                                 styleClass="btn btn-primary btn-sm" />
+									            </div>
+									        </f:facet> -->
+										</p:selectOneMenu>
+										<!-- <p:remoteCommand name="callSearchComplaint" 
+						                     action="#{dashAdmin.searchComplaintCMD}" 
+						                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+									
+								
+							</div>
+							</ui:fragment>
+					
+							<ui:fragment rendered="#{sessionAdminValueBean.roleId > 2}">
+							
+								<div class="col-md-2">
+									
+										<h:outputLabel for="sub_division_filter" value="Sub Division" />
+									
+									
+										<p:selectOneMenu id="sub_division_filter" widgetVar="subDivisionFilterWidget"
+											value="#{dashAdmin.dmFilter.subDivisionOneFilter}" label="Sub Division"
+											
+											 styleClass="col-md-12">
+											
+									 		<f:selectItem itemLabel="ALL" itemValue="ALL"/>
+											<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstSubDivisions}"
+												itemLabel="#{des.name}" itemValue="#{des.id}"/>
+											<p:ajax event="change" update="secion_filter"
+												listener="#{dashAdmin.loadSectionsCMD()}"/>
+												<!-- <f:facet name="footer">
+									            <div style="text-align: right; padding-top: 5px;">
+									                <p:commandButton value="OK" 
+									                                 oncomplete="PF('subDivisionFilterWidget').hide(); callSearchComplaint()" 
+									                                 process="@none" 
+									                                 styleClass="btn btn-primary btn-sm" />
+									            </div>
+									        </f:facet> -->
+										</p:selectOneMenu>
+										<!-- <p:remoteCommand name="callSearchComplaint" 
+						                     action="#{dashAdmin.searchComplaintCMD}" 
+						                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+									</div>
+								
+							
+						</ui:fragment>
+						
+						<ui:fragment rendered="#{sessionAdminValueBean.roleId >= 1}">
+									
+										<div class="col-md-2">
+											
+												<h:outputLabel for="secion_filter" value="Section" />
+											
+											
+												<p:selectOneMenu id="secion_filter" widgetVar="sectionFilterWidget"
+													value="#{dashAdmin.dmFilter.sectionOneFilter}" label="Section"
+													
+													 styleClass="col-md-12">
+													
+									 				<f:selectItem itemLabel="ALL" itemValue="ALL"/>
+													<f:selectItems var="des" value="#{dashAdmin.dmFilter.lstSections}"
+														itemLabel="#{des.name}" itemValue="#{des.id}"/>
+														<!-- <f:facet name="footer">
+												            <div style="text-align: right; padding-top: 5px;">
+												                <p:commandButton value="OK" 
+												                                 oncomplete="PF('sectionFilterWidget').hide(); callSearchComplaint()" 
+												                                 process="@none" 
+												                                 styleClass="btn btn-primary btn-sm" />
+												            </div>
+												        </f:facet> -->
+												</p:selectOneMenu>
+												<!-- <p:remoteCommand name="callSearchComplaint" 
+								                     action="#{dashAdmin.searchComplaintCMD}" 
+								                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+											
+										</div>
+									
+								</ui:fragment>
+								
+								
+								<div class="col-md-2">
+										
+											<h:outputLabel for="complaint_type" value="Complaint Type" />
+										
+										
+											<p:selectOneMenu id="complaint_type" widgetVar="complaintFilterWidget"
+												value="#{dashAdmin.dmFilter.compOneType}" label="Complaint Type"
+												
+												 styleClass="col-md-12">
+												<f:selectItem itemLabel="ALL" itemValue="ALL"/>
+												<f:selectItem itemLabel="Power Failure" itemValue="0" />
+												<f:selectItem itemLabel="Voltage Fluctuation" itemValue="1" />
+												<f:selectItem itemLabel="Meter Complaint" itemValue="2" />
+												<f:selectItem itemLabel="Billing Complaint" itemValue="3" />
+												<f:selectItem itemLabel="Fire" itemValue="4" />
+												<f:selectItem itemLabel="Dangerous Poles" itemValue="5" />
+												<f:selectItem itemLabel="Theft" itemValue="6" />
+												<!--  As Tamil sir requested application related complaint is hidden temporarily  -->
+												<!-- <f:selectItem itemLabel="Application Related Complaint" itemValue="7" /> -->
+												<f:selectItem itemLabel="Conductor Snapping" itemValue="8" />
+												<f:selectItem itemLabel="Others" itemValue="9" />
+													<p:ajax event="change" update="sub_category" listener="#{dashAdmin.loadSubCategory()}"/>
+												<!-- <f:facet name="footer">
+												            <div style="text-align: right; padding-top: 5px;">
+												                <p:commandButton value="OK" 
+												                                 oncomplete="PF('complaintFilterWidget').hide(); callSearchComplaint()" 
+												                                 process="@none" 
+												                                 styleClass="btn btn-primary btn-sm" />
+												            </div>
+												        </f:facet> -->
+											</p:selectOneMenu>
+											
+												<!-- <p:remoteCommand name="callSearchComplaint" 
+								                     action="#{dashAdmin.searchComplaintCMD}" 
+								                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+										
+									</div>
+								
+					
+					
+					
+					</div>
+				
+					
+					<div class="form-group row">
+					
+										
+					<div class="col-md-2">
+										
+											<h:outputLabel for="sub_category" value="Sub Category :" />
+										
+											
+							<p:selectOneMenu  style="height: 43px; font-size: 28px; "
+    class="dropdown-select browser-default form-control" 
+    
+    id="sub_category" 
+    label="Sub Category"
+    value="#{dashAdmin.dmFilter.subCategory}">
+    
+    <f:selectItem itemLabel="ALL" itemValue="ALL" />
+    <f:selectItems var="des" 
+                   value="#{dashAdmin.dmFilter.listSubCategory}" 
+                   itemLabel="#{des.name}" 
+                   itemValue="#{des.id}"/>
+</p:selectOneMenu>
+
+						
+											</div>	
+										
+										
+										
+										<div class="col-md-2">
+											
+												<h:outputLabel for="status" value="Status:" />
+											
+												<p:selectOneMenu id="status" widgetVar="statusFilterWidget"
+													value="#{dashAdmin.dmFilter.statusesOne}" label="Statuses"
+													
+													 styleClass="col-md-12">
+													<f:selectItem itemLabel="ALL" itemValue="ALL"/>
+													<f:selectItem itemLabel="Pending" itemValue="0" />
+													<f:selectItem itemLabel="In Progress" itemValue="1" />
+													<f:selectItem itemLabel="Completed" itemValue="2" />
+													
+												<!-- <f:facet name="footer">
+												            <div style="text-align: right; padding-top: 5px;">
+												                <p:commandButton value="OK" 
+												                                 oncomplete="PF('statusFilterWidget').hide(); callSearchComplaint()" 
+												                                 process="@none" 
+												                                 styleClass="btn btn-primary btn-sm" />
+												            </div>
+												        </f:facet> -->
+												</p:selectOneMenu>
+												
+												<!-- <p:remoteCommand name="callSearchComplaint" 
+								                     action="#{dashAdmin.searchComplaintCMD}" 
+								                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+											
+										</div>
+										
+										<div class="col-md-2">
+											
+											<h:outputLabel for="device" value="Source:" />
+											
+											<p:selectOneMenu id="device"
+													value="#{dashAdmin.dmFilter.devicesOne}" label="Devices" widgetVar="deviceFilterWidget"
+													multiple="true" filter="true" filterMatchMode="startsWith"
+													 styleClass="col-md-12">
+													<!-- <f:selectItem itemLabel="admin" itemValue="admin" /> -->
+													<f:selectItem itemLabel="ALL" itemValue="ALL"/>
+													<f:selectItem itemLabel="FOC" itemValue="FOC" />
+													<f:selectItem itemLabel="WEB" itemValue="web" />
+													<f:selectItem itemLabel="SM" itemValue="SM" />
+													<f:selectItem itemLabel="MINNAGAM" itemValue="MI" />
+													<f:selectItem itemLabel="MOBILE" itemValue="MOBILE" />
+													<!-- <f:selectItem itemLabel="AMOB" itemValue="AMOB" /> -->
+													<!-- <f:selectItem itemLabel="IMOB" itemValue="IMOB" /> -->
+													<!-- <f:selectItem itemLabel="Android" itemValue="Android" /> -->
+													
+													<!-- <f:facet name="footer">
+												            <div style="text-align: right; padding-top: 5px;">
+												                <p:commandButton value="OK" 
+												                                 oncomplete="PF('deviceFilterWidget').hide(); callSearchComplaint()" 
+												                                 process="@none" 
+												                                 styleClass="btn btn-primary btn-sm" />
+												            </div>
+												        </f:facet> -->
+													
+											</p:selectOneMenu>
+											
+											<!-- <p:remoteCommand name="callSearchComplaint" 
+								                     action="#{dashAdmin.searchComplaintCMD}" 
+								                     update="complaintTable pnlDashService pnlDashGeneral" /> -->
+										</div>
+										
+										
+										<div class="col-md-2">
+							
+								<h:outputLabel for="fromDate" value="From Date :" />
+							
+							
+								<p:datePicker id="fromDate" pattern="dd-MM-yyyy" 
+									value="#{dashAdmin.dmFilter.fromDate}" 
+									
+				                    monthNavigator="true"
+				                    yearNavigator="true"
+				                    yearRange="2015:2100"
+                      				numberOfMonths="1"
+                      				/>
+							
+						</div>
+						<div class="col-md-2">
+							
+								<h:outputLabel for="toDate" value="To Date :" />
+							
+								<p:datePicker id="toDate" pattern="dd-MM-yyyy" 
+									value="#{dashAdmin.dmFilter.toDate}" 
+									maxdate="#{dashAdmin.dmFilter.currentDate}"
+                      				monthNavigator="true"
+                      				yearNavigator="true"
+                      				yearRange="2015:2100"
+                      				numberOfMonths="1"
+                      				/>
+							
+						</div>
+						
+						<div class="row mt-2 pt-2 mr-5" style="margin-left : 6rem">
+							<div class="col-md-12 text-center mt-3">
+								<p:commandButton value="Search" ajax="true" update="messages complaintTable pnlDashService pnlDashGeneral"
+									styleClass="btn btn-primary btn-lg" action="#{dashAdmin.searchComplaintCMD()}" 
+									oncomplete="PF('customersTable3').clearFilters();"/>
+							</div>
+						</div>
+						
+									
+					</div>
+				
+				
+				<!-- <ui:fragment rendered="#{sessionAdminValueBean.roleId >= 1}">
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="socialPlatform" value="Platform" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="socialPlatform"
+									value="#{dashAdmin.dmFilter.platForm}" label="receivedFrom"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12">
+									<f:selectItem itemLabel="Social Media" itemValue="SocialMedia" />
+									<f:ajax  event="change" listener="#{dashAdmin.toggleReceivedFrom}" render="receivedFrom tag"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+					
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="receivedFrom" value="Received From:" />
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="receivedFrom"
+									value="#{dashAdmin.dmFilter.receivedFromArray}" label="receivedFrom"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12" disabled="#{not dashAdmin.receivedFromEnabled}">
+									<f:selectItem itemLabel="Facebook" itemValue="Facebook"/>
+									<f:selectItem itemLabel="Twitter" itemValue="Twitter"/>
+									<f:selectItem itemLabel="Instagram" itemValue="Instagram"/>
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="tag" value="Tag:"/>
+							</div>
+							<div class="col-md-8">
+								<p:selectCheckboxMenu id="tag"
+									value="#{dashAdmin.dmFilter.tagArray}" label="tag"
+									multiple="true" filter="true" filterMatchMode="startsWith"
+									 styleClass="col-md-12" disabled="#{not dashAdmin.receivedFromEnabled}">
+									<f:selectItem itemLabel="CMD" itemValue="CMD" />
+									<f:selectItem itemLabel="JMD" itemValue="JMD" />
+								</p:selectCheckboxMenu>
+							</div>
+						</div>
+					</div>
+					
+				</ui:fragment> -->
+				
+			
+					
+				
+					
+				</div>
+				
+				
+				</div></div></div>
+			<!-- Search End here -->
+			<div class="row px-4">
+				<p:growl id="messages" styleClass="ng-deep"   showDetail="true"  />
+				
+				
+				<div class="col-md-12 card-body">
+					<div class="row">
+						<div class="col-6">
+							<p:panel id="pnlNoComplaints"
+								rendered="#{dashAdmin.dm.arrReport[0][0]==-1}">
+								<h4>No Complaints</h4>
+							</p:panel>
+							<p:panel id="pnlDashService">
+								<div class="tab-content" id="v-pills-tabContent">
+									<div class="tab-pane fade show active" id="v-pills-home"
+										role="tabpanel" aria-labelledby="v-pills-home-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc0" action="#{dashAdmin.listReportComplaints(0,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[0][0]+dashAdmin.dm.arrReport[0][1]+dashAdmin.dm.arrReport[0][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn0" action="#{dashAdmin.listReportComplaints(0,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Power Failures"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1 ">
+															<p:commandLink id="c00" action="#{dashAdmin.listReportComplaints(0,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[0][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2 ">
+															<p:commandLink id="c01"	action="#{dashAdmin.listReportComplaints(0,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[0][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3 ">
+															<p:commandLink id="c02"	action="#{dashAdmin.listReportComplaints(0,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[0][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+												<!--card ends-->
+											</div>
+										</div>
+									</div>
+									<div class="tab-pane fade  show active" id="v-pills-profile"
+										role="tabpanel" aria-labelledby="v-pills-profile-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc1" action="#{dashAdmin.listReportComplaints(1,-1)}" styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[1][0]+dashAdmin.dm.arrReport[1][1]+dashAdmin.dm.arrReport[1][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn1" action="#{dashAdmin.listReportComplaints(1,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Voltage Fluctuation" styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1 ">
+															<p:commandLink id="c10" action="#{dashAdmin.listReportComplaints(1,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[1][0]}" styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2" >
+															<p:commandLink id="c11" action="#{dashAdmin.listReportComplaints(1,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[1][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c12" action="#{dashAdmin.listReportComplaints(1,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[1][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!--card ends-->
+										</div>
+									</div>
+									<div class="tab-pane fade  show active" id="v-pills-messages"
+										role="tabpanel" aria-labelledby="v-pills-messages-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0 ">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc2" action="#{dashAdmin.listReportComplaints(2,-1)}"	styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[2][0]+dashAdmin.dm.arrReport[2][1]+dashAdmin.dm.arrReport[2][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn2" action="#{dashAdmin.listReportComplaints(2,-1)}"	styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Meter Complaint"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c20" action="#{dashAdmin.listReportComplaints(2,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[2][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c21" action="#{dashAdmin.listReportComplaints(2,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[2][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c22" action="#{dashAdmin.listReportComplaints(2,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[2][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!--card ends-->
+										</div>
+									</div>
+									<div class="tab-pane fade  show active" id="v-pills-settings"
+										role="tabpanel" aria-labelledby="v-pills-settings-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc3" action="#{dashAdmin.listReportComplaints(3,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[3][0]+dashAdmin.dm.arrReport[3][1]+dashAdmin.dm.arrReport[3][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn3" action="#{dashAdmin.listReportComplaints(3,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Billing Complaint"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c30" action="#{dashAdmin.listReportComplaints(3,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[3][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c31" action="#{dashAdmin.listReportComplaints(3,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[3][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c32" action="#{dashAdmin.listReportComplaints(3,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[3][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!--card ends-->
+										</div>
+									</div>
+								</div>
+							</p:panel>
+						</div>
+						<div class="col-6">
+							<p:panel id="pnlDashGeneral"
+								rendered="#{dashAdmin.dm.arrReport[0][0]>-1}">
+								<div class="tab-content" id="v-pills-tabContent">
+									<div class="tab-pane fade show active" id="v-pills-home"
+										role="tabpanel" aria-labelledby="v-pills-home-tab">
+										<div class="card-reponsive"></div>
+									</div>
+									<div class="tab-pane fade  show active" id="v-pills-fire"
+										role="tabpanel" aria-labelledby="v-pills-fire-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc4" action="#{dashAdmin.listReportComplaints(4,-1)}" styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[4][0]+dashAdmin.dm.arrReport[4][1]+dashAdmin.dm.arrReport[4][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn4" action="#{dashAdmin.listReportComplaints(4,-1)}" styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Fire" 
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c40" action="#{dashAdmin.listReportComplaints(4,0)}" styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[4][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c41" action="#{dashAdmin.listReportComplaints(4,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[4][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c42" action="#{dashAdmin.listReportComplaints(4,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[4][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!--card ends-->
+										</div>
+									</div>
+									<div class="tab-pane fade  show active" id="v-pills-human"	role="tabpanel" aria-labelledby="v-pills-human-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc5"	action="#{dashAdmin.listReportComplaints(5,-1)}"	styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[5][0]+dashAdmin.dm.arrReport[5][1]+dashAdmin.dm.arrReport[5][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn5" action="#{dashAdmin.listReportComplaints(5,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Dangerous Poles"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c50" action="#{dashAdmin.listReportComplaints(5,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[5][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c51" action="#{dashAdmin.listReportComplaints(5,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[5][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c52" action="#{dashAdmin.listReportComplaints(5,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[5][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!--card ends-->
+										</div>
+									</div>
+									<div class="tab-pane fade  show active" id="v-pills-theft"
+										role="tabpanel" aria-labelledby="v-pills-theft-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0 ">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc6" action="#{dashAdmin.listReportComplaints(6,-1)}"	styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[6][0]+dashAdmin.dm.arrReport[6][1]+dashAdmin.dm.arrReport[6][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn6" action="#{dashAdmin.listReportComplaints(6,-1)}" styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Theft"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c60" action="#{dashAdmin.listReportComplaints(6,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[6][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c61" action="#{dashAdmin.listReportComplaints(6,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[6][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c62" action="#{dashAdmin.listReportComplaints(6,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[6][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!--card ends-->
+										</div>
+									</div>
+									
+									<div class="tab-pane fade  show active" id="v-pills-settings"
+										role="tabpanel" aria-labelledby="v-pills-settings-tab">
+										<div class="card-reponsive">
+											<!--card starts-->
+											<!-- 
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc7" action="#{dashAdmin.listReportComplaints(7,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[7][0]+dashAdmin.dm.arrReport[7][1]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn7" action="#{dashAdmin.listReportComplaints(7,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Service Complaint"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c70" action="#{dashAdmin.listReportComplaints(7,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[7][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c71" action="#{dashAdmin.listReportComplaints(7,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[7][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c72" action="#{dashAdmin.listReportComplaints(7,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[7][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											-->
+											<!--card ends-->
+											
+											<!--  card starts -->
+											<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc7" action="#{dashAdmin.listReportComplaints(8,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[8][0]+dashAdmin.dm.arrReport[8][1]+dashAdmin.dm.arrReport[8][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn7" action="#{dashAdmin.listReportComplaints(8,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Conductor Snapping"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c70" action="#{dashAdmin.listReportComplaints(8,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[8][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c71" action="#{dashAdmin.listReportComplaints(8,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[8][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c72" action="#{dashAdmin.listReportComplaints(8,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[8][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											
+											
+												<div class="card shadow mb-1 ml-0">
+												<div class="card-body p-1">
+													<div class="row m-0">
+														<div class="col-md-3 m-0  bg-white">
+															<div class="text-center">
+																<div class="row">
+																	<p:commandLink id="cc8" action="#{dashAdmin.listReportComplaints(9,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText styleClass="h1"
+																			value="#{dashAdmin.dm.arrReport[9][0]+dashAdmin.dm.arrReport[9][1]+dashAdmin.dm.arrReport[9][2]}" />
+																	</p:commandLink>
+																	<p:commandLink id="cn8" action="#{dashAdmin.listReportComplaints(9,-1)}"
+																		styleClass="col-12" update="complaintTable">
+																		<h:outputText value="Others"
+																			styleClass="h6 mb-1 text-bold text-uppercase" />
+																	</p:commandLink>
+																</div>
+															</div>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn1">
+															<p:commandLink id="c791" action="#{dashAdmin.listReportComplaints(9,0)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[9][0]}"
+																	styleClass="h2 text-bold text-danger mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Pending</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn2">
+															<p:commandLink id="c792" action="#{dashAdmin.listReportComplaints(9,1)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[9][1]}"
+																	styleClass="h2 text-bold text-primary mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">In Progress</small>
+															</p:commandLink>
+														</div>
+														<div class="col-md-3 text-center text-bold p-2 rounded btn3">
+															<p:commandLink id="c793" action="#{dashAdmin.listReportComplaints(9,2)}"
+																styleClass="row mx-0" update="complaintTable">
+																<h:outputText value="#{dashAdmin.dm.arrReport[9][2]}"
+																	styleClass="h2 text-bold text-success mb-0 col-12" />
+																<small class="col-12 text-bold text-dark">Completed</small>
+															</p:commandLink>
+														</div>
+													</div>
+												</div>
+											</div>
+											<!-- card ends -->
+										</div>
+									</div>
+
+								</div>
+							</p:panel>
+							<div class="row mt-2">
+									<div class="col-4 ml-2 small mb-2 mt-2">
+										<p:commandButton value="Export as Pdf" ajax="false" styleClass="fa fa-download btn-sm btn-danger"
+											action="#{dashAdmin.exportPdfReport()}" />
+									</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				<p:commandButton value="Export as Excel" ajax="false" styleClass="fa fa-download btn-sm btn-danger" >
+								<p:dataExporter type="xls" target="complaintTable"   
+									fileName="Complaint Details View" />
+							</p:commandButton> 
+							
+							 <!-- <p:commandButton value="Preview Excel"  ajax="true"
+			                     onclick="showExcelPreview();" 
+			                     process="@this" 
+			                     update="excelPreviewDialog" />
+			                     
+			                         <p:commandButton
+								        value="Download Excel"
+								        icon="pi pi-file-excel"
+								        action="#{dashAdmin.generateExcelForPreview}"
+								        ajax="false" /> -->
+			                     
+							
+							
+							
+							<!-- <p:commandButton value="Export as Pdf" ajax="false" styleClass="fa fa-download btn-sm btn-danger">
+							    <p:dataExporter 
+							        type="pdf" 
+							        target="complaintTable" 
+							        fileName="Complaint Details View" 
+							        orientation="landscape" 
+							        pageSize="A3" postProcessor="#{dashAdmin.customizePdf}"/>
+							</p:commandButton> -->
+				<div class="col-md-12 card-body container">
+					<div class="card-reponsive col-md-12 p-2 border-1 rounded-lg">
+							<div class="row" style="width:3000px">
+							<p:dataTable id="complaintTable" var="compList" value="#{dashAdmin.lazyComplaintDataModel}" widgetVar="customersTable3"
+			                     emptyMessage="No complaint found with given criteria." paginator="true" paginatorPosition="bottom" rows="50"
+			                    globalFilterFunction="#{dtFilterView.globalFilterFunction}" responsive="true" lazy="true" rowIndexVar="rowIndex">
+						            	<p:column headerText="S.No" width="50">
+								            <h:outputText value="#{rowIndex + 1}" />
+								        </p:column>
+								       	<p:column headerText="Complaint ID1" sortBy="#{compList.id}" filterBy="#{complaintLazyDataModel.id}">
+						                	<h:outputText value="#{compList.id}"/>
+						            	</p:column>
+						            	<p:column headerText="Complaint Date" sortBy="#{compList.createdOnFormatted}">
+						                	<h:outputText value="#{compList.createdOnFormatted}" />
+						            	</p:column>
+						            	<p:column headerText="Service Number" sortBy="#{compList.serviceNumber}" filterBy="#{complaintLazyDataModel.serviceNumber}" >
+						                	<h:outputText value="#{compList.serviceNumber}"/>
+						            	</p:column>
+						            	<p:column headerText="Contact No" sortBy="#{compList.mobile}" filterBy="#{complaintLazyDataModel.mobile}">
+						                	<h:outputText value="#{compList.device eq 'MI' ? compList.compMobileNumber : compList.mobile}"/>
+						            	</p:column>
+						            	<p:column headerText="Type" sortBy="#{compList.complaintCodeValue}" filterBy="#{complaintLazyDataModel.complaintType}">
+						            			<f:facet name="filter">
+										            <p:selectOneMenu value="#{complaintLazyDataModel.complaintType}" filter="true" filterMatchMode="exact"
+										                             styleClass="filter-select" immediate="true" onchange="PF('customersTable3').filter()">
+										                <f:selectItem itemLabel="Select Type" itemValue="" />
+										                <f:selectItem itemLabel="Power Failure" itemValue="PF" />
+										                <f:selectItem itemLabel="Voltage Fluctuation" itemValue="VF" />
+										                <f:selectItem itemLabel="Meter Complaint" itemValue="ME" />
+										                <f:selectItem itemLabel="Billing Complaint" itemValue="BL" />
+										                <f:selectItem itemLabel="Fire" itemValue="FI" />
+										                <f:selectItem itemLabel="Dangerous Poles" itemValue="TH" />
+										                <f:selectItem itemLabel="Theft" itemValue="TE" />
+										                <f:selectItem itemLabel="Conductor Snapping" itemValue="CS" />
+										                <f:selectItem itemLabel="Others" itemValue="OT" />
+										            </p:selectOneMenu>
+										        </f:facet> 
+						                	<h:outputText value="#{compList.complaintCodeValue}"/>
+						            	</p:column>
+						            	<p:column headerText="Sub Category Name"  sortBy="#{compList.subCategoryNames}" filterBy="#{complaintLazyDataModel.subCategoryNames}"
+						            	
+						            	>
+						                	<h:outputText value="#{compList.subCategoryName}"/>
+						            	</p:column>
+						            	<p:column headerText="Description" styleClass="align-top">
+						                	<h:outputText value="#{compList.completedRemarks}" />
+						            	</p:column>
+						            	
+										    <p:column headerText="Status" sortBy="#{compList.statusValue}" filterBy="#{complaintLazyDataModel.statuses}">
+        
+										        <!-- The dropdown in the header for filtering -->
+										       <f:facet name="filter">
+										            <p:selectOneMenu value="#{complaintLazyDataModel.statuses}" filter="true" filterMatchMode="exact"
+										                             styleClass="filter-select" immediate="true" onchange="PF('customersTable3').filter()">
+										                <f:selectItem itemLabel="Select Status" itemValue="" />
+										                <f:selectItem itemLabel="Pending" itemValue="0" />
+										                <f:selectItem itemLabel="In Progress" itemValue="1" />
+										                <f:selectItem itemLabel="Completed" itemValue="2" />
+										            </p:selectOneMenu>
+										        </f:facet> 
+										        
+										        <!-- Display the status value for each item in the column -->
+										        <h:outputText value="#{compList.statusValue}" />
+										    </p:column>
+						            	<p:column headerText="Attended Date" sortBy="#{compList.updatedOnFormatted}" style="white-space: nowrap;" styleClass="align-top">
+						                	<h:outputText value="#{(compList.statusId == 0 or compList.statusId == 1) ? '' : compList.updatedOnFormatted}" />
+						            	</p:column>
+						            	<p:column headerText="Attended Remarks" sortBy="#{compList.remarks}" >
+						                	<h:outputText value="#{compList.remarks}"/>
+						            	</p:column>
+						            	<p:column headerText="Feedback">
+						                	<h:outputText value="#{compList.feedbackEmojiAndText}"/>
+						            	</p:column>
+<!-- 									     <p:column headerText="Region" sortBy="#{compList.regionName}" >
+									        <h:outputText value="#{compList.regionName}"/>
+									    </p:column> -->
+									     <p:column headerText="Circle" sortBy="#{compList.circleName}" >
+									        <h:outputText value="#{compList.circleName}"/>
+									    </p:column>
+									    <p:column headerText="Division" sortBy="#{compList.divisionName}"  >
+									        <h:outputText value="#{compList.divisionName}"/>
+									    </p:column>
+									    <p:column headerText="Sub Division" sortBy="#{compList.subDivisionName}"  >
+									        <h:outputText value="#{compList.subDivisionName}"/>
+									    </p:column>
+									    <p:column headerText="Section" sortBy="#{compList.sectionName}"  >
+									        <h:outputText value="#{compList.sectionName}"/>
+									    </p:column>
+									     <p:column headerText="Received From" sortBy="#{compList.device}" >
+									        <h:outputText value="#{compList.device}"/>
+									    </p:column>
+						            	
+			       			 </p:dataTable>
+					       	
+							
+							</div>
+					</div>
+				</div>
+				
+				<p:dialog id="excelPreviewDialog" header="Excel Preview" widgetVar="excelPreviewDialog" 
+				          modal="true" resizable="true" width="900" height="600">
+				    <div id="excelPreviewContent" style="height: 100%; overflow: auto;">
+				        <!-- Excel preview will load here -->
+				    </div>
+				</p:dialog>
+				
+				<!--	T H I S   M O D A L   I S   F O R   V I E W I N G   P R O F I L E -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="250">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+				
+			</div>
+	</h:form>
+</h:body>
+</html>

@@ -1,0 +1,600 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css"  />
+	<link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css"  />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet" 	href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet' href='#{request.contextPath}/resources/css/ticker.css'  />
+	<link rel="stylesheet"  href="#{request.contextPath}/resources/css/leaflet.css"/>
+	<link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico" type="image/x-icon" />
+	
+	<style type="text/css">
+	    .ui-filter-column .ui-column-customfilter .custom-filter {
+	        width: 100%;
+	        box-sizing: border-box;
+	    }
+	    .title-box {
+	    background: #1a237e;
+    margin: 0;
+    padding: 10px !important;
+    color: #fff !important;
+    }
+    .btn-lg {
+    padding: 10px 30px !important;
+}
+
+
+
+
+body .ui-button {
+
+border: none !important;
+background:none !important;
+box-shadow:none !important;
+color:#fff !important;
+}
+
+       body .card{
+        border-radius: 0 0 10px 10px !important;
+       
+       }
+
+
+  body .ui-selectonemenu{
+     
+     width:100% !important ;
+
+  }
+body .ui-inputtextarea{
+
+width:100% !important ;
+}
+
+body .ui-inputfield{
+
+width:100% !important ;
+}
+body .ui-selectonemenu{
+     
+     width:100% !important ;
+
+  }
+body .ui-inputtextarea{
+
+width:100% !important ;
+}
+
+body .ui-inputfield{
+
+width:100% !important ;
+}
+
+.ui-dialog.success-dialog .ui-dialog-titlebar {
+    display: none;
+}
+
+.ui-dialog.success-dialog .ui-dialog-content {
+    background-color: #e8f5e9; /* light green */
+    border-radius: 8px;
+    text-align: center;
+}
+
+	</style>
+
+	
+	
+	 
+ <script type="text/javascript">
+	 
+	 function validateAddUser(){
+		// var agentRole = document.getElementById("complaintForm:agentRole");
+		 var name = document.getElementById("complaintForm:name");
+		 var mobileNumber = document.getElementById("complaintForm:mobileNumber");
+		 var email = document.getElementById("complaintForm:emailID");
+		 var selectedValue = PF('agentRoleWidget').getSelectedValue();
+		 var componentId = 'complaintForm:agentRole'; 
+	     var callCenterWidget = 'complaintForm:callCenterWidget'; 
+		
+		 showSelectErrorMessage(componentId, selectedValue, "Agent Role");
+		 //showErrorMessage(name.id, name.value, "Name");
+		 showErrorMessage(name.id, name.value, "Name");
+		 showErrorMessage(mobileNumber.id, mobileNumber.value, "Mobile Number");
+		 showErrorMessage(email.id, email.value, "Email Id");
+		  var circleRole = PF('callCenterWidget').getSelectedValue(); 
+		 var circleDropdown = document.getElementById("complaintForm:circleName");
+		
+	        if (selectedValue === "Circle Agent") {
+	        	
+	        	if (circleRole === "") 
+	        		{
+	        		 
+	        		 showErrorMessage(circleDropdown.id, circleDropdown.value, "Circle Agent");
+		        	 return false;
+	        		}	
+	        	else
+	        		{
+	        		clearErrorMessage(circleDropdown.id);
+	        		}
+	        }
+	// showErrorMessage(email.id, email.value, "Emai");
+		
+		 
+		 /*if(mobileNumber.value !="" ){
+			    mobileNo=document.getElementById("complaintForm:mobileNumber").value;
+					if(mobileNo.length!=10){
+						$('[id="' + mobile.id + '"]').after("&lt;span style='color:red;' id='span"+mobileNumber.id+"'&gt; Mobile Number should be 10 characters in length! &lt;/span&gt;");
+						showErrorMessage(mobileNumber.id, mobileNumber.value, "Mobile Number");
+						return false;
+					}
+			} */
+	        var errorMsgreason1 = document.getElementById("complaintForm:errorMsgreason1");
+			if(mobileNumber.value =="" ){
+				
+				errorMsgreason1.style.display = "none";
+				return false;
+			}
+			if(mobileNumber.value !="" ){
+				
+				
+				var mobileInput = document.getElementById("complaintForm:mobileNumber");
+			    var mobile = mobileInput.value.trim();
+
+			    var isValid = /^[0-9]{10}$/.test(mobile) &amp;&amp; !/^0{10}$/.test(mobile);
+
+			    if (!isValid) {
+			    	
+			    	
+			    	 errorMsgreason1.style.display = "block";
+			    	 mobileInput.value = '';
+			    	 mobileInput.focus();
+			        return false;
+			    }
+			    else
+			    	{
+			    	errorMsgreason1.style.display = "none";
+			    	}
+
+			   
+			}
+		  if(email.value!=""){
+			 if(! validateEmail(email)){
+				 return false;
+			 }
+		 } 
+		  checkmobile(mobileNumber.value);
+		  //validateEmail(email.value);
+		  if (checkFieldEmpty(name.value) || checkFieldEmpty(mobileNumber.value) || 
+			  mobileNumber.value.length !== 10 || checkFieldEmpty(email.value)||(selectedValue === "")) 
+				{
+				    return false;
+				} else {
+				    // document.getElementById('addUserForm:password').value = hex_md5(document.getElementById('addUserForm:password').value);
+				    return true;
+				}
+
+	}
+	 
+	 function checkmobile(mobile)
+	 {
+		 var mobileNo = mobile.length;
+		 var mobileNumber = document.getElementById("complaintForm:mobileNumber");
+		 if(mobileNo!==10)
+			 {
+			 
+			 mobileNumber.value = "";
+			 showErrorMessage(mobileNumber.id, mobile.value, "Mobile Number should be maximum 10 digits");
+			 
+			 return false;
+			
+			 }
+	 }
+	 function validateEmail(email){
+		 
+		 var emailId = email.id;
+		 var emailValue = email.value;
+		 
+		 var emailRegex = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|org|net|in|edu|gov|co)$/i;
+
+		 
+		 
+			 if(!emailRegex.test(emailValue)){
+				 $('[id="' + emailId + '"]').after("&lt;span style='color:red;' id='span"+emailId+"'&gt; Please enter valid Email Id! &lt;/span&gt;");
+					return false;
+			 }  
+			 return true;
+	 }
+	 
+	 function checkFieldEmpty(fieldValue){
+			if(fieldValue == "" || fieldValue == null){
+		       	return true;
+		    } else {
+				return false;
+			}	
+		}
+
+	function validateMobileNumber(mobileNumber) {
+		
+		var mobileId = mobileNumber.id;
+		var mobileNo = mobileNumber.value;
+		var errMsg = "Mobile number should be 10 Digits in length";
+		
+		if (mobileNo.length > 0) {
+		
+			if (mobileNo.length != 10) {
+		
+				$('[id="' + mobileId + '"]').after("&lt;span style='color:red;' id='span" + mobileId + "'&gt; " + errMsg + " &lt;/span&gt;");
+				return false;
+			
+			} else if (! /^[0-9]*$/.test(mobileNo)) {
+
+				$('[id="' + mobileId + '"]').after("&lt;span style='color:red;' id='span" + mobileId + "'&gt; " + errMsg + " &lt;/span&gt;");
+				return false;					
+			}
+		}
+		return true;
+	}
+
+ 	 function showErrorMessage(fieldId, fieldValue, fieldLabel){
+		$('[id="span' + fieldId + '"]').remove();
+		if(fieldValue == "" || fieldValue == null){
+       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Enter "+fieldLabel+"&lt;/span&gt;");
+       } 
+	}
+ 	 
+ 	function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+		if(fieldValue === "" || fieldValue === null){
+		 $('[id="span' + fieldId + '"]').remove();
+     	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt;Please Select "+fieldLabel+"&lt;/span&gt;");
+     } else if(fieldValue != "" || fieldValue != null){
+			 $('[id="span' + fieldId + '"]').remove();
+     }
+	}
+	 
+ 	
+ 	function clearErrorMessage(tagid){
+	    $('[id="span' + tagid + '"]').remove();
+	}
+ 	
+ 	//Function to remove the error message on the click off the input field.
+	$(document).ready(function () {
+		$("input[type=text]").click(function () {
+			 var currentElement = $(this);
+		     var tagid = currentElement.attr('id');
+		     $('[id="span' + tagid + '"]').remove();
+		});
+	});
+	function toggleCircleDropdown(ajax) {
+        
+	       var agentRole = PF('agentRoleWidget').getSelectedValue(); 
+	        console.log("THE AGENT ROLE ="+agentRole);
+
+	        
+	        var circleDropdown = document.getElementById("circleDropdown");
+
+	        if (agentRole === "Circle Agent") {
+	            circleDropdown.style.display = "block";  // Show dropdown
+	        } else {
+	            circleDropdown.style.display = "none";   // Hide dropdown
+	        }
+		}
+	$(document).ready(function () {
+	    $('#circleDropdown').hide(); // Hide the dropdown on page load
+	});
+	
+	function redirectAfterMessage() {
+        setTimeout(function() {
+            window.location.href = '#{facesContext.externalContext.requestContextPath}/faces/admin/listminnagamrequest.xhtml';
+        }, 5000); 
+    }
+
+ 	
+ 	</script>
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"	oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+	
+	
+	<h:form id="complaintForm">
+    <div class="container-fluid">
+        <br/>
+        <div class="col-md-6 offset-md-3">
+            <p:growl id="messages" styleClass="ng-deep" showDetail="true" globalOnly="true"/>
+            <h5 class="text-center pb-3 title-box">Request for User Creation</h5>
+            <div class="card shadow mb-1 p-5 pt-2 ml-0">
+                <div class="card-body p-1">
+                    <div class="form-group">
+                        <div class="row">
+                           <div class="col-md-4">
+									<p:outputLabel for="agentRole" value="Agent Role" />
+								</div>
+								<div class="col-md-8">
+									<p:selectOneMenu id="agentRole" widgetVar="agentRoleWidget" 
+										value="#{minnagamUser.minnagamUserRequestValueBean.agentRole}"
+										 onclick="clearErrorMessage('complaintForm:agentRole')">
+										<f:selectItem itemLabel="Select Role Type..." itemValue="" />
+										<f:selectItem itemLabel="Call Center Agent"
+											itemValue="Call Center Agent" />
+										<f:selectItem itemLabel="Circle Agent"
+											itemValue="Circle Agent" />
+
+										<!-- AJAX listener to handle Circle Dropdown visibility -->
+										 <p:ajax event="change"
+											
+											oncomplete="toggleCircleDropdown(this);" /> 
+									</p:selectOneMenu>
+								</div>
+
+                        </div>
+                    </div>
+                    
+                   <!-- Circle Name Dropdown (Initially hidden) -->
+						<div class="form-group" id="circleDropdown" style="display: none;">
+							<div class="row">
+								<div class="col-md-4">
+									<p:outputLabel for="circleName" value="Circle Name" />
+								</div>
+								<div class="col-md-8">
+									<p:selectOneMenu id="circleName" widgetVar="callCenterWidget"
+										value="#{minnagamUser.minnagamUserRequestValueBean.circleId}"
+										>
+										<f:selectItem itemLabel="---Select Circles---" itemValue="" />
+										<f:selectItems var="des"  
+											value="#{dashAdmin.dmFilter.listCircles}"
+											itemLabel="#{des.name}" itemValue="#{des.id}" />
+											
+											<!-- <p:ajax event="change" listener="#{minnagamUser.generateUsername}" update="userName"
+                    							oncomplete="toggleCircleDropdown(this);" /> -->
+									</p:selectOneMenu>
+								</div>
+							</div>
+						</div>
+
+                   <!-- Username Field (Readonly) 
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-4">
+									<p:outputLabel for="userName" value="Username" />
+								</div>
+								<div class="col-md-8">
+									<p:inputText id="userName" value="#{minnagamUser.userName}"
+										styleClass="form-control" readonly="true" />
+								</div>
+							</div>
+						</div> -->
+
+
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <h:outputLabel for="name" value="Name" />
+                            </div>
+                            <div class="col-md-8">
+                                <p:inputText id="name" value="#{minnagamUser.minnagamUserRequestValueBean.name}" 
+	                                required="required" onkeydown="return (event.keyCode!=13);" 
+	                                onclick="clearErrorMessage('complaintForm:name')" maxlength="30">
+                                    <p:keyFilter mask="name" />
+                                </p:inputText>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="mobileNumber" value="Mobile Number" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="mobileNumber" value="#{minnagamUser.minnagamUserRequestValueBean.mobileNumber}"  
+									maxlength="10" 
+                         			oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                         			type="tel" onclick="clearErrorMessage('complaintForm:mobileNumber')"/>
+								
+							</div>
+							<span id="complaintForm:errorMsgreason1"
+                      class="error"
+                      style="color:red; display:none;">Invalid format mobile number</span>
+       
+						</div>
+					</div>
+					
+					<!-- <div class="form-group">
+						<div class="row">
+							<div class="col-md-4">
+								<h:outputLabel for="emailID" value="E Mail" />
+							</div>
+							<div class="col-md-8">
+								<p:inputText id="emailID"  value="#{minnagamUser.minnagamUserRequestValueBean.emailId}" 
+									 maxlength="30"
+									 onclick="clearErrorMessage('complaintForm:mobileNumber')">
+								
+								</p:inputText>
+								
+							</div>
+						</div>
+					</div> -->
+					
+					<div class="form-group">
+    <div class="row">
+        <div class="col-md-4">
+            <h:outputLabel for="emailID" value="E Mail" />
+        </div>
+        <div class="col-md-8">
+            <p:inputText id="emailID" 
+                value="#{minnagamUser.minnagamUserRequestValueBean.emailId}" 
+                maxlength="30"
+                onblur="validateEmail(this)"
+                onclick="clearErrorMessage('complaintForm:mobileNumber')">
+            </p:inputText>
+            <p:message for="emailID" />
+        </div>
+    </div>
+</div>
+
+                    
+
+                    <div class="row">
+                        <div class="col-md-12 text-center mt-3">
+                            <div class="btn btn-primary btn-sm">
+                            <p:commandButton value="CREATE REQUEST" ajax="true" action="#{minnagamUser.saveMinnagamUserRequest}" 
+                            	update="messages" onclick="return validateAddUser()"/> 
+                            
+                            </div>
+                          <div class="btn btn-danger btn-sm">
+               <p:commandButton value="RESET" action="#{minnagamUser.newusercreate}"/>
+
+                  </div>
+
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!--	T H I S   M O D A L   I S   F O R   V I E W I N G  P R O F I L E -->
+		
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="350">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Name" />
+					<p:inputText id="profile_Office" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}"
+						styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username" onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+    
+      	<!--	T H I S   M O D A L   I S   F O R   V I E W I N G  C H A N G E  P A S S W O R D -->
+	<!--  	<f:metadata>
+		    <f:viewAction action="#{admin.callCenterUser.init}" />
+		</f:metadata>-->
+		<p:dialog header="Change Password" widgetVar="dlgChange" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="250">
+			<p:outputPanel id="pnlChnagePassword">
+				<div class="form-group mb-1">
+				 
+					<div class="input-field">
+						<h:outputLabel for="old_password" value="Old Password" />
+						<p:password id="old_password" 
+						    value="#{admin.officer.oldPassword}" 
+						     required="required"
+							styleClass="form-control" > 
+							
+							<p:ajax event="keyup" listener="#{admin.officer.validateOldPassword}" update="new_password confirm_password"></p:ajax>
+							
+						</p:password>	
+						
+					</div>
+					
+				</div>
+				
+					<div class="form-group mb-1">
+					<div class="input-field">
+						<h:outputLabel for="new_password" value="New Password" />
+						<p:password id="new_password" 	
+							styleClass="form-control" 
+							disabled="#{admin.officer.oldPasswordCorrect}" value="#{admin.officer.newPassword}"
+							>
+						</p:password>
+					</div>
+				</div>
+					<div class="form-group mb-1">
+					<div class="input-field">
+						<h:outputLabel for="confirm_password" value="Confirm Password" />
+						<p:password id="confirm_password"
+							styleClass="form-control" 
+							disabled="#{admin.officer.oldPasswordCorrect}" value="#{admin.officer.confirmPassword}">
+						</p:password>
+					</div>
+				</div>
+
+			</p:outputPanel>
+			<f:facet name="footer" class="modal-footer">
+					
+			<p:commandButton value="Submit" ajax="true" 
+					onclick="return submitLoad();"
+					action="#{admin.auth.checkOldPassword(admin.officer)}"
+					update="confirmationDialog messages pnlChnagePassword"
+					 styleClass="btn btn-danger">
+					
+			 </p:commandButton>
+			 	
+			 	<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgChange').hide();"/> 
+			</f:facet>
+			
+		</p:dialog>
+			
+		<p:dialog id="confirmationDialog" header="Password Changed" widgetVar="confirmationDialog" modal="true"
+			    showEffect="fade" hideEffect="fade" >
+			    <div class="form-group mb-1">
+			    <h:outputText value="Login with your new password." />
+			    <p:commandButton value="OK" styleClass="btn btn-danger" action="#{admin.auth.logOut()}"/>
+			    </div>
+			</p:dialog>
+			
+			
+				<p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+	          showEffect="fade" hideEffect="fade" closable="false"
+	          width="420" height="140" styleClass="success-dialog">
+	
+	    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+	        <i class="pi pi-check-circle" style="font-size: 2.5em; color: green;"></i>
+	        <h:outputText id="dialogMessage" value="User request sent successfully." 
+	                      style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+	    </div>
+	</p:dialog>
+    	<p:dialog id="messageDialogError" widgetVar="messageDialogError" modal="true"
+	          showEffect="fade" hideEffect="fade" closable="false"
+	          width="420" height="140" styleClass="success-dialog">
+	
+	    <div style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+	        <i class="pi pi-check-circle" style="font-size: 2.5em; color: green;"></i>
+	        <h:outputText id="dialogMessageError" value="User Not Created." 
+	                      style="font-size: 24px; color: red; font-weight: 800;" />
+	    </div>
+	</p:dialog>
+</h:form>
+</h:body>
+</html>

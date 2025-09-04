@@ -1,0 +1,675 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Tamil Nadu Generation and Distribution Corporation Limited (TANGEDCO)</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/site.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/layout.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/effect.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/flashy.min.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/count.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/ticker.css" />
+    <link rel="stylesheet" href="#{request.contextPath}/resources/css/leaflet.css" />
+    <link rel="shortcut icon" href="#{request.contextPath}/resources/images/favicon.ico" type="image/x-icon" />
+
+
+    <script>
+  
+  document.querySelector('button[value="GENERATE"]').addEventListener('click', function() {
+      document.getElementById('reportLoader').style.display = 'flex';
+  });
+
+  document.querySelectorAll('.fixed-column-circle a').forEach(link => {
+      link.addEventListener('click', function() {
+          document.getElementById('reportLoader').style.display = 'flex';
+      });
+  });
+</script>
+
+    <style>
+    
+    #reportLoader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .loader-content {
+        background: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    
+    .loader-spinner {
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+    #circleReportForm{
+margin-top:-40px !important;
+}
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    
+	.scrollable-container {
+		width: 100%;
+		height: calc(100vh - 100px);
+		overflow: auto;
+		border: 1px solid #ddd;
+		margin-bottom: 20px;
+	}
+	
+	.inner-scrollable {
+		width: 100%;
+		min-width: fit-content;
+	}
+	
+	.report-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		width: 100%;
+	}
+	
+	.report-header span {
+		font-size: 15px;
+		font-weight: bold;
+	}
+	
+	.export-buttons {
+		margin-left: auto; /* Moves buttons to the right */
+		display: flex;
+		gap: 10px; /* Adds spacing between buttons */
+	}
+	
+	.compact-table .ui-datatable-tablewrapper {
+		overflow: visible; /* Let parent handle scrolling */
+	}
+	
+	.compact-table .ui-datatable-tablewrapper td, .compact-table .ui-datatable-tablewrapper th
+		{
+		border: 0.5px solid black !important; 
+	}
+	
+	.total-column {
+		background-color: #f2f2f2 !important;
+	}
+	
+	.total-footer {
+		background-color: #f8f9fa !important;
+		font-weight: bold;
+		text-align: center !important;
+		border-top: 1.5px solid #333;
+		padding-left: 80px !important;
+	}
+	
+	.ui-datatable tfoot td {
+		font-size: 0.85em;
+		color: #000;
+	}
+	
+	.form-container {
+		display: flex;
+		gap: 1rem;
+		align-items: flex-end;
+		margin-bottom: 2rem;
+	}
+	
+	.compact-datepicker .ui-inputfield {
+		width: 170px !important;
+		padding: 0.5rem 1rem !important;
+		font-size: 0.9em !important;
+		border: 1px solid #dee2e6 !important;
+		border-radius: 4px !important;
+	}
+	
+	.compact-datepicker .ui-datepicker-trigger {
+		margin-left: 0.5rem !important;
+		color: #6c757d !important;
+	}
+	
+	.filter-container {
+		display: flex;
+		align-items: left;
+		gap: 30px;
+		margin-bottom: 5rem;
+	}
+	
+	.filter-container .col-md-4 {
+		flex: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	
+	.filter-container .form-control {
+		width: 100%;
+		max-width: none;
+		box-sizing: border-box;
+		padding: 0.1rem 0.1rem;
+		font-size: 1rem;
+		height: 30px;
+	}
+	
+	.filter-container .form-label {
+		margin-bottom: 0.1rem;
+		font-size: 0.85rem;
+		font-weight: bold;
+	}
+	
+	.search-button-container {
+		margin-left: auto;
+	}
+	
+	.search-button-container .custom-button {
+		background-color: #007bff;
+		color: white;
+		border: 1px solid #007bff;
+		padding: 0.1rem 1rem;
+		font-size: 1rem;
+		border-radius: 4px;
+		cursor: pointer;
+		height: 50px;
+	}
+	
+	.search-button-container .custom-button:hover {
+		background-color: #0056b3;
+		border-color: #0056b3;
+	}
+	
+	.compact-table {
+		table-layout: fixed;
+		width: 100%;
+	}
+	
+	.compact-table .ui-datatable-header, .compact-table th {
+		font-size: 0.95em;
+		background: #f8f9fa !important;
+		border: 1px solid #ddd;
+		text-align: center !important;
+	}
+	
+	.compact-table td {
+		font-size: 0.8em;
+		padding: 7px !important;
+		border: 1px solid #ddd;
+		text-align: center !important;
+		word-break: break-word;
+	}
+	
+	.category-header {
+		background-color: #e9ecef !important;
+		text-align: left;
+		font-weight: bold;
+		border: 1px solid #ddd;
+	}
+	
+	.total-header {
+		background-color: #e9ecef !important;
+		text-align: left;
+		font-weight: bold;
+		border: 1px solid #ddd;
+		width: 100px !important;
+	}
+	
+	.sticky-header {
+		position: sticky;
+		top: 0;
+		background: white !important;
+		z-index: 100;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		background-color: white;
+		font-size: 1rem !important;
+	}
+	
+	.fixed-column-region {
+		width: 7%;
+		text-align: center !important;
+	}
+	
+	.fixed-column-circle {
+		width: 7%;
+		text-align: left !important;
+	}
+	
+	.custom-table th, .custom-table td {
+		border-right: 1px solid #ccc;
+		text-align: left;
+	}
+	
+	
+					  /* CUSTOMIZING THE REPORT SIZE FOR SM */
+    
+    /* Target only the table when in mAdmin view */
+    body .ui-datatable.compact-table.madmin-view {
+        width: auto !important;
+        max-width: 800px !important;
+        margin: 0 auto !important;
+    }
+    
+    body .ui-datatable.compact-table.madmin-view td {
+        padding: 4px 8px !important;
+        font-size: 0.8em !important;
+    }
+      body .ui-datatable.compact-table.madmin-view th{
+      padding :10px 10px !important;
+      font-size :0.9em !important;
+      }
+    
+    /* Specific column widths for mAdmin view */
+    body .ui-datatable.compact-table.madmin-view th:first-child,
+    body .ui-datatable.compact-table.madmin-view td:first-child {
+        width: 40px !important; /* S.No column */
+    }
+    
+    body .ui-datatable.compact-table.madmin-view th:nth-child(2),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(2) {
+        width: 120px !important; /* Circle column */
+    }
+    
+    /* MI columns */
+    body .ui-datatable.compact-table.madmin-view th:nth-child(3),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(3),
+    body .ui-datatable.compact-table.madmin-view th:nth-child(4),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(4),
+    body .ui-datatable.compact-table.madmin-view th:nth-child(5),
+    body .ui-datatable.compact-table.madmin-view td:nth-child(5) {
+        width: 60px !important;
+    }
+    
+    /* Make header more compact */
+    body .ui-datatable.compact-table.madmin-view .ui-datatable-header {
+        padding: 4px !important;
+    }
+</style>
+</h:head>
+
+<h:body class="home-01">
+
+    <ui:insert name="header">
+        <ui:include src="/callcenterheader.xhtml" />
+    </ui:insert>
+
+    <!-- Loading Dialog -->
+    <p:ajaxStatus onstart="PF('statusDialog').show()" oncomplete="PF('statusDialog').hide()" />
+    <p:dialog widgetVar="statusDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false">
+        <p:graphicImage name="images/ajax-loader.gif" />
+    </p:dialog>
+
+        <h:form id="circleReportForm">
+        
+ <f:metadata>
+    <f:event type="preRenderView" listener="#{modeWiseByDateAndCategory.resetIfNeeded()}" />
+</f:metadata>
+
+         <div class="scrollable-container">
+            <div class="inner-scrollable">
+        <p:panel id="reportPanel" styleClass="mb-3">
+    <f:facet name="header">
+        <div class="report-header">
+            <span>MODE WISE ABSTRACT FOR A DATE RANGE AND CATEGORY - CIRCLE WISE</span>
+            <div class="export-buttons">
+                <p:commandButton value="Export as Excel"
+                    actionListener="#{modeWiseByDateAndCategory.exportCircleToExcelFormatOne(modeWiseByDateAndCategory.circleList)}"
+                    ajax="false"
+                    styleClass="ui-button-success"
+                    style="margin-right: 10px;">
+                    <p:fileDownload value="#{modeWiseByDateAndCategory.excelFile}" />
+                </p:commandButton>
+
+                <p:commandButton value="Export as PDF"
+                    actionListener="#{modeWiseByDateAndCategory.exportCircleToPdfFormatOne(modeWiseByDateAndCategory.circleList)}"
+                    ajax="false"
+                    styleClass="ui-button-danger">
+                    <p:fileDownload value="#{modeWiseByDateAndCategory.pdfFile}" />
+                </p:commandButton>
+            </div>
+        </div>
+    </f:facet>
+            <div class="form-container">
+            <div class="date-group">
+                <label for="fromDate">From :</label>
+					<p:datePicker id="fromDate"
+						value="#{modeWiseByDateAndCategory.dmFilter.fromDate}" pattern="dd-MM-yyyy"
+						mindate="01-01-2020" maxdate="#{modeWiseByDateAndCategory.currentDate}"
+						placeholder="Select start date" styleClass="compact-datepicker"
+						monthNavigator="true" yearNavigator="true" yearRange="2015:#{modeWiseByDateAndCategory.currentYear}"
+						numberOfMonths="1" showIcon="true" 
+						autocomplete="off"/>
+				</div>
+
+            <div class="date-group">
+                <label for="toDate">To :</label>
+					<p:datePicker id="toDate"
+						value="#{modeWiseByDateAndCategory.dmFilter.toDate}" pattern="dd-MM-yyyy"
+						mindate="01-01-2020" maxdate="#{modeWiseByDateAndCategory.currentDate}"					
+						placeholder="Select end date" styleClass="compact-datepicker"
+						monthNavigator="true" yearNavigator="true" yearRange="2015:#{modeWiseByDateAndCategory.currentYear}"
+						numberOfMonths="1" showIcon="true" autocomplete="off"/>
+				</div>
+				
+				
+				<div class="date-group">
+					<label for="complaint_type">Complaint Type :</label>
+					<p:selectOneMenu id="complaint_type" value="#{modeWiseByDateAndCategory.dmFilter.complaintType}"
+						label="Complaint Type" styleClass="compact-datepicker" >
+						<f:selectItem itemLabel="ALL" itemValue="AL"  />
+						
+						<f:selectItems 
+				            value="#{modeWiseByDateAndCategory.categories}" 
+				            var="category"
+				            itemLabel="#{category.name}" 
+				            itemValue="#{category.code}" />
+
+					</p:selectOneMenu>
+				</div>
+								
+		  <p:commandButton value="GENERATE" 
+                 class="btn btn-md btn-info"
+                 actionListener="#{modeWiseByDateAndCategory.searchModeWiseAbstractAsOnDateAndCategory()}"
+                 update="reportPanel reportTable" 
+                 process="@form"
+                 onstart="document.getElementById('reportLoader').style.display='flex';" 
+                 oncomplete="document.getElementById('reportLoader').style.display='none';"/>
+                 
+          <p:commandButton value="REFRESH" 
+                 class="btn btn-md btn-danger"
+                 actionListener="#{modeWiseByDateAndCategory.clearReportData()}"
+                 update="reportPanel reportTable" 
+                 process="@form"
+                 onstart="document.getElementById('reportLoader').style.display='flex';" 
+                 oncomplete="document.getElementById('reportLoader').style.display='none';"/>       
+            </div> 
+
+            <!-- Report Table -->
+
+<p:dataTable id="reportTable" var="report" 
+             rendered="#{not empty modeWiseByDateAndCategory.circleList}"
+             value="#{modeWiseByDateAndCategory.circleList}"
+               styleClass="compact-table #{(sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId ==7) ? 'madmin-view' : ''}" 
+             liveResize="false" resizableColumns="false"
+             columnVisibility="true" showGridlines="true" rowIndexVar="rowIndex">
+               
+    <p:columnGroup type="header" class="sticky-header">
+        <p:row>
+            <!-- S.No column - shown for all roles -->
+            <p:column headerText="S.No" rowspan="2" 
+                      style="background: #e5e7eb !important; color: #000; width: 20px; text-align: center;" />
+        
+            <!-- CIRCLE column - shown for all roles -->
+            <p:column headerText="CIRCLE" rowspan="2" 
+                      styleClass="fixed-column-circle" 
+                      style="background: #e5e7eb !important;color:#000; width: 180px;" />
+            
+            <!-- WEB Columns - hidden only for roles 3 and 7 -->
+            <p:column headerText="WEB" colspan="3" 
+                      styleClass="category-header" 
+                      style="background:#1a237e !important;color:#fff !important; width: 150px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            
+            <!-- MOBILE APP Columns - hidden only for roles 3 and 7 -->
+            <p:column headerText="MOBILE APP" colspan="3" 
+                      styleClass="category-header" 
+                      style="background:#1a237e !important;color:#fff !important; width: 150px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            
+            <!-- FOC Columns - hidden only for roles 3 and 7 -->
+            <p:column headerText="FOC" colspan="3" 
+                      styleClass="category-header" 
+                      style="background:#1a237e !important;color:#fff !important; width: 150px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            
+            <!-- SM Columns - shown for all roles except 7 -->
+            <p:column headerText="SM" colspan="3" 
+                      styleClass="category-header" 
+                      style="background:#1a237e !important;color:#fff !important; 
+                        width: #{sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 7 ? '200px !important' : '150px !important'};" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 7}"/>
+                      
+            <!-- MI Columns - shown for all roles except 3 -->
+            <p:column headerText="MI" colspan="3" 
+                      styleClass="category-header" 
+                      style="background:#1a237e !important;color:#fff !important; 
+                      width: #{sessionCallCenterUserValueBean.roleId == 3 or sessionCallCenterUserValueBean.roleId == 7 ? '200px !important' : '150px !important'};" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3}"/>
+            
+            <!-- TOTAL Columns - hidden only for roles 3 and 7 -->
+            <p:column headerText="TOTAL" colspan="3" 
+                      styleClass="category-header" 
+                      style="background:#1a237e !important;color:#fff !important; width: 200px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+        </p:row>
+        
+        <p:row>
+            <!-- WEB Subheaders -->
+            <p:column headerText="REVD." style="background: rgb(38 170 206) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="COMP." style="background: rgb(6 172 29) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="PEND." style="background: rgb(195 50 50) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            
+            <!-- MOBILE APP Subheaders -->
+            <p:column headerText="REVD." style="background: rgb(38 170 206) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="COMP." style="background: rgb(6 172 29) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="PEND." style="background: rgb(195 50 50) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            
+            <!-- FOC Subheaders -->
+            <p:column headerText="REVD." style="background: rgb(38 170 206) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="COMP." style="background: rgb(6 172 29) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="PEND." style="background: rgb(195 50 50) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            
+            <!-- SM Subheaders - shown for all except role 7 -->
+            <p:column headerText="REVD." style="background: rgb(38 170 206) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="COMP." style="background: rgb(6 172 29) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="PEND." style="background: rgb(195 50 50) !important;color: #fff;padding:5px !important; width:40px;" 
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 7}"/>
+                      
+            <!-- MI Subheaders - shown for all except role 3 -->
+            <p:column headerText="REVD." style="background: rgb(38 170 206) !important;color: #fff;padding:5px !important; width:40px;"
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3}"/>
+            <p:column headerText="COMP." style="background: rgb(6 172 29) !important;color: #fff;padding:5px !important; width:40px;"
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3}"/>
+            <p:column headerText="PEND." style="background: rgb(195 50 50) !important;color: #fff;padding:5px !important; width:40px;"
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3}"/>
+            
+            <!-- TOTAL Subheaders - hidden for roles 3 and 7 -->
+            <p:column headerText="REVD." style="background: rgb(38 170 206) !important;color: #fff;padding:5px !important; width:40px;"  
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="COMP." style="background: rgb(6 172 29) !important;color: #fff;padding:5px !important; width:40px;"  
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+            <p:column headerText="PEND." style="background: rgb(195 50 50) !important;color: #fff;padding:5px !important; width:40px;"  
+                      rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"/>
+        </p:row>
+    </p:columnGroup>
+
+    <!-- Data columns -->
+    <!-- S.No - shown for all roles -->
+    <p:column style="width:20px;">
+        <h:outputText value="#{rowIndex + 1}"/>
+    </p:column>
+
+    <!-- CIRCLE - shown for all roles -->
+    <p:column styleClass="fixed-column-circle" 
+              style="text-align:left !important; width:150px;">
+        <p:commandLink value="#{report.circleName}"
+                       onstart="document.getElementById('reportLoader').style.display='flex';" 
+                       oncomplete="document.getElementById('reportLoader').style.display='none';"
+                       actionListener="#{modeWiseByDateAndCategory.fetchReportByCircle(report.circleCode,report.circleName)}"
+                       update="reportTable" process="@this" style="white-space: normal; word-wrap: break-word;">
+            <f:param name="fromCircle" value="true" />
+        </p:commandLink>
+    </p:column>
+
+    <!-- WEB Data Columns - hidden only for roles 3 and 7 -->
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.webTotal}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.webComp}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.webPending}"/>
+    </p:column>
+    
+    <!-- MOBILE APP Data Columns - hidden only for roles 3 and 7 -->
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.mobileTotal}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.mobileComp}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.mobilePending}"/>
+    </p:column>
+    
+    <!-- FOC Data Columns - hidden only for roles 3 and 7 -->
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.adminTotal}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.adminComp}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.adminPending}"/>
+    </p:column>
+    
+    <!-- SM Data Columns - shown for all except role 7 -->
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.smsTotal}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.smsComp}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.smsPending}"/>
+    </p:column>
+    
+    <!-- MI Data Columns - shown for all except role 3 -->
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3}">
+        <h:outputText value="#{report.miTotal}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3}">
+        <h:outputText value="#{report.miComp}"/>
+    </p:column>
+    <p:column style="width:40px;" rendered="#{sessionCallCenterUserValueBean.roleId != 3}">
+        <h:outputText value="#{report.miPending}"/>
+    </p:column>
+                
+    <!-- TOTAL Columns - hidden only for roles 3 and 7 -->
+    <p:column style="width:40px; background-color: #f2f2f2 !important;"  
+              rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.webTotal + report.mobileTotal + report.adminTotal + report.smsTotal + report.miTotal}"/>
+    </p:column>
+    <p:column style="width:40px; background-color: #f2f2f2 !important;"  
+              rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.webComp + report.mobileComp + report.adminComp + report.smsComp + report.miComp}"/>
+    </p:column>
+    <p:column style="width:40px; background-color: #f2f2f2 !important;"  
+              rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}">
+        <h:outputText value="#{report.webPending + report.mobilePending + report.adminPending + report.smsPending + report.miPending}"/>
+    </p:column>
+
+    <p:columnGroup type="footer">
+        <p:row styleClass="total-footer">
+            <p:column colspan="2" footerText="TOTAL" style="text-align:right !important;padding:10px !important;"
+                styleClass="category-header" />
+            
+            <!-- WEB totals - hidden only for roles 3 and 7 -->
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalWebTotal}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalWebComp}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalWebPending}" />
+                
+            <!-- MOBILE totals - hidden only for roles 3 and 7 -->
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalMobileTotal}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalMobileComp}" />    
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalMobilePending}" />
+                
+            <!-- FOC totals - hidden only for roles 3 and 7 -->
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalAdminTotal}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalAdminComp}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalAdminPending}" />    
+                
+            <!-- SM totals - shown for all except role 7 -->
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalSmsTotal}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalSmsComp}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.totalSmsPending}" />
+                
+            <!-- MI totals - shown for all except role 3 -->
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3}"
+                footerText="#{modeWiseByDateAndCategory.totalMiTotal}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3}"
+                footerText="#{modeWiseByDateAndCategory.totalMiComp}" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3}"
+                footerText="#{modeWiseByDateAndCategory.totalMiPending}" />
+
+            <!-- Grand totals - hidden only for roles 3 and 7 -->
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.grandTotalRevd}"  
+                style="font-weight:bold;" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.grandTotalComp}" 
+                style="font-weight:bold;" />
+            <p:column rendered="#{sessionCallCenterUserValueBean.roleId != 3 and sessionCallCenterUserValueBean.roleId != 7}"
+                footerText="#{modeWiseByDateAndCategory.grandTotalPend}" 
+                style="font-weight:bold;" />
+        </p:row> 
+    </p:columnGroup>
+</p:dataTable>
+
+        </p:panel>
+        </div>
+        </div>
+        
+				<div id="reportLoader">
+				    <div class="loader-content">
+				        <div class="loader-spinner"></div>
+				        <h4>Generating Report... Please Wait.</h4>
+				    </div>
+				</div>
+    </h:form>
+</h:body>
+</html>

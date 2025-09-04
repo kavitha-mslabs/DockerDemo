@@ -1,0 +1,128 @@
+
+Queries ( Live server: 192.168.150.95, Feb 29th/ March 1st 2024)
+--------
+1) INSERT INTO CALL_CENTER_ROLE (ID, NAME) VALUES (3,'SocialMedia');
+2) INSERT INTO CALL_CENTER_USER (ID, NAME, USER_NAME, PASSWORD, MOBILE, EMAIL, ROLE_ID) VALUES (CALL_CENTER_USER_ID_SEQ.nextval, 'Chennai','smUser1','smUser1@123','8989898989','aecccdc@tnebnet.org','3');
+3) INSERT INTO CALL_CENTER_MAPPING (ID, CALL_CENTER_USER_ID, CIRCLE_ID) VALUES (CALL_CENTER_MAPPING_ID_SEQ.nextval, (SELECT ID FROM CALL_CENTER_USER WHERE USER_NAME = 'smUser1'), (SELECT ID FROM CIRCLE WHERE NAME IN ('Chennai Central')));
+4) update category set name='Dangerous Poles' where id=9
+5) INSERT INTO CATEGORY (ID, NAME, RESCUE_ID, CREATED_ON, UPDATED_ON) VALUES (CATEGORY_ID_SEQ.nextval, 'Conductor Snapping', 2, sysdate, sysdate);
+6) update category set active_flag='Y' where id=41
+7) insert into sub_Category (id,name,category_id) values ('48','Pole Tilting','9')
+8) update sub_category set category_id=41 where id=32
+9) update sub_category set category_id=41 where id=34
+10) insert into sub_Category (id,name,category_id) values ('81','Water Logged','41')
+11) insert into sub_Category (id,name,category_id) values ('82','Conductor Low Sag','41')
+12) update sub_category set name='Transformer Structure Pole Damage' where id=35  ( earlier it was like 'Transformer Structure Damage')
+13) insert into category (id,name,rescue_id,created_on,updated_on,active_flag) values (42,'Dummy Category',2,sysdate,sysdate,'N')
+14) update sub_category set category_id=42 where id=31 ( moving 'Danger to life' to Dummy category )
+15) update sub_category set name='Meter Damaged' where id=6
+16) insert into closure_reason (id,complaint_code,reason) values (closure_reason_id_seq.nextval,8,'Conductor Stringed')
+17) insert into closure_reason (id,complaint_code,reason) values (closure_reason_id_seq.nextval,8,'Fault attended. Supply restored')
+18) insert into closure_reason (id,complaint_code,reason) values (closure_reason_id_seq.nextval,8,'Defective equipment replaced')
+19) insert into closure_reason (id,complaint_code,reason) values (closure_reason_id_seq.nextval,8,'Cables Buried')
+20) UPDATE CALL_CENTER_USER SET PASSWORD = lower(DBMS_OBFUSCATION_TOOLKIT.MD5 (input => UTL_RAW.CAST_TO_RAW (PASSWORD))) where id=261
+
+Feb 29th, 2024 **** ALTER TABLE command not working, previlage issue, talking to EB office ********
+
+March 1, 2024 ****** Came to TANGEDCO office and got previlage access ( EE sir asked me to login using tangedcodemo/tangedcodemo instead of tangedcoadmin )
+
+21) create table category_copy as select * from category
+22) create table sub_category_copy as select * from sub_category
+23) create table complaint_copy as select * from complaint
+24) ALTER TABLE COMPLAINT ADD TAG VARCHAR2(50);
+25) ALTER TABLE COMPLAINT ADD RECEIVED_FROM VARCHAR2(50);
+26) ALTER TABLE COMPLAINT ADD ALTERNATE_MOBILE_NO VARCHAR2(10);
+
+27) CREATE OR REPLACE VIEW VIEW_COMPLAINT_REPORT (ID, SERVICE_NUMBER, CATEGORY_ID, SUB_CATEGORY_ID, RESCUE_ID, SECTION_ID, SERVICE_ADDRESS,
+ LANDMARK, LATITUDE, LONGITUDE, IMAGE_1, IMAGE_2, DESCRIPTION, USER_ID, MOBILE, STATUS_ID,
+  CREATED_ON, UPDATED_ON, REGION_ID, CIRCLE_ID, DEVICE, COMPLAINT_CODE, COMPLAINT_TYPE, FOC_COMPLAINT_ID, SUB_DIVISION_ID, DIVISION_ID,
+   SECTION_NAME, CIRCLE_NAME, CATEGORY_NAME, SUB_CATEGORY_NAME, RATING, REMARKS, TAG, RECEIVED_FROM, ALTERNATE_MOBILE_NO) 
+AS SELECT
+COMP.ID,
+COMP.SERVICE_NUMBER,
+COMP.CATEGORY_ID,
+COMP.SUB_CATEGORY_ID,
+COMP.RESCUE_ID,
+COMP.SECTION_ID,
+COMP.SERVICE_ADDRESS,
+COMP.LANDMARK,
+COMP.LATITUDE,
+COMP.LONGITUDE,
+COMP.IMAGE_1,
+COMP.IMAGE_2,
+COMP.DESCRIPTION,
+COMP.USER_ID,
+PU.MOBILE,
+COMP.STATUS_ID,
+COMP.CREATED_ON,
+COMP.UPDATED_ON,
+COMP.REGION_ID,
+COMP.CIRCLE_ID,
+COMP.DEVICE,
+COMP.COMPLAINT_CODE,
+COMP.COMPLAINT_TYPE,
+COMP.FOC_COMPLAINT_ID,
+VL.SUB_DIVISION_ID,
+VL.DIVISION_ID,
+VL.SECTION_NAME,
+VL.CIRCLE_NAME,
+C.NAME AS CATEGORY_NAME,
+SC.NAME AS SUB_CATEGORY_NAME,
+COMP.RATING,
+VW_CR.REMARKS,
+COMP.TAG,
+COMP.RECEIVED_FROM,
+COMP.ALTERNATE_MOBILE_NO
+FROM
+COMPLAINT COMP
+INNER JOIN VIEW_COMPLAINT_REMARK VW_CR ON COMP.ID = VW_CR.COMPLAINT_ID
+INNER JOIN PUBLIC_USER PU ON COMP.USER_ID = PU.ID
+INNER JOIN VIEW_LOCATION VL ON COMP.SECTION_ID = VL.SECTION_ID
+INNER JOIN CATEGORY C ON COMP.CATEGORY_ID = C.ID
+INNER JOIN SUB_CATEGORY SC ON COMP.SUB_CATEGORY_ID = SC.ID;
+
+28) CREATE OR REPLACE VIEW VIEW_COMPLAINT (ID, SERVICE_NUMBER, CATEGORY_ID, SUB_CATEGORY_ID, RESCUE_ID, SECTION_ID, SERVICE_ADDRESS, 
+LANDMARK, LATITUDE, LONGITUDE, IMAGE_1, IMAGE_2, DESCRIPTION, USER_ID,APPLICATION_NO, MOBILE, STATUS_ID, CREATED_ON, 
+UPDATED_ON, REGION_ID, CIRCLE_ID, DEVICE, COMPLAINT_CODE, COMPLAINT_TYPE, FOC_COMPLAINT_ID, TAG, RECEIVED_FROM, ALTERNATE_MOBILE_NO, SUB_DIVISION_ID, 
+DIVISION_ID, SECTION_NAME, CIRCLE_NAME, CATEGORY_NAME, SUB_CATEGORY_NAME, RATING) AS SELECT
+COMP.ID,
+COMP.SERVICE_NUMBER,
+COMP.CATEGORY_ID,
+COMP.SUB_CATEGORY_ID,
+COMP.RESCUE_ID,
+COMP.SECTION_ID,
+COMP.SERVICE_ADDRESS,
+COMP.LANDMARK,
+COMP.LATITUDE,
+COMP.LONGITUDE,
+COMP.IMAGE_1,
+COMP.IMAGE_2,
+COMP.DESCRIPTION,
+COMP.USER_ID,
+COMP.APPLICATION_NO,
+PU.MOBILE,
+COMP.STATUS_ID,
+COMP.CREATED_ON,
+COMP.UPDATED_ON,
+COMP.REGION_ID,
+COMP.CIRCLE_ID,
+COMP.DEVICE,
+COMP.COMPLAINT_CODE,
+COMP.COMPLAINT_TYPE,
+COMP.FOC_COMPLAINT_ID,
+COMP.TAG,
+COMP.RECEIVED_FROM,
+COMP.ALTERNATE_MOBILE_NO,
+VL.SUB_DIVISION_ID,
+VL.DIVISION_ID,
+VL.SECTION_NAME,
+VL.CIRCLE_NAME,
+C.NAME AS CATEGORY_NAME,
+SC.NAME AS SUB_CATEGORY_NAME,
+COMP.RATING
+FROM
+COMPLAINT COMP
+INNER JOIN PUBLIC_USER PU ON COMP.USER_ID = PU.ID
+INNER JOIN VIEW_LOCATION VL ON COMP.SECTION_ID = VL.SECTION_ID
+INNER JOIN CATEGORY C ON COMP.CATEGORY_ID = C.ID
+INNER JOIN SUB_CATEGORY SC ON COMP.SUB_CATEGORY_ID = SC.ID;

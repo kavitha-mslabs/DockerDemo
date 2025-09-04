@@ -1,0 +1,1294 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:leaf="http://java.sun.com/jsf/composite/jsf2leaf">
+
+<h:head>
+	<!--<f:metadata charset="utf-8" />
+   	<f:metadata name="viewport" content="width=device-width, initial-scale=1" />  -->
+	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<title>Tamil Nadu Generation and Distribution Corporation
+		Limited (TANGEDCO)</title>
+	<!-- All Stylesheets -->
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/all-stylesheets.css" />
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/bootstrap.min.css" />
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/site.css" />
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/layout.css" />
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/effect.css" />
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/flashy.min.css" />
+	<link rel='stylesheet'
+		href='#{request.contextPath}/resources/css/count.css' />
+	<link rel='stylesheet'
+		href='#{request.contextPath}/resources/css/ticker.css' />
+	<link rel="stylesheet"
+		href="#{request.contextPath}/resources/css/leaflet.css" />
+	<link rel="shortcut icon"
+		href="#{request.contextPath}/resources/images/favicon.ico"
+		type="image/x-icon" />
+	<link rel="icon" href="#{request.contextPath}/images/favicon.ico"
+		type="image/x-icon" />
+
+	<style type="text/css">
+	
+	.btn-danger .ui-button-text{
+	background: #C82333 !important;
+	}
+	
+	
+	
+	.ui-dialog .ui-dialog-titlebar {
+	display: none !important;
+}
+
+.ui-dialog .ui-dialog-content {
+	padding: 0 !important;
+	height: auto !important;
+}
+
+.ui-dialog {
+	top: 40% !important;
+}
+
+.ui-selectcheckboxmenu-close {
+	background: #dc3545 !important;
+}
+
+span.ui-icon-circle-close {
+	color: #fff !important;
+	margin-top: 0 !important;
+}
+
+.ui-filter-column .ui-column-customfilter .custom-filter {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.title-box {
+	background: #1a237e;
+	margin: 0;
+	padding: 10px !important;
+	color: #fff !important;
+}
+
+.btn-lg {
+	padding: 10px 30px !important;
+}
+
+body .card {
+	background-color: none !important;
+}
+
+body .ui-button {
+	border: none !important;
+	background: none !important;
+	box-shadow: none !important;
+	color: #fff !important;
+}
+
+body .ui-selectonemenu {
+	width: 100% !important;
+}
+
+body .ui-inputtextarea {
+	width: 100% !important;
+}
+
+body .ui-inputfield {
+	width: 100% !important;
+}
+
+.ui-dialog.success-dialog .ui-dialog-titlebar {
+	display: none;
+}
+
+.ui-dialog.success-dialog .ui-dialog-content {
+	background-color: #e8f5e9; /* light green */
+	border-radius: 8px;
+	text-align: center;
+}
+</style>
+
+	<style>
+.centered-message {
+	text-align: center;
+	margin: 20px auto;
+	width: 100%;
+	display: block;
+}
+
+.centered-message table {
+	margin: 0 auto;
+}
+
+.centered-message span {
+	display: block;
+	text-align: center;
+	font-weight: bold;
+	color: green; /* Optional: you can style based on severity */
+}
+
+.ui-button-text {
+	background-color: #007cff;
+	color: white;
+	padding: 10px;
+}
+/* Optional custom CSS for finer control */
+.date-time-group {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.date-time-fields {
+	display: flex;
+	justify-content: center;
+	width: 100%;
+}
+/* GROWL CONTAINER (POSITION LOWER, CENTERED) */
+.ui-growl {
+	top: 200px !important; /* Lower position (was 10px) */
+	left: 50% !important;
+	transform: translateX(-50%) !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	min-width: 400px !important; /* Slightly wider for larger text */
+	border: none !important;
+}
+
+/* ERROR MESSAGE BOX (BIGGER FONT) */
+.ui-growl-item-container {
+	background: #f8d7da !important;
+	border: 2px solid #f5c6cb !important; /* Thicker border */
+	border-radius: 8px !important;
+	padding: 15px 25px !important; /* More padding for larger text */
+	margin: 0 !important;
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ui-growl-item {
+	font-size: 25px !important;
+}
+
+/* TITLE (LARGER FONT) */
+.ui-growl-title {
+	font-size: 25px !important; /* Increased from 18px */
+	font-weight: 700 !important;
+	color: #721c24 !important;
+	margin: 0 0 8px 0 !important; /* Small space below title */
+	padding: 0 !important;
+	text-align: center !important;
+}
+
+/* DETAIL (LARGER FONT) */
+.ui-growl-detail {
+	font-size: 35px !important;
+	font-weight: 700 !important; /* Increased from 16px */
+	color: #721c24 !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	text-align: center !important;
+	line-height: 1.8 !important; /* Slightly more spacing */
+}
+/* Override PrimeFaces Growl font size */
+.centered-error-growl .ui-growl-message {
+	font-size: 25px !important; /* Force font size */
+}
+
+.centered-error-growl .ui-growl-item {
+	padding: 15px !important; /* Adjust padding if needed */
+}
+</style>
+
+
+	<script type="text/javascript">
+	
+
+	 document.querySelectorAll('.ui-growl-message').forEach(function(el) {
+	        el.style.fontSize = '25px !important';
+	    });
+	 
+	 function resetForm()
+	 {
+		 alert("welcome");
+	 }
+	 
+	 function validateAddUser(roleId){
+		
+		if(roleId == 1)
+			{
+			  var ssnameRoleOne = document.getElementById("reportForm:ssname");
+			  var fdrnameRoleOne = document.getElementById("reportForm:fdrname");
+			  var remarks = document.getElementById("reportForm:remarks");
+			  var types = document.getElementById("reportForm:type");
+			  var fromDateValue = document.getElementById("reportForm:fromDate_input");
+		      var toDateValue = document.getElementById("reportForm:toDate_input");
+		      var toTimeValue = document.getElementById("reportForm:toTime");
+		      var fromTimeValue = document.getElementById("reportForm:fromTime");
+			  var ssRoleOne = PF('ssRoleOneWidget').getSelectedValue();
+			  var fdrRoleOne = PF('fdrRoleOneWidget').getSelectedValue();
+			  var type = PF('typeRoleWidget').getSelectedValue(); 
+			  
+		      var dtnameRoleOne = document.getElementById("reportForm:dtname");
+		      var Role = dtnameRoleOne.getElementsByTagName('input');
+		        var cntRole = 0;
+		        for ( var i in Role ) {
+		            if ( Role[i].type=='checkbox' ) {
+		                if ( Role[i].checked ) {
+		                	cntRole++;
+		                }
+		            }
+		        }
+		        if(fromDateValue.value != "" &amp;&amp; toDateValue.value != ""){
+		        	$('[id="span' + fromDateValue.id + '"]').remove();
+		        	$('[id="span' + toDateValue.id + '"]').remove();
+		       	 var fromDate  = new Date(fromDateValue.value).getTime();
+		       	 var toDate  = new Date(toDateValue.value).getTime();
+		       	 
+		       	 if(fromDate > toDate){
+		        		 $('[id="' + toDateValue.id + '"]').after("&lt;span style='color:red;' id='span"+toDateValue.id+"'&gt; To date can't be lesser than from date! &lt;/span&gt;");
+		        			return false;
+		        	 } else {
+		        		 var differenceInTime = new Date(toDateValue.value).getTime() - new Date(fromDateValue.value).getTime();
+		           	 var differenceInDays = differenceInTime / (1000 * 3600 * 24);
+		           	 
+
+		        	 }
+		        }
+		      
+		        showErrorMessage(toTimeValue.id, toTimeValue.value, "To Time");
+		        showErrorMessage(fromTimeValue.id, fromTimeValue.value, "From Time");
+		        showSelectErrorMessage(fromDateValue.id, fromDateValue.value, "From Date");
+		        showSelectErrorMessage(toDateValue.id, toDateValue.value, "To Date");
+		        showSelectErrorMessage(ssnameRoleOne.id, ssnameRoleOne.value, "Select SS Name");
+		   	    showSelectErrorMessage(fdrnameRoleOne.id, fdrnameRoleOne.value, "Select FDR Name");
+		   	    showSelectErrorMessage(dtnameRoleOne.id, dtnameRoleOne.value, "Select DT Name");
+		   	    showErrorMessage(remarks.id, remarks.value, "Please Enter Remarks");
+		   	    showSelectErrorMessage(types.id, types.value, "Select Type");
+		   	    
+		   	    
+		   
+	    	if(ssRoleOne!= "")
+	 	   {
+	         	clearErrorMessage("reportForm:ssname");
+	 	   }
+	    	if(fdrRoleOne != "")
+	  	   {
+	          	clearErrorMessage("reportForm:fdrname");
+	  	   }
+	    	if(cntRole !=0)
+	    		{
+	    		clearErrorMessage("reportForm:dtname");
+	    		}
+	    	if(type != "")
+	  	   {
+	         	clearErrorMessage("reportForm:type");
+	 	   }
+	    	
+	    	
+	   	    if(ssRoleOne=== "" || fdrRoleOne === "" || type === "" || fromDateValue.value == "" || toDateValue.value == "" 
+	   	    	|| toTimeValue.value == "" || fromTimeValue.value == ""	|| remarks.value == "")
+	   		 {
+	   	    	return false;
+	   		 }
+	   	    else
+	   	    	{
+	   	    	   return true;
+	   	    	}
+		      
+			
+			}//end role id 1
+		else
+			{
+		
+		var circle = PF('circleRoleWidget').getSelectedValue(); 
+		var section = PF('sectionRoleWidget').getSelectedValue();
+	    var ss = PF('ssRoleWidget').getSelectedValue();
+	    var fdr = PF('fdrRoleWidget').getSelectedValue(); 
+	    var type = PF('typeRoleWidget').getSelectedValue(); 
+	   // var dtRoleWidget = PF('dtRoleWidget').getSelectedValue();
+	    
+	    var remarks = document.getElementById("reportForm:remarks");
+	    var circleM = document.getElementById("reportForm:circleM");
+	    var circleres = circleM ? circleM.value : "";
+	    var sectionM = document.getElementById("reportForm:sectionM");
+	    var ssnameM = document.getElementById("reportForm:ssnameM");
+	    var fdrnameM = document.getElementById("reportForm:fdrnameM");
+	    var types = document.getElementById("reportForm:type");
+	    var fromDateValue = document.getElementById("reportForm:fromDate_input");
+        var toDateValue = document.getElementById("reportForm:toDate_input");
+        var toTimeValue = document.getElementById("reportForm:toTime");
+	      var fromTimeValue = document.getElementById("reportForm:fromTime")
+       // $('[id="span' + toDateValue.id + '"]').remove();
+        
+       
+        
+        
+        
+        
+        showSelectErrorMessage(fromDateValue.id, fromDateValue.value, "From Date");
+        showSelectErrorMessage(toDateValue.id, toDateValue.value, "To Date");
+        
+        showErrorMessage(toTimeValue.id, toTimeValue.value, "To Time");
+        showErrorMessage(fromTimeValue.id, fromTimeValue.value, "From Time");
+        var dtnameM = document.getElementById("reportForm:dtnameM");
+        var o = dtnameM.getElementsByTagName('input');
+        var cnt = 0;
+        for ( var i in o ) {
+            if ( o[i].type=='checkbox' ) {
+                if ( o[i].checked ) {
+                    cnt++;
+                }
+            }
+        }
+        showSelectErrorMessage(circleM.id, circleM.value, "Select Circle");
+        showSelectErrorMessage(sectionM.id, sectionM.value, "Select Section Name");
+        showSelectErrorMessage(ssnameM.id, ssnameM.value, "Select SS Name");
+   	    showSelectErrorMessage(fdrnameM.id, fdrnameM.value, "Select FDR Name");
+   	    showSelectErrorMessage(dtnameM.id, dtnameM.value, "Select DT Name");
+   	    showSelectErrorMessage(types.id, types.value, "Select Type");
+   	    showErrorMessage(remarks.id, remarks.value, "Please Enter Remarks");
+       
+   	    
+   	   if(circle != "")
+   		   {
+   	        	clearErrorMessage("reportForm:circleM");
+   		   }
+    	if(section != "")
+	   {
+        	clearErrorMessage("reportForm:sectionM");
+	   }
+    	if(ss != "")
+ 	   {
+         	clearErrorMessage("reportForm:ssnameM");
+ 	   }
+    	if(fdr != "")
+  	   {
+          	clearErrorMessage("reportForm:fdrnameM");
+  	   }
+    	if(cnt !=0)
+    		{
+    		clearErrorMessage("reportForm:dtnameM");
+    		}
+    	if(type != "")
+  	   {
+         	clearErrorMessage("reportForm:type");
+ 	   }
+    	if(toTimeValue.value != ""){
+    		if(!timeformat())
+    			{
+    			
+    			  return false;
+    			}
+    		
+    	}
+    	if(fromTimeValue.value != ""){
+    		if(!isFromTimeGreaterThanNow())
+    			{
+    			
+    			  return false;
+    			}
+    		
+    	}
+    
+   	    if(circle === ""  || section === "" || ss === "" || fdr === "" || type === "" || fromDateValue.value == "" || toDateValue.value == "" || toTimeValue.value == ""
+   	    	|| fromTimeValue.value == ""	|| remarks.value == "")
+   		 {
+   	    	return false;
+   		 }
+   	    else
+   	    	{
+   	    	   return true;
+   	    	}
+   	    
+			}//end roleid 10
+		 
+	 }
+	 	
+	 function validateCircleExport(){
+	    	
+         var fromDateValue = document.getElementById("reportForm:fromDate_input");
+         var toDateValue = document.getElementById("reportForm:toDate_input");
+         
+         
+         $('[id="span' + toDateValue.id + '"]').remove();
+         
+         if(fromDateValue.value != "" &amp;&amp; toDateValue.value != ""){
+        	 var fromDate  = new Date(fromDateValue.value).getTime();
+        	 var toDate  = new Date(toDateValue.value).getTime();
+        	 
+        	 if(fromDate > toDate){
+         		 $('[id="' + toDateValue.id + '"]').after("&lt;span style='color:red;' id='span"+toDateValue.id+"'&gt; To date can't be lesser than from date! &lt;/span&gt;");
+         			return false;
+         	 } else {
+         		 var differenceInTime = new Date(toDateValue.value).getTime() - new Date(fromDateValue.value).getTime();
+            	 var differenceInDays = differenceInTime / (1000 * 3600 * 24);
+            	 
+
+         	 }
+        	  
+         }
+         
+
+         showSelectErrorMessage(fromDateValue.id, fromDateValue.value, "From Date");
+         showSelectErrorMessage(toDateValue.id, toDateValue.value, "To Date");
+         
+         if(fromDateValue.value == "" || toDateValue.value == ""){
+        	 return false;
+         } else {
+        	 return true;
+         }
+    }
+	 
+	 
+	 function validateCircleDivisionExport(){
+	    	
+         var fromDateValue = document.getElementById("reportForm:fromDateTwo_input");
+         var toDateValue = document.getElementById("reportForm:toDateTwo_input");
+         
+         $('[id="span' + toDateValue.id + '"]').remove();
+         
+         if(fromDateValue.value != "" &amp;&amp; toDateValue.value != ""){
+        	 var fromDate  = new Date(fromDateValue.value).getTime();
+        	 var toDate  = new Date(toDateValue.value).getTime();
+        	 
+        	 if(fromDate > toDate){
+         		 $('[id="' + toDateValue.id + '"]').after("&lt;span style='color:red;' id='span"+toDateValue.id+"'&gt; To date can't be lesser than from date! &lt;/span&gt;");
+         			return false;
+         	 } else {
+         		 var differenceInTime = new Date(toDateValue.value).getTime() - new Date(fromDateValue.value).getTime();
+            	 var differenceInDays = differenceInTime / (1000 * 3600 * 24);
+
+
+         	 }
+        	  
+         }
+         
+    
+         
+         showSelectErrorMessage(fromDateValue.id, fromDateValue.value, "From Date");
+         showSelectErrorMessage(toDateValue.id, toDateValue.value, "To Date");
+         
+         if(fromDateValue.value == "" || toDateValue.value == ""){
+        	 return false;
+         } else {
+        	 return true;
+         }
+    }
+	 function isFromTimeGreaterThanNow() {
+		    var fromTimeValue = document.getElementById("reportForm:fromTime").value.trim();
+		    var errorMsgreason1 = document.getElementById("reportForm:errorMsgreason1");
+
+		    var hourOnlyPattern = /^([01]\d|2[0-3])$/;
+		    var fullTimePattern = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+		    function isValidTime(t) {
+		        if (t.includes(":")) {
+		            return fullTimePattern.test(t);
+		        } else {
+		            return hourOnlyPattern.test(t);
+		        }
+		    }
+
+		    if (!fromTimeValue || !isValidTime(fromTimeValue)) {
+		        errorMsgreason1.style.display = "block";
+		        errorMsgreason1.innerText = "Please enter a valid time in HH or HH:mm format.";
+		        return false;
+		    }
+
+		    var now = new Date();
+		    var nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+		    function toMinutes(timeStr) {
+		        if (timeStr.includes(":")) {
+		            var parts = timeStr.split(":");
+		            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+		        } else {
+		            return parseInt(timeStr, 10) * 60;
+		        }
+		    }
+
+		    var fromMinutes = toMinutes(fromTimeValue);
+
+		    if (fromMinutes &lt; nowMinutes) {
+		        errorMsgreason1.style.display = "block";
+		        errorMsgreason1.innerText = "From time cannot be earlier than current time.";
+		        return false;
+		    } else {
+		        errorMsgreason1.style.display = "none";
+		        return true;
+		    }
+		}
+
+	 function timeformat() {
+		    var fromTime = document.getElementById("reportForm:fromTime").value.trim();
+		    var toTime = document.getElementById("reportForm:toTime").value.trim();
+		    var errorMsgreason = document.getElementById("reportForm:errorMsgreason");
+
+		    var hourOnlyPattern = /^([01]\d|2[0-3])$/;             // HH only
+		    var fullTimePattern = /^([01]\d|2[0-3]):[0-5]\d$/;     // HH:MM
+
+		    function isValidTime(t) {
+		        if (t.includes(":")) {
+		            return fullTimePattern.test(t);
+		        } else {
+		            return hourOnlyPattern.test(t);
+		        }
+		    }
+
+		    if (fromTime &amp;&amp; toTime) {
+		        if (!isValidTime(fromTime) || !isValidTime(toTime)) {
+		            errorMsgreason.style.display = "block";
+		            errorMsgreason.innerText = "Invalid time format. Please use HH or HH:mm (24-hour format)";
+		            return false;
+		        }
+		        
+		        // **Don't return here**, continue to compare times
+
+		        function timeToMinutes(timeStr) {
+		            if (timeStr.includes(":")) {
+		                var parts = timeStr.split(":");
+		                return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+		            } else {
+		                return parseInt(timeStr, 10) * 60;
+		            }
+		        }
+
+		        var fromMinutes = timeToMinutes(fromTime);
+		        var toMinutes = timeToMinutes(toTime);
+
+		        if (toMinutes &lt; fromMinutes) {
+		            errorMsgreason.style.display = "block";
+		            errorMsgreason.innerText = "To Time' should be greater than or equal to 'From Time";
+		            return false;
+		        } else {
+		            errorMsgreason.style.display = "none";
+		            return true;
+		        }
+		    }
+
+		    // If one or both fields empty, allow and clear error
+		    errorMsgreason.style.display = "none";
+		    return true;
+		}
+
+	 
+	 	//Function to remove the error message on the click off the input field.
+		$(document).ready(function () {
+			$("input[type=text]").click(function () {
+				 var currentElement = $(this);
+			     var tagid = currentElement.attr('id');
+			     $('[id="span' + tagid + '"]').remove();
+			});
+		});
+	 	
+		function onOkClick(widgetVarName) {
+	        let widget = PF(widgetVarName);
+	        if (widget) {
+	            widget.hide();
+	            widget.input.blur();
+	        }
+	    }
+
+	    function onCloseClick(widgetVarName) {
+	        let widget = PF(widgetVarName);
+	        if (widget) {
+	            widget.hide();
+	        }
+	    }
+	    function showErrorMessage(fieldId, fieldValue, fieldLabel){
+			if(fieldValue == "" || fieldValue == null){
+			 $('[id="span' + fieldId + '"]').remove();
+	       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt; "+fieldLabel+"&lt;/span&gt;");
+	       } else if(fieldValue != "" || fieldValue != null){
+				 $('[id="span' + fieldId + '"]').remove();
+	       }
+		}
+		function showSelectErrorMessage(fieldId, fieldValue, fieldLabel){
+			if(fieldValue == "" || fieldValue == null){
+			 $('[id="span' + fieldId + '"]').remove();
+	       	 $('[id="' + fieldId + '"]').after("&lt;span style='color:red;' id='span"+fieldId+"'&gt; "+fieldLabel+"&lt;/span&gt;");
+	       } else if(fieldValue != "" || fieldValue != null){
+				 $('[id="span' + fieldId + '"]').remove();
+	       }
+		}
+	 	
+		function clearErrorMessage(tagid){
+			
+		    $('[id="span' + tagid + '"]').remove();
+		}
+		function formatTimeInput(event, input) {
+		    const key = event.key;
+		    const value = input.value;
+		    const cursorPos = input.selectionStart;
+
+		    // Allow control keys
+		    if (["Backspace", "Tab", "Enter", "Escape", "Delete", "ArrowLeft", "ArrowRight"].includes(key)) {
+		        return true;
+		    }
+
+		    // Allow colon only once at position 2
+		    if (key === ":") {
+		        if (value.includes(":") || cursorPos !== 2) {
+		            return false;
+		        }
+		        return true;
+		    }
+
+		    // Block non-numeric characters
+		    if (!/^[0-9]$/.test(key)) {
+		        return false;
+		    }
+
+		    // Predict the value after key press
+		    let newValue = value.slice(0, cursorPos) + key + value.slice(cursorPos);
+		    newValue = newValue.replace(/[^0-9:]/g, '');
+
+		    // Limit to format HH:mm (max 5 characters with colon)
+		    if (newValue.length > 5) {
+		        return false;
+		    }
+
+		    const segments = newValue.split(':');
+
+		    // Validate hours (HH)
+		    if (segments[0]) {
+		        const hour = parseInt(segments[0], 10);
+		        if (segments[0].length > 2 || hour > 23) {
+		            return false;
+		        }
+		    }
+
+		    // Validate minutes (mm)
+		    if (segments[1]) {
+		        const minute = parseInt(segments[1], 10);
+		        if (segments[1].length > 2 || minute > 59) {
+		            return false;
+		        }
+		    }
+
+		    return true;
+		}
+
+
+		 function updateHiddenCircleId(selectElement) {
+			  // Get the PrimeFaces widget
+			    var widget = PF('circleRoleWidget');
+			    
+			    // Get the selected item
+			    var selectedItem = widget.getSelectedItem();
+			    
+			    // Get the description (circle ID)
+			    var circleId = selectedItem.description;
+			    
+			    // Set the hidden field value
+			    document.getElementById('reportForm:hiddenCircleId').value = circleId;
+			    
+			    // For debugging (remove in production)
+			    console.log("Circle ID:", circleId);
+			    alert("Circle ID: " + circleId);
+			}
+		 
+		 function refresh(){
+			  location.reload();
+		  }
+ 	</script>
+
+</h:head>
+<h:body class="home-01">
+	<ui:insert name="header">
+		<ui:include src="../header.xhtml" />
+	</ui:insert>
+	<p:ajaxStatus onstart="PF('statusDialog').show()"
+		oncomplete="PF('statusDialog').hide()" />
+	<p:dialog widgetVar="statusDialog" modal="true" draggable="false"
+		closable="false" resizable="false" showHeader="false">
+		<p:graphicImage name="images/ajax-loader.gif" />
+	</p:dialog>
+
+	<h:form id="reportForm">
+
+
+		<div class="container-fluid">
+		
+			<div class="col-md-12">
+				<p:growl id="messages" widgetVar="growlWidget" life="5000"
+					sticky="false" showDetail="true" autoUpdate="true" escape="false"
+					position="center" styleClass="centered-error-growl"
+					style="width:100px !important;font-size: 25px !important;" />
+				<h5 class="text-center pb-3 title-box">Scheduled/Unscheduled
+					Outages</h5>
+				<div class="card shadow mb-1 pt-0 mt-0 ml-0">
+					<div class="card-body p-1">
+						<p:panel>
+							<!-- Admin Panel -->
+							<p:panel rendered="#{sessionAdminValueBean.roleId == 1}">
+
+								<div class="row">
+									<!-- Circle -->
+									<div class="form-group col-md-3">
+										<label for="circle" class=" col-form-label">Circle</label>
+										<div>
+											<p:inputText id="circle" value="#{dashAdmin.circleName}"
+												readonly="true" />
+										</div>
+									</div>
+
+									<!-- Section -->
+									<div class="form-group col-md-3">
+										<label for="section" class=" col-form-label">Section</label>
+										<div>
+											<p:inputText id="section" value="#{dashAdmin.sectionName}"
+												readonly="true" />
+										</div>
+									</div>
+
+									<!-- SS Name -->
+									<div class="form-group col-md-3">
+										<label for="ssname" class=" col-form-label">SS Name</label>
+										<div>
+											<p:selectOneMenu id="ssname" value="#{dashAdmin.ssName}"
+												widgetVar="ssRoleOneWidget"
+												onchange="clearErrorMessage('reportForm:ssname')">
+												<f:selectItem itemLabel="---- Select SS Name ----" />
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstSSName}"
+													itemLabel="#{des.ssName}" itemValue="#{des.ssCode}" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.fdrNameBySSName}" update="fdrname" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.findSSCodeFdrCodeDtCode}" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+
+									<!-- FDR Name -->
+									<div class="form-group col-md-3">
+										<label for="fdrname" class=" col-form-label">FDR Name</label>
+										<div>
+											<p:selectOneMenu id="fdrname" value="#{dashAdmin.fdrName}"
+												widgetVar="fdrRoleOneWidget"
+												onchange="clearErrorMessage('reportForm:fdrname')">
+												<f:selectItem itemLabel="---- Select FDR Name ----" />
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstFdrName}"
+													itemLabel="#{des.fdrName}" itemValue="#{des.fdrCode}" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.dtNameBySSName}" update="dtname" />
+											</p:selectOneMenu>
+										</div>
+									</div>
+	
+									<!-- DT Name -->
+									<div class="form-group col-md-3">
+										<label for="dtname" class=" col-form-label">DT Name</label>
+										<div>
+											<p:selectCheckboxMenu id="dtname" value="#{dashAdmin.dtName}"
+												multiple="true" filter="true" filterMatchMode="startsWith"
+												styleClass="col-md-12" widgetVar="dtRoleOneWidget"
+												onchange="clearErrorMessage('reportForm:dtname')"
+												style=" height: 40px !important;">
+
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstDtName}"
+													itemLabel="#{des.dtName}" itemValue="#{des.dtCode}" />
+											</p:selectCheckboxMenu>
+										</div>
+									</div>
+
+								</div>
+							</p:panel>
+
+							<!-- User Role Panel -->
+							<p:panel rendered="#{sessionAdminValueBean.roleId == 10}">
+
+								<div class="row">
+
+									<!-- Circle -->
+									<div class="form-group col-md-3 ">
+										<label for="circleM" class="col-form-label">Circle</label>
+
+										<div>
+											<p:selectOneMenu id="circleM" value="#{dashAdmin.circleName}"
+												widgetVar="circleRoleWidget"
+												onchange="clearErrorMessage('reportForm:circleM');">
+												<f:selectItem itemLabel="---- Select Circle ----"
+													itemValue="" />
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.listCircles}"
+													itemLabel="#{des.name}" itemValue="#{des.id}|#{des.code}" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.loadSectionByCircleMinnagam}"
+													update="sectionM" />
+											</p:selectOneMenu>
+
+										</div>
+
+									</div>
+
+									<!-- Section -->
+
+									<div class="form-group col-md-3 ">
+										<label for="sectionM" class="col-form-label">Section</label>
+
+										<div>
+											<p:selectOneMenu id="sectionM"
+												value="#{dashAdmin.sectionName}"
+												widgetVar="sectionRoleWidget"
+												onchange="clearErrorMessage('reportForm:sectionM')">
+												<f:selectItem itemLabel="---- Select Section ----"
+													itemValue="" />
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstSectionsMinnagam}"
+													itemLabel="#{des.name}" itemValue="#{des.id}|#{des.code}" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.ssNameBySection}" update="ssnameM" />
+											</p:selectOneMenu>
+
+										</div>
+
+									</div>
+
+									<!-- SS Name -->
+									<div class="form-group col-md-3">
+										<label for="ssnameM" class=" col-form-label">SS Name</label>
+										<div>
+											<p:selectOneMenu id="ssnameM" value="#{dashAdmin.ssName}"
+												widgetVar="ssRoleWidget"
+												onchange="clearErrorMessage('reportForm:ssnameM')">
+												<f:selectItem itemLabel="---- Select SS Name ----"
+													itemValue="" />
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstSSName}"
+													itemLabel="#{des.ssName}" itemValue="#{des.ssCode}" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.fdrNameBySSNameM}" update="fdrnameM" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.findSSCodeFdrCodeDtCode}" />
+											</p:selectOneMenu>
+
+										</div>
+									</div>
+									<!-- FDR Name -->
+									<div class="form-group col-md-3">
+										<label for="fdrnameM" class=" col-form-label">FDR Name</label>
+										<div>
+											<p:selectOneMenu id="fdrnameM" value="#{dashAdmin.fdrName}"
+												widgetVar="fdrRoleWidget"
+												onchange="clearErrorMessage('reportForm:fdrnameM')">
+												<f:selectItem itemLabel="---- Select FDR Name ----"
+													itemValue="" />
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstFdrName}"
+													itemLabel="#{des.fdrName}" itemValue="#{des.fdrCode}" />
+												<p:ajax event="change"
+													listener="#{dashAdmin.dtNameBySSNameM}" update="dtnameM" />
+											</p:selectOneMenu>
+
+										</div>
+									</div>
+
+									<!-- DT Name -->
+									<div class="form-group col-md-3">
+										<label for="dtnameM" class=" col-form-label">DT Name</label>
+										<div>
+											<p:selectCheckboxMenu id="dtnameM"
+												value="#{dashAdmin.dtName}" widgetVar="dtRoleWidget"
+												onchange="clearErrorMessage('reportForm:dtnameM')"
+												multiple="true" filter="true" filterMatchMode="startsWith"
+												styleClass="col-md-12" style=" height: 40px !important;">
+
+												<f:selectItems var="des"
+													value="#{dashAdmin.dmFilter.lstDtName}"
+													itemLabel="#{des.dtName}" itemValue="#{des.dtCode}" />
+											</p:selectCheckboxMenu>
+
+										</div>
+									</div>
+									
+							
+									</div>
+							</p:panel>
+							
+							<div class="row m-2">
+							
+							<div class="form-group col-lg-4">
+										<label>From Date And Time(DD-MM-YYYY HH:MM)</label>
+
+										<div
+											style="display: flex; justify-content: start; align-items: center">
+
+											<p:datePicker id="fromDate" pattern="dd-MM-yyyy"
+												maxdate="#{dashAdmin.maxDate}"
+												mindate="#{dashAdmin.minDate}" value="#{dashAdmin.fromDate}"
+												size="30" autocomplete="off" readonly="true"
+												widgetVar="fromDateWidget" />
+
+											<!--                       <p:datePicker id="fromTime"
+              value="#{dashAdmin.fromTime}"
+              timeOnly="true"
+              pattern="HH:mm"
+               autocomplete="off"
+              widgetVar="fromTimeWidget"
+              
+              style="width:17% !important"
+               onchange="validateTimeInput(this)"
+              onkeypress="return formatTimeInput(event, this)" maxlength="5" placeholder="HH:mm"
+             
+              >
+              
+             <p:ajax event="dateSelect" update="toTime" listener="#{dashAdmin.updateToTime}" />
+    </p:datePicker> -->
+
+											<p:inputText id="fromTime" value="#{dashAdmin.fromTime}"
+												placeholder="HH:mm" autocomplete="off" maxlength="5"
+												style="width:19% !important"
+												widgetVar="fromTimeWidget"
+												onchange="isFromTimeGreaterThanNow();"
+                                                 onkeypress="return formatTimeInput(event, this)">
+
+
+											</p:inputText>
+											<p:commandButton icon="pi pi-refresh" title="Refresh"
+												action="#{dashAdmin.refreshFromTime}"
+												update="fromTime toTime"
+												styleClass="refresh-button rounded-button ui-button-secondary"
+												style="height: 38px;" />
+
+											<h:outputText id="timeMessage" escape="false"
+												style="color:red;" />
+										</div>
+										<span id="reportForm:errorMsgreason1" class="error"
+											style="color: red; display: none;">From Time must be
+											greater than the current time</span>
+
+
+									</div>
+
+
+
+
+									<div class="form-group col-lg-4">
+										<label>To Date And Time(DD-MM-YYYY HH:MM)</label>
+										<div
+											style="display: flex; justify-content: start; align-items: center">
+
+
+											<p:datePicker id="toDate" pattern="dd-MM-yyyy"
+												maxdate="#{dashAdmin.maxDate}"
+												mindate="#{dashAdmin.minDate}" value="#{dashAdmin.toDate}"
+												size="30" readonly="true" autocomplete="off"
+												onclick="clearErrorMessage('reportForm:toDate');"
+												widgetVar="toDateWidget" />
+
+
+											<!--                       <p:datePicker id="toTime"
+              value="#{dashAdmin.toTime}"
+              timeOnly="true"
+              pattern="HH:mm"
+               autocomplete="off"
+              widgetVar="toTimeWidget"
+              style="width:19% !important"
+              onkeypress="return formatTimeInput(event, this)"
+            	  onchange="validateTimeInput(this)"
+            	  showOn="false"
+              maxlength="5" placeholder="HH:mm"
+              
+              > -->
+
+											<p:inputText id="toTime" value="#{dashAdmin.toTime}"
+												placeholder="HH:mm" maxlength="5"
+												style="width:19% !important"
+												widgetVar="toTimeWidget"
+												onkeypress="return formatTimeInput(event, this)"
+												onchange="timeformat();">
+												
+
+											</p:inputText>
+
+											<h:outputText id="timeMessage1" escape="false"
+												style="color:red;" />
+										</div>
+
+										<span id="reportForm:errorMsgreason" class="error"
+											style="color: red; display: none;">To Time must be
+											greater than or equal to From Time</span>
+
+
+									</div>
+									
+									
+									
+									
+									
+								<!-- Type -->
+								<div class="form-group col-md-3">
+									<label for="type" class=" col-form-label">Type</label>
+									<div>
+										<p:selectOneMenu id="type" value="#{dashAdmin.type}"
+											widgetVar="typeRoleWidget"
+											onchange="clearErrorMessage('reportForm:type')">
+											<f:selectItem itemLabel="Select Type..." itemValue="" />
+											<f:selectItem itemLabel="Scheduled(S)" itemValue="S" />
+											<f:selectItem itemLabel="Unscheduled(U)" itemValue="U" />
+										</p:selectOneMenu>
+									</div>
+								</div>
+
+								<!-- Remarks -->
+								<div class="form-group col-md-3">
+									<label for="remarks" class=" col-form-label">Remarks</label>
+									<div>
+
+										<p:inputTextarea id="remarks" value="#{dashAdmin.remarks}"
+											rows="3" cols="30" maxlength="50"
+											placeholder="Enter any additional remarks here..."
+											onclick="clearErrorMessage('reportForm:remarks')" />
+
+
+
+									</div>
+
+
+
+								</div>
+
+
+
+								<!-- Submit Button -->
+								<div class="col-lg-12 text-center mt-4">
+									<div class=" btn btn-lg btn-primary">
+										<p:commandButton 
+    value="Submit"
+    actionListener="#{dashAdmin.outagesSchedule}"
+    update="messages reportForm"
+    onclick="return validateAddUser(#{sessionAdminValueBean.roleId});"
+    >
+    
+    <p:resetInput target="reportForm" />
+</p:commandButton>
+
+									</div>
+									<div class="btn btn-lg btn-danger reset-btn">
+										
+    <p:commandButton 
+    value="Reset"
+  
+    onclick="refresh()"
+   
+    >
+<p:resetInput target="reportForm" />
+</p:commandButton>
+									</div>
+
+								</div>
+</div>
+						</p:panel>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Custom CSS for Decoration -->
+		<style>
+.form-control {
+	border-radius: 8px;
+	padding: 10px;
+	background-color: #f9f9f9;
+	box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-control.date-input {
+	background-color: #eaf1f7;
+}
+
+.form-group {
+	margin-bottom: 15px;
+}
+
+label {
+	font-weight: bold;
+}
+
+.title-box {
+	color: #4CAF50;
+	font-size: 22px;
+}
+
+.card {
+	border-radius: 0 0 10px 10px;
+	border: 1px solid #ddd;
+	/* background-color: #f7f7f7; */
+}
+
+.card-body {
+	padding: 20px;
+}
+
+.btn-primary {
+	background-color: #007bff;
+	border-color: #007bff;
+}
+
+.ui-dialog.error-dialog .ui-dialog-titlebar {
+	display: none; /* Hide title bar */
+}
+
+.ui-dialog.error-dialog .ui-dialog-content {
+	background-color: #f8d7da; /* Light red */
+	border: 1px solid #f5c6cb; /* Darker border */
+	color: #721c24; /* Dark red text for contrast */
+	border-radius: 8px;
+	text-align: center;
+	padding: 20px;
+}
+
+.ui-dialog.error-dialog .ui-dialog-content .pi-times-circle {
+	color: #721c24; /* Darker red icon */
+}
+</style>
+
+
+
+		<br />
+
+
+		<br />
+		<br />
+		<br />
+
+		<!--	T H I S   M O D A L   I S   F O R   V I E W I N G  P R O F I L E -->
+
+		<p:dialog header="My Profile" widgetVar="dlgProfile" modal="true"
+			showEffect="drop" hideEffect="drop" width="450" height="350">
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Office" value="Office" />
+					<p:inputText id="profile_Office"
+						onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.officeName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+			<div class="form-group mb-1">
+				<div class="input-field">
+					<h:outputLabel for="profile_Username" value="User Name" />
+					<p:inputText id="profile_Username"
+						onkeydown="return (event.keyCode!=13);" readonly="true"
+						value="#{admin.auth.officer.userName}" styleClass="form-control">
+					</p:inputText>
+				</div>
+			</div>
+
+			<f:facet name="footer" class="modal-footer">
+				<p:commandButton value="Cancel" styleClass="btn btn-danger"
+					oncomplete="PF('dlgProfile').hide();" />
+			</f:facet>
+		</p:dialog>
+
+		<p:dialog id="messageDialog" widgetVar="messageDialog" modal="true"
+			showEffect="fade" hideEffect="fade" closable="false" width="420"
+			height="140" styleClass="success-dialog">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+				<i class="pi pi-check-circle"
+					style="font-size: 2.5em; color: green;"></i>
+				<h:outputText id="dialogMessage"
+					value="Outage scheduled successfully!"
+					style="font-size: 24px; color: #2e7d32; font-weight: 800;" />
+			</div>
+		</p:dialog>
+
+		<p:dialog id="messageDialogError" widgetVar="messageDialogError"
+			modal="true" showEffect="fade" hideEffect="fade" closable="false"
+			width="420" height="160" styleClass="error-dialog">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+				<i class="pi pi-times-circle" style="font-size: 2.5em; color: red;"></i>
+				<h:outputText id="dialogMessageError"
+					value="An error occurred while scheduling the outage!"
+					style="font-size: 24px; color: #d32f2f; font-weight: 800; text-align: center;" />
+			</div>
+		</p:dialog>
+
+		<!-- from date error display dialog box -->
+		<p:dialog id="messageDialogErrorfromDate"
+			widgetVar="messageDialogErrorfromDate" modal="true" showEffect="fade"
+			hideEffect="fade" closable="false" width="420" height="160"
+			styleClass="error-dialog">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+				<i class="pi pi-times-circle" style="font-size: 2.5em; color: red;"></i>
+				<h:outputText id="dialogMessageErrorfromDate"
+					value="Please select From date."
+					style="font-size: 24px; color: #d32f2f; font-weight: 800; text-align: center;" />
+			</div>
+		</p:dialog>
+
+		<!-- todate error display dialog box -->
+		<p:dialog id="messageDialogErrortoDate"
+			widgetVar="messageDialogErrortoDate" modal="true" showEffect="fade"
+			hideEffect="fade" closable="false" width="420" height="160"
+			styleClass="error-dialog">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+				
+				<h:outputText id="dialogMessageErrortoDate"
+					value="Please select To date."
+					style="font-size: 24px; color: #d32f2f; font-weight: 800; text-align: center;" />
+			</div>
+		</p:dialog>
+
+		<!-- messageDialogalreadyexists error display dialog box -->
+		<p:dialog id="messageDialogalreadyexists"
+			widgetVar="messageDialogalreadyexists" modal="true" showEffect="fade"
+			hideEffect="fade" closable="false" width="420" height="160"
+			styleClass="error-dialog">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 25px;">
+				
+				<h:outputText id="dialogMessageErroralreadyexists"
+					value="Outage Entries already available for the selected SS/Feeder /DT and the duration "
+					style="font-size: 24px; color: #d32f2f; font-weight: 800; text-align: center;" />
+			</div>
+		</p:dialog>
+
+		<p:dialog id="messageDialogAlreadyEntered"
+			widgetVar="messageDialogAlreadyEntered" modal="true"
+			showEffect="fade" hideEffect="fade" closable="false" width="420"
+			height="160"
+			style="position: fixed;        
+          top: 10px;               
+          left: 50%;              
+          transform: translateX(-50%);  
+          z-index: 9999;
+          background:#fff0f0 !important;
+          border-top: none;
+          border-radius: 0 0 4px 4px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.2);">
+
+			<div
+				style="display: flex; align-items: center; justify-content: center; gap: 15px; padding: 20px; background-color: #ebe1e1;">
+				<i class="pi pi-times-circle"
+					style="font-size: 2.5em; color: #d32f2f;"></i>
+				<h:outputText id="dialogMessageErrorAlreadyEntered"
+					value="Outage Entries Already available for the selected SS/Feeder and the Duration "
+					style="font-size: 24px; color: #d32f2f; font-weight: 800;" />
+			</div>
+		</p:dialog>
+
+	</h:form>
+</h:body>
+</html>
