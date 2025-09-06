@@ -24,5 +24,11 @@ pipeline {
       }
     }
 
+    stage('Parallel Bulid') {
+      steps {
+        echo 'Parallel Buliding'
+      }
+    }
+
   }
 }
